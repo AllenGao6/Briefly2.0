@@ -1,10 +1,11 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { render } from "react-dom";
 import { BrowserRouter, Route, Switch, Redirect, Link } from "react-router-dom";
 import Home from "./Home";
 import About from "./About";
 import Dashboard from "./Dashboard";
 import NavBar from "./Navbar";
+import Login from "./Login";
 
 export default class App extends Component {
   constructor(props) {
@@ -15,9 +16,8 @@ export default class App extends Component {
     return (
       <BrowserRouter>
         <NavBar />
-        {this.props.name}
         <Switch>
-          <Route path="/" component={Home} />
+          <Route exact path="/" component={Home} />
           <Route path="/about-us" component={About} />
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/login" component={Login} />
