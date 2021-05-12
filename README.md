@@ -1,6 +1,11 @@
 # Briefly2.0
 
 Prerequisite: 
+
+install pipenv on your os, or any other virtual environment of your preference
+```
+pip install pipenv
+```
 To Create a virtual environment and install modules within this virtue environment
 ```
 pipenv install django djangorestframework
