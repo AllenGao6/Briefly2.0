@@ -2,6 +2,16 @@
 
 Prerequisite: 
 
+If something went wrong, you can directly delete the `npm_modules` folder and do following: 
+
+1. start your virtual environment.  If you use `pipenv`, you can run `pipenv install`, which installs all modules listed in `Pipfile`
+
+2. cd to `frontend` and run `npm install`, which will automatically install all packages listed in `packages.json`.
+
+   
+
+Or try following:
+
 install pipenv on your os, or any other virtual environment of your preference
 ```
 pip install pipenv
@@ -13,6 +23,7 @@ pipenv shell
 ```
 cd to frontend directory and run following command one by one
 make sure npm is installed on your os
+
 ```
 npm init -y
 npm i webpack webpack-cli --save-dev
@@ -34,3 +45,4 @@ In the second one:
 npm run dev
 ```
 then you are all set!!
+
