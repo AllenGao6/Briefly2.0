@@ -2,6 +2,6 @@ import React, { Component } from "react";
 
 export default class Home extends Component {
   render() {
-    return <div>Home Page</div>;
+    return <div>Home Pages</div>;
   }
 }

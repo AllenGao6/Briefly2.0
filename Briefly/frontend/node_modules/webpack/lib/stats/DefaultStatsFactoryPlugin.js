@@ -10,7 +10,6 @@ const ModuleDependency = require("../dependencies/ModuleDependency");
 const formatLocation = require("../formatLocation");
 const { LogType } = require("../logging/Logger");
 const AggressiveSplittingPlugin = require("../optimize/AggressiveSplittingPlugin");
-const ConcatenatedModule = require("../optimize/ConcatenatedModule");
 const SizeLimitsPlugin = require("../performance/SizeLimitsPlugin");
 const { countIterable } = require("../util/IterableHelpers");
 const {
@@ -1078,9 +1077,8 @@ const SIMPLE_EXTRACTORS = {
 			const { compilation, type } = context;
 			const built = compilation.builtModules.has(module);
 			const codeGenerated = compilation.codeGeneratedModules.has(module);
-			const buildTimeExecuted = compilation.buildTimeExecutedModules.has(
-				module
-			);
+			const buildTimeExecuted =
+				compilation.buildTimeExecutedModules.has(module);
 			/** @type {{[x: string]: number}} */
 			const sizes = {};
 			for (const sourceType of module.getSourceTypes()) {
@@ -1228,11 +1226,13 @@ const SIMPLE_EXTRACTORS = {
 		},
 		nestedModules: (object, module, context, options, factory) => {
 			const { type } = context;
-			if (module instanceof ConcatenatedModule) {
-				const modules = module.modules;
+			const innerModules = /** @type {Module & { modules?: Module[] }} */ (
+				module
+			).modules;
+			if (Array.isArray(innerModules)) {
 				const groupedModules = factory.create(
 					`${type.slice(0, -8)}.modules`,
-					modules,
+					innerModules,
 					context
 				);
 				const limited = spaceLimited(

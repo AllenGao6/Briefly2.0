@@ -230,6 +230,8 @@ class Compiler {
 		this.fileTimestamps = undefined;
 		/** @type {Map<string, FileSystemInfoEntry | "ignore" | null>} */
 		this.contextTimestamps = undefined;
+		/** @type {number} */
+		this.fsStartTime = undefined;
 
 		/** @type {ResolverFactory} */
 		this.resolverFactory = new ResolverFactory();
@@ -590,9 +592,8 @@ class Compiler {
 						allTargetPaths.add(targetPath);
 
 						// check if the target file has already been written by this Compiler
-						const targetFileGeneration = this._assetEmittingWrittenFiles.get(
-							targetPath
-						);
+						const targetFileGeneration =
+							this._assetEmittingWrittenFiles.get(targetPath);
 
 						// create an cache entry for this Source if not already existing
 						let cacheEntry = this._assetEmittingSourceCache.get(source);
@@ -622,7 +623,8 @@ class Compiler {
 									}
 									alreadyWritten();
 								} else {
-									const err = new WebpackError(`Prevent writing to file that only differs in casing or query string from already written file.
+									const err =
+										new WebpackError(`Prevent writing to file that only differs in casing or query string from already written file.
 This will lead to a race-condition and corrupted files on case-insensitive file systems.
 ${targetPath}
 ${other}`);
@@ -952,6 +954,7 @@ ${other}`);
 		childCompiler.removedFiles = this.removedFiles;
 		childCompiler.fileTimestamps = this.fileTimestamps;
 		childCompiler.contextTimestamps = this.contextTimestamps;
+		childCompiler.fsStartTime = this.fsStartTime;
 		childCompiler.cache = this.cache;
 		childCompiler.compilerPath = `${this.compilerPath}${compilerName}|${compilerIndex}|`;
 
