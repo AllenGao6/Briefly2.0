@@ -1,7 +1,7 @@
 
-from .views import GoogleLogin
+from .views import exchange_token
 from django.urls import path, include
 
 urlpatterns = [
-    path('google/', GoogleLogin.as_view(), name='google_login')
+    path('<backend>', exchange_token)
 ]

@@ -8,3 +8,4 @@ urlpatterns = [
     path('dashboard', index),
     path('home', index),
 ]
+

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -45,12 +46,8 @@ INSTALLED_APPS = [
      'rest_auth',
     #for social login
     'corsheaders',
-     'django.contrib.sites',
-     'allauth',
-     'allauth.account',
-     'rest_auth.registration',
-     'allauth.socialaccount',
-     'allauth.socialaccount.providers.google',
+    'django.contrib.sites',
+    'social_django',
 
 ]
 
@@ -96,14 +93,6 @@ DATABASES = {
     }
 }
 
-AUTHENTICATION_BACKENDS = [
-    # Needed to login by username in Django admin, regardless of `allauth`
-    'django.contrib.auth.backends.ModelBackend',
-
-    # `allauth` specific authentication methods, such as login by e-mail
-    'allauth.account.auth_backends.AuthenticationBackend',
-]
-
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
@@ -137,23 +126,28 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.1/howto/static-files/
-
+#social login below
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, '/static/')
 
-SITE_ID = 2
-LOGIN_REDIRECT_URL = '/'
-CORS_ORIGIN_ALLOW_ALL = True
 
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'SCOPE': [
-            'profile',
-            'email',
-        ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
-        }
-    }
-}
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY='372223287259-nit3rukskraic3obnog1v3n3mpqn3ab7.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET='9D4XTwlkDCjtSqeGAEnSm5os'
+
+
+SOCIAL_AUTH_PIPELINE = (
+  'social_core.pipeline.social_auth.social_details',
+  'social_core.pipeline.social_auth.social_uid',
+  'social_core.pipeline.social_auth.auth_allowed',
+  'social_core.pipeline.social_auth.social_user',
+  'social_core.pipeline.user.get_username',
+  'social_core.pipeline.social_auth.associate_by_email',
+  'social_core.pipeline.user.create_user',
+  'social_core.pipeline.social_auth.associate_user',
+  'social_core.pipeline.social_auth.load_extra_data',
+  'social_core.pipeline.user.user_details',
+)
