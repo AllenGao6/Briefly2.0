@@ -23,6 +23,7 @@ import {
   ClickAwayListener,
   Typography,
   Grid,
+  Hidden,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import AccountCircle from "@material-ui/icons/AccountCircle";
@@ -36,9 +37,11 @@ import IconTextButton from "./IconTextButton";
 
 const useStyles = makeStyles((theme) => ({
   logo: {
-    height: "6rem",
+    height: "5rem",
   },
-  logoContainer: {},
+  logoContainer: {
+    paddingLeft: 0,
+  },
   tab: {
     ...theme.typography.tab,
     padding: 0,
@@ -50,12 +53,21 @@ const useStyles = makeStyles((theme) => ({
   },
   loginButton: {
     ...theme.typography.roundedButton,
-    marginTop: 7, // visually align tabs and button vertically
+    marginTop: 3, // visually align tabs and button vertically
   },
   avatar: { color: "white", width: 50, height: 50, marginTop: 5 },
   specialText: {
     color: theme.palette.common.blue,
     fontWeight: 800,
+  },
+  toolbar: {
+    width: 1600,
+    [theme.breakpoints.down("sm")]: {
+      width: 1000,
+    },
+    [theme.breakpoints.down("xs")]: {
+      width: "inherit",
+    },
   },
 }));
 
@@ -76,12 +88,13 @@ export default function LandingHeader() {
   // styling utilities
   const classes = useStyles();
   const theme = useTheme();
+  const matchesMD = useMediaQuery(theme.breakpoints.down("md"));
 
   // define states
   const [tabValue, setTabValue] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
   const [openMenu, setOpenMenu] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null); // make sure to set user after login
 
   // json array of objects used for mapping
   const tabs = [
@@ -94,14 +107,14 @@ export default function LandingHeader() {
 
   const accountMenus = [
     {
-      icon: <AccountBoxOutlinedIcon style={{ fontSize: "2rem" }} />,
+      icon: <AccountBoxOutlinedIcon style={{ fontSize: "1.5rem" }} />,
       label: "My Profile",
       color: "black",
       backgroundColor: "white",
       onClick: () => console.log("profile"),
     },
     {
-      icon: <DashboardOutlinedIcon style={{ fontSize: "2rem" }} />,
+      icon: <DashboardOutlinedIcon style={{ fontSize: "1.5rem" }} />,
       label: "Dashboard",
       color: "black",
       backgroundColor: "white",
@@ -109,7 +122,7 @@ export default function LandingHeader() {
     },
     {
       icon: (
-        <ExitToAppOutlinedIcon style={{ fontSize: "2rem", color: "white" }} />
+        <ExitToAppOutlinedIcon style={{ fontSize: "1.5rem", color: "white" }} />
       ),
       label: "Logout",
       color: "white",
@@ -120,6 +133,7 @@ export default function LandingHeader() {
 
   // functions
   const handleSocialLogin = () => {
+    // TODO: Implement backend call
     console.log("Processing Login");
     setUser({ name: "Toubat" });
   };
@@ -149,12 +163,16 @@ export default function LandingHeader() {
     <Grid
       container
       direction="column"
-      style={{ padding: "1rem", background: theme.palette.common.darkWhite }}
+      style={{
+        padding: "1rem",
+        background: theme.palette.common.darkWhite,
+        borderRadius: 10,
+      }}
     >
       <Grid
         item
         container
-        style={{ marginBottom: "1.5rem" }}
+        style={{ marginBottom: "1.25rem" }}
         spacing={1}
         justify="center"
       >
@@ -172,7 +190,7 @@ export default function LandingHeader() {
       {accountMenus.map((menu) => (
         <React.Fragment>
           {menu.label === "Logout" ? (
-            <div style={{ marginTop: "2rem" }} />
+            <div style={{ marginTop: "1.25rem" }} />
           ) : undefined}
           <IconTextButton
             icon={menu.icon}
@@ -203,29 +221,54 @@ export default function LandingHeader() {
   return (
     <React.Fragment>
       <AppBar>
-        <Toolbar disableGutters>
-          <Button className={classes.logoContainer} component={Link} to="/">
-            <img src={logo} alt="briefly logo" className={classes.logo} />
-          </Button>
-          <Tabs
-            value={tabValue}
-            onChange={(event, value) => setTabValue(value)}
-            indicatorColor="secondary"
-            className={classes.tabContainer}
-          >
-            {tabs.map((tab, i) => (
-              <Tab
-                key={tab.name}
-                component={Link}
-                className={classes.tab}
-                to={tab.link}
-                label={tab.name}
-                disableRipple
-              ></Tab>
-            ))}
-          </Tabs>
-          {user ? profileMenu : loginButton}
-        </Toolbar>
+        <Grid container justify="center" alignItems="center">
+          <Grid item>
+            <Toolbar disableGutters className={classes.toolbar}>
+              <Grid
+                item
+                container
+                justify={matchesMD ? "space-evenly" : "center"}
+                alignItems="center"
+              >
+                <Grid item>
+                  <Button
+                    className={classes.logoContainer}
+                    component={Link}
+                    to="/"
+                  >
+                    <img
+                      src={logo}
+                      alt="briefly logo"
+                      className={classes.logo}
+                    />
+                  </Button>
+                </Grid>
+                <Hidden mdDown>
+                  <Grid item>
+                    <Tabs
+                      value={tabValue}
+                      onChange={(event, value) => setTabValue(value)}
+                      indicatorColor="secondary"
+                      className={classes.tabContainer}
+                    >
+                      {tabs.map((tab, i) => (
+                        <Tab
+                          key={tab.name}
+                          component={Link}
+                          className={classes.tab}
+                          to={tab.link}
+                          label={tab.name}
+                          disableRipple
+                        ></Tab>
+                      ))}
+                    </Tabs>
+                  </Grid>
+                </Hidden>
+                <Grid item>{user ? profileMenu : loginButton}</Grid>
+              </Grid>
+            </Toolbar>
+          </Grid>
+        </Grid>
       </AppBar>
     </React.Fragment>
   );
