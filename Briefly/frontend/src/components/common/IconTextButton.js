@@ -1,6 +1,13 @@
 import React from "react";
 import { Button, Paper, Typography, Grid } from "@material-ui/core";
 import AccountBoxOutlinedIcon from "@material-ui/icons/AccountBoxOutlined";
+import { makeStyles } from "@material-ui/styles";
+
+const useStyles = makeStyles((theme) => ({
+  container: {
+    marginBottom: 5,
+  },
+}));
 
 export default function IconTextButton({
   icon,
@@ -9,12 +16,16 @@ export default function IconTextButton({
   backgroundColor,
   onClick,
 }) {
+  const classes = useStyles();
+
   return (
     <Paper
       elevation={2}
       component={Button}
-      style={{ marginBottom: 5, background: backgroundColor }}
+      cl
+      classes={{ root: classes.container }}
       onClick={onClick}
+      style={{ background: backgroundColor }}
     >
       <Grid
         item

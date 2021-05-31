@@ -89,6 +89,10 @@ export default function LandingHeader() {
   const classes = useStyles();
   const theme = useTheme();
   const matchesMD = useMediaQuery(theme.breakpoints.down("md"));
+  const trigger = useScrollTrigger({
+    disableHysteresis: false,
+    threshold: 100,
+  });
 
   // define states
   const [tabValue, setTabValue] = useState(0);
@@ -220,56 +224,58 @@ export default function LandingHeader() {
 
   return (
     <React.Fragment>
-      <AppBar>
-        <Grid container justify="center" alignItems="center">
-          <Grid item>
-            <Toolbar disableGutters className={classes.toolbar}>
-              <Grid
-                item
-                container
-                justify={matchesMD ? "space-evenly" : "center"}
-                alignItems="center"
-              >
-                <Grid item>
-                  <Button
-                    className={classes.logoContainer}
-                    component={Link}
-                    to="/"
-                  >
-                    <img
-                      src={logo}
-                      alt="briefly logo"
-                      className={classes.logo}
-                    />
-                  </Button>
-                </Grid>
-                <Hidden mdDown>
+      <ElevationScroll>
+        <AppBar>
+          <Grid container justify="center" alignItems="center">
+            <Grid item>
+              <Toolbar disableGutters className={classes.toolbar}>
+                <Grid
+                  item
+                  container
+                  justify={matchesMD ? "space-evenly" : "center"}
+                  alignItems="center"
+                >
                   <Grid item>
-                    <Tabs
-                      value={tabValue}
-                      onChange={(event, value) => setTabValue(value)}
-                      indicatorColor="secondary"
-                      className={classes.tabContainer}
+                    <Button
+                      className={classes.logoContainer}
+                      component={Link}
+                      to="/"
                     >
-                      {tabs.map((tab, i) => (
-                        <Tab
-                          key={tab.name}
-                          component={Link}
-                          className={classes.tab}
-                          to={tab.link}
-                          label={tab.name}
-                          disableRipple
-                        ></Tab>
-                      ))}
-                    </Tabs>
+                      <img
+                        src={logo}
+                        alt="briefly logo"
+                        className={classes.logo}
+                      />
+                    </Button>
                   </Grid>
-                </Hidden>
-                <Grid item>{user ? profileMenu : loginButton}</Grid>
-              </Grid>
-            </Toolbar>
+                  <Hidden mdDown>
+                    <Grid item>
+                      <Tabs
+                        value={tabValue}
+                        onChange={(event, value) => setTabValue(value)}
+                        indicatorColor="secondary"
+                        className={classes.tabContainer}
+                      >
+                        {tabs.map((tab, i) => (
+                          <Tab
+                            key={tab.name}
+                            component={Link}
+                            className={classes.tab}
+                            to={tab.link}
+                            label={tab.name}
+                            disableRipple
+                          ></Tab>
+                        ))}
+                      </Tabs>
+                    </Grid>
+                  </Hidden>
+                  <Grid item>{user ? profileMenu : loginButton}</Grid>
+                </Grid>
+              </Toolbar>
+            </Grid>
           </Grid>
-        </Grid>
-      </AppBar>
+        </AppBar>
+      </ElevationScroll>
     </React.Fragment>
   );
 }
