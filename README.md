@@ -33,6 +33,8 @@ npm install @babel/plugin-proposal-class-properties
 npm install react-router-dom
 npm install @material-ui/icons
 npm install @material-ui/styles
+
+npm install --save file-loader url-loader
 ```
 To run the code, open two shell prompts:
 In the first one:
