@@ -40,6 +40,7 @@ export default function IconTextButton({
           minWidth: 200,
         }}
         justify="center"
+        alignItems="center"
       >
         <Grid item style={{ marginRight: "1.25rem" }}>
           {icon}
