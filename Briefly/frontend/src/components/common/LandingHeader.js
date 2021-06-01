@@ -24,6 +24,8 @@ import {
   Typography,
   Grid,
   Hidden,
+  Dialog,
+  DialogContent,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import AccountCircle from "@material-ui/icons/AccountCircle";
@@ -31,7 +33,7 @@ import AccountBoxOutlinedIcon from "@material-ui/icons/AccountBoxOutlined";
 import DashboardOutlinedIcon from "@material-ui/icons/DashboardOutlined";
 import ExitToAppOutlinedIcon from "@material-ui/icons/ExitToAppOutlined";
 import logo from "../../assets/logo/png/colorLogo.png";
-
+import googleIcon from "../../assets/google/googleIcon.svg";
 import MenuPopper from "./MenuPopper";
 import IconTextButton from "./IconTextButton";
 
@@ -71,6 +73,13 @@ const useStyles = makeStyles((theme) => ({
       width: "inherit",
     },
   },
+  googleLogin: {
+    height: "4rem",
+    width: "20rem",
+    fontSize: "1.5rem",
+    textTransform: "none",
+    background: "white",
+  },
 }));
 
 function ElevationScroll(props) {
@@ -100,6 +109,7 @@ export default function LandingHeader() {
   const [tabValue, setTabValue] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
   const [openMenu, setOpenMenu] = useState(false);
+  const [openLoginDialog, setOpenLoginDiaog] = useState(false);
   const [user, setUser] = useState(null); // make sure to set user after login
 
   // json array of objects used for mapping
@@ -137,7 +147,7 @@ export default function LandingHeader() {
     },
   ];
 
-
+  // functions
   const handleClick = (e) => {
     setAnchorEl(e.currentTarget);
     setOpenMenu(true);
@@ -149,9 +159,6 @@ export default function LandingHeader() {
   };
 
   const handleSocialLogin = (response) => {
-    console.log("Processing Login");
-    setUser({ name: "Toubat" });
-
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -161,31 +168,60 @@ export default function LandingHeader() {
     };
     fetch("auth/google-oauth2/", requestOptions)
       .then((response) => response.json())
-      .then((data) => {console.log(data); 
-        setUser({ name: data.firstname + data.lastname });});
+      .then((data) => {
+        console.log(data);
+        setUser({ name: data.firstname + data.lastname });
+        setOpenMenu(false);
+        setOpenLoginDiaog(false);
+      });
   };
 
   const handleSocialLoginFailure = (err) => {
     console.log(err);
   };
 
+  const logout = () => {
+    console.log("logged out");
+    setUser(null);
+  };
 
   // jsx components
-  const loginButton = (
-    <GoogleLogin
-        client_id="372223287259-nit3rukskraic3obnog1v3n3mpqn3ab7.apps.googleusercontent.com"
-        buttonText="Login with Google"
-        onSuccess={handleSocialLogin}
-        onFailure={handleSocialLoginFailure}
-        cookiePolicy={"single_host_origin"}
-        isSignedIn={true}
-      />
-  );
 
-    const logout = () =>{
-      console.log("logged out");
-      setUser( null );
-    }
+  const loginButton = (
+    <Button
+      variant="outlined"
+      className={classes.loginButton}
+      onClick={() => setOpenLoginDiaog(true)}
+    >
+      Login
+    </Button>
+  );
+  const googleLogin = (
+    <GoogleLogin
+      client_id="372223287259-nit3rukskraic3obnog1v3n3mpqn3ab7.apps.googleusercontent.com"
+      buttonText="Login with Google"
+      onSuccess={handleSocialLogin}
+      onFailure={handleSocialLoginFailure}
+      cookiePolicy={"single_host_origin"}
+      isSignedIn={true}
+      render={(renderProps) => (
+        <Button
+          variant="contained"
+          className={classes.googleLogin}
+          disabled={renderProps.disabled}
+          onClick={renderProps.onClick}
+          elevation={5}
+        >
+          <img
+            src={googleIcon}
+            alt="google login"
+            style={{ height: "2rem", marginRight: "1.5rem" }}
+          />
+          Login with Google
+        </Button>
+      )}
+    />
+  );
 
   const accountDetails = (
     <Grid
@@ -220,21 +256,30 @@ export default function LandingHeader() {
           {menu.label === "Logout" ? (
             <div style={{ marginTop: "1.25rem" }} />
           ) : undefined}
-          {menu.label === "Logout" ? 
-           <GoogleLogout
-           clientId="372223287259-nit3rukskraic3obnog1v3n3mpqn3ab7.apps.googleusercontent.com"
-           buttonText="Sign Out"
-           onLogoutSuccess={logout}
-         >
-         </GoogleLogout>
-         :
-          <IconTextButton
-            icon={menu.icon}
-            label={menu.label}
-            color={menu.color}
-            backgroundColor={menu.backgroundColor}
-            onClick={menu.onClick}
-          />}
+          {menu.label === "Logout" ? (
+            <GoogleLogout
+              clientId="372223287259-nit3rukskraic3obnog1v3n3mpqn3ab7.apps.googleusercontent.com"
+              buttonText="Sign Out"
+              onLogoutSuccess={logout}
+              render={(renderProps) => (
+                <IconTextButton
+                  icon={menu.icon}
+                  label={menu.label}
+                  color={menu.color}
+                  backgroundColor={menu.backgroundColor}
+                  onClick={renderProps.onClick}
+                />
+              )}
+            ></GoogleLogout>
+          ) : (
+            <IconTextButton
+              icon={menu.icon}
+              label={menu.label}
+              color={menu.color}
+              backgroundColor={menu.backgroundColor}
+              onClick={menu.onClick}
+            />
+          )}
         </React.Fragment>
       ))}
     </Grid>
@@ -308,6 +353,22 @@ export default function LandingHeader() {
           </Grid>
         </AppBar>
       </ElevationScroll>
+      <Dialog
+        style={{ zIndex: 1302 }}
+        open={openLoginDialog}
+        onClose={() => setOpenLoginDiaog(false)}
+      >
+        <DialogContent style={{ padding: 20 }}>
+          <Grid container direction="column">
+            <Grid item style={{ marginBottom: "2.5rem" }}>
+              <Typography variant="h3">Select Signin Options</Typography>
+            </Grid>
+            <Grid item container justify="center">
+              <Grid item>{googleLogin}</Grid>
+            </Grid>
+          </Grid>
+        </DialogContent>
+      </Dialog>
     </React.Fragment>
   );
 }
