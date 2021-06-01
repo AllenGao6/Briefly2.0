@@ -172,14 +172,16 @@ export default function LandingHeader() {
 
   // jsx components
   const loginButton = (
-    <GoogleLogin
-        client_id="372223287259-nit3rukskraic3obnog1v3n3mpqn3ab7.apps.googleusercontent.com"
-        buttonText="Login with Google"
-        onSuccess={handleSocialLogin}
-        onFailure={handleSocialLoginFailure}
-        cookiePolicy={"single_host_origin"}
-        isSignedIn={true}
-      />
+    <Button variant="outlined" color="primary">
+      <GoogleLogin
+          client_id="372223287259-nit3rukskraic3obnog1v3n3mpqn3ab7.apps.googleusercontent.com"
+          buttonText="Login with Google"
+          onSuccess={handleSocialLogin}
+          onFailure={handleSocialLoginFailure}
+          cookiePolicy={"single_host_origin"}
+          isSignedIn={true}
+        />
+    </Button>
   );
 
     const logout = () =>{
@@ -288,15 +290,14 @@ export default function LandingHeader() {
                         indicatorColor="secondary"
                         className={classes.tabContainer}
                       >
-                        {tabs.map((tab, i) => (
+                        {tabs.map((tab, i) => ( 
                           <Tab
                             key={tab.name}
                             component={Link}
                             className={classes.tab}
                             to={tab.link}
                             label={tab.name}
-                            disableRipple
-                          ></Tab>
+                            disableRipple></Tab>
                         ))}
                       </Tabs>
                     </Grid>
