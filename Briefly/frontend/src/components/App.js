@@ -8,11 +8,9 @@ import {
   Link,
   useHistory,
 } from "react-router-dom";
-import Home from "./Home";
-import About from "./About";
-import Dashboard from "./Dashboard";
-import NavBar from "./Navbar";
+import Dashboard from "./pages/Dashboard";
 import Login from "./Login";
+import Profile from "./pages/Profile";
 //ui interface module
 import theme from "./Theme";
 import { ThemeProvider } from "@material-ui/styles";
@@ -45,8 +43,13 @@ class App extends Component {
     super(props);
     this.state = {
       pagenumer: 0,
+      user: null,
     };
   }
+
+  setUser = (user) => {
+    this.setState({ user });
+  };
 
   handleSocialLogin = (response) => {
     console.log(response.accessToken);
@@ -126,8 +129,18 @@ class App extends Component {
       <ThemeProvider theme={theme}>
         <BrowserRouter>
           <Switch>
-            <Route exact path="/" component={LandingPage} />
-            <Route path="/about-us" component={About} />
+            <Route
+              exact
+              path="/"
+              render={(props) => (
+                <LandingPage
+                  {...props}
+                  user={this.state.user}
+                  setUser={this.setUser}
+                />
+              )}
+            />
+            <Route path="/profile" component={Profile} />
             <Route path="/dashboard" component={Dashboard} />
             <Route path="/login" component={Login} />
           </Switch>

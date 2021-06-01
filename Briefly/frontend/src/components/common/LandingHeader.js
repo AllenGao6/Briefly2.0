@@ -26,12 +26,20 @@ import {
   Hidden,
   Dialog,
   DialogContent,
+  ListItemIcon,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import AccountBoxOutlinedIcon from "@material-ui/icons/AccountBoxOutlined";
 import DashboardOutlinedIcon from "@material-ui/icons/DashboardOutlined";
 import ExitToAppOutlinedIcon from "@material-ui/icons/ExitToAppOutlined";
+import MenuIcon from "@material-ui/icons/Menu";
+import IntroIcon from "@material-ui/icons/ImportContactsOutlined";
+import DemoIcon from "@material-ui/icons/MovieOutlined";
+import TeamIcon from "@material-ui/icons/GroupOutlined";
+import AboutIcon from "@material-ui/icons/BusinessOutlined";
+import MoreIcon from "@material-ui/icons/MoreHorizOutlined";
+
 import logo from "../../assets/logo/png/colorLogo.png";
 import googleIcon from "../../assets/google/googleIcon.svg";
 import MenuPopper from "./MenuPopper";
@@ -44,7 +52,7 @@ const useStyles = makeStyles((theme) => ({
     height: "5rem",
   },
   logoContainer: {
-    paddingLeft: 0,
+    paddingRight: 0,
   },
   tab: {
     ...theme.typography.tab,
@@ -66,6 +74,9 @@ const useStyles = makeStyles((theme) => ({
   },
   toolbar: {
     width: 1600,
+    [theme.breakpoints.down("md")]: {
+      width: 1000,
+    },
     [theme.breakpoints.down("sm")]: {
       width: 1000,
     },
@@ -79,6 +90,35 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "1.5rem",
     textTransform: "none",
     background: "white",
+  },
+  sideNavbar: {
+    background: theme.palette.primary.main,
+  },
+  menuIconContainer: {
+    "&:hover": {
+      background: "transparent",
+    },
+  },
+  menuIcon: {
+    height: "3.5rem",
+    width: "3.5rem",
+    color: theme.palette.secondary.main,
+  },
+  menuListContainer: {
+    minWidth: 300,
+  },
+  listItemText: {
+    opacity: 0.7,
+    color: "white",
+    fontSize: "1.35rem",
+    "&:hover": {
+      opacity: 1,
+    },
+  },
+  tabIcon: {
+    color: "white",
+    marginRight: "-0.5rem",
+    marginLeft: "3rem",
   },
 }));
 
@@ -95,7 +135,7 @@ function ElevationScroll(props) {
   });
 }
 
-export default function LandingHeader() {
+export default function LandingHeader({ history, user, setUser }) {
   // styling utilities
   const classes = useStyles();
   const theme = useTheme();
@@ -110,15 +150,17 @@ export default function LandingHeader() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [openMenu, setOpenMenu] = useState(false);
   const [openLoginDialog, setOpenLoginDiaog] = useState(false);
-  const [user, setUser] = useState(null); // make sure to set user after login
+  const [openSideNavbar, setOpenSideNavbar] = useState(false);
+  // user state is lifted to App.js to maintain login status across pages
+  // const [user, setUser] = useState(null);
 
   // json array of objects used for mapping
   const tabs = [
-    { name: "Introducion", link: "/" },
-    { name: "Demo", link: "/" },
-    { name: "Team", link: "/" },
-    { name: "About Us", link: "/" },
-    { name: "More ...", link: "/" },
+    { name: "Introduction", link: "/", icon: <IntroIcon /> },
+    { name: "Demo", link: "/", icon: <DemoIcon /> },
+    { name: "Team", link: "/", icon: <TeamIcon /> },
+    { name: "About Us", link: "/", icon: <AboutIcon /> },
+    { name: "More ...", link: "/", icon: <MoreIcon /> },
   ];
 
   const accountMenus = [
@@ -127,14 +169,14 @@ export default function LandingHeader() {
       label: "My Profile",
       color: "black",
       backgroundColor: "white",
-      onClick: () => console.log("profile"),
+      onClick: () => history.push("/profile"),
     },
     {
       icon: <DashboardOutlinedIcon style={{ fontSize: "1.5rem" }} />,
       label: "Dashboard",
       color: "black",
       backgroundColor: "white",
-      onClick: () => console.log("dashboard"),
+      onClick: () => history.push("/dashboard"),
     },
     {
       icon: (
@@ -299,6 +341,64 @@ export default function LandingHeader() {
     </React.Fragment>
   );
 
+  const loginDialog = (
+    <Dialog
+      style={{ zIndex: 1302 }}
+      open={openLoginDialog}
+      onClose={() => setOpenLoginDiaog(false)}
+    >
+      <DialogContent style={{ padding: 20 }}>
+        <Grid container direction="column">
+          <Grid item style={{ marginBottom: "2.5rem" }}>
+            <Typography variant="h3">Select Signin Options</Typography>
+          </Grid>
+          <Grid item container justify="center">
+            <Grid item>{googleLogin}</Grid>
+          </Grid>
+        </Grid>
+      </DialogContent>
+    </Dialog>
+  );
+
+  const sideNavbar = (
+    <React.Fragment>
+      <IconButton
+        className={classes.menuIconContainer}
+        onClick={() => setOpenSideNavbar(!openSideNavbar)}
+        disableRipple
+      >
+        <MenuIcon className={classes.menuIcon} />
+      </IconButton>
+      <SwipeableDrawer
+        open={openSideNavbar}
+        onClose={() => setOpenSideNavbar(false)}
+        onOpen={() => setOpenSideNavbar(true)}
+        classes={{ paper: classes.sideNavbar }}
+      >
+        <List className={classes.menuListContainer}>
+          {tabs.map((tab, i) => (
+            <ListItem
+              key={`ListItem-${tab}`}
+              onClick={() => setOpenSideNavbar(false)}
+              divider
+              button
+              style={{ height: "5rem" }}
+            >
+              <ListItemIcon className={classes.tabIcon}>
+                {tab.icon}
+              </ListItemIcon>
+              <ListItemText disableTypography>
+                <Typography variant="tab" className={classes.listItemText}>
+                  {tab.name}
+                </Typography>
+              </ListItemText>
+            </ListItem>
+          ))}
+        </List>
+      </SwipeableDrawer>
+    </React.Fragment>
+  );
+
   return (
     <React.Fragment>
       <ElevationScroll>
@@ -312,6 +412,9 @@ export default function LandingHeader() {
                   justify={matchesMD ? "space-evenly" : "center"}
                   alignItems="center"
                 >
+                  <Hidden lgUp>
+                    <Grid item>{sideNavbar}</Grid>
+                  </Hidden>
                   <Grid item>
                     <Button
                       className={classes.logoContainer}
@@ -353,22 +456,7 @@ export default function LandingHeader() {
           </Grid>
         </AppBar>
       </ElevationScroll>
-      <Dialog
-        style={{ zIndex: 1302 }}
-        open={openLoginDialog}
-        onClose={() => setOpenLoginDiaog(false)}
-      >
-        <DialogContent style={{ padding: 20 }}>
-          <Grid container direction="column">
-            <Grid item style={{ marginBottom: "2.5rem" }}>
-              <Typography variant="h3">Select Signin Options</Typography>
-            </Grid>
-            <Grid item container justify="center">
-              <Grid item>{googleLogin}</Grid>
-            </Grid>
-          </Grid>
-        </DialogContent>
-      </Dialog>
+      {loginDialog}
     </React.Fragment>
   );
 }

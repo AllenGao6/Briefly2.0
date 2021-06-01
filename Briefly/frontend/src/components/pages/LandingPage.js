@@ -39,14 +39,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function LandingPage() {
+export default function LandingPage(props) {
   const classes = useStyles();
   const theme = useTheme();
   const matchesMD = useMediaQuery(theme.breakpoints.down("md"));
 
   return (
     <React.Fragment>
-      <LandingHeader />
+      <LandingHeader {...props} />
       <Grid
         container
         className={classes.heroContainer}
