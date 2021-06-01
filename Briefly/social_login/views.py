@@ -11,6 +11,8 @@ from requests.exceptions import HTTPError
 
 from social_django.utils import psa
 
+from .models import UserProfile
+
 
 class SocialSerializer(serializers.Serializer):
     """
@@ -35,14 +37,9 @@ def exchange_token(request, backend):
             nfe = 'non_field_errors'
 
         try:
-            # this line, plus the psa decorator above, are all that's necessary to
-            # get and populate a user object for any properly enabled/configured backend
-            # which python-social-auth can handle.
             user = request.backend.do_auth(serializer.validated_data['access_token'])
         except HTTPError as e:
-            # An HTTPError bubbled up from the request to the social auth provider.
-            # This happens, at least in Google's case, every time you send a malformed
-            # or incorrect access key.
+ 
             return Response(
                 {'errors': {
                     'token': 'Invalid token',
@@ -54,7 +51,12 @@ def exchange_token(request, backend):
         if user:
             if user.is_active:
                 token, _ = Token.objects.get_or_create(user=user)
-                return Response({'token': token.key})
+                #Uerprofile is automaticlly created
+                userProfile = UserProfile.objects.filter(user=user.id)[0]
+                userProfile.is_signed_in = True
+                userProfile.save()
+
+                return Response({'token': token.key, 'firstname': user.first_name, 'lastname': user.last_name, 'email': user.email})
             else:
                 return Response(
                     {'errors': {nfe: 'This user account is inactive'}},

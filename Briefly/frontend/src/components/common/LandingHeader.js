@@ -35,6 +35,8 @@ import logo from "../../assets/logo/png/colorLogo.png";
 import MenuPopper from "./MenuPopper";
 import IconTextButton from "./IconTextButton";
 
+import { GoogleLogin, GoogleLogout } from "react-google-login";
+
 const useStyles = makeStyles((theme) => ({
   logo: {
     height: "5rem",
@@ -135,12 +137,6 @@ export default function LandingHeader() {
     },
   ];
 
-  // functions
-  const handleSocialLogin = () => {
-    // TODO: Implement backend call
-    console.log("Processing Login");
-    setUser({ name: "Toubat" });
-  };
 
   const handleClick = (e) => {
     setAnchorEl(e.currentTarget);
@@ -152,16 +148,44 @@ export default function LandingHeader() {
     setOpenMenu(false);
   };
 
+  const handleSocialLogin = (response) => {
+    console.log("Processing Login");
+    setUser({ name: "Toubat" });
+
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        access_token: response.accessToken,
+      }),
+    };
+    fetch("auth/google-oauth2/", requestOptions)
+      .then((response) => response.json())
+      .then((data) => {console.log(data); 
+        setUser({ name: data.firstname + data.lastname });});
+  };
+
+  const handleSocialLoginFailure = (err) => {
+    console.log(err);
+  };
+
+
   // jsx components
   const loginButton = (
-    <Button
-      variant="outlined"
-      className={classes.loginButton}
-      onClick={handleSocialLogin}
-    >
-      Login
-    </Button>
+    <GoogleLogin
+        client_id="372223287259-nit3rukskraic3obnog1v3n3mpqn3ab7.apps.googleusercontent.com"
+        buttonText="Login with Google"
+        onSuccess={handleSocialLogin}
+        onFailure={handleSocialLoginFailure}
+        cookiePolicy={"single_host_origin"}
+        isSignedIn={true}
+      />
   );
+
+    const logout = () =>{
+      console.log("logged out");
+      setUser( null );
+    }
 
   const accountDetails = (
     <Grid
@@ -196,13 +220,21 @@ export default function LandingHeader() {
           {menu.label === "Logout" ? (
             <div style={{ marginTop: "1.25rem" }} />
           ) : undefined}
+          {menu.label === "Logout" ? 
+           <GoogleLogout
+           clientId="372223287259-nit3rukskraic3obnog1v3n3mpqn3ab7.apps.googleusercontent.com"
+           buttonText="Sign Out"
+           onLogoutSuccess={logout}
+         >
+         </GoogleLogout>
+         :
           <IconTextButton
             icon={menu.icon}
             label={menu.label}
             color={menu.color}
             backgroundColor={menu.backgroundColor}
             onClick={menu.onClick}
-          />
+          />}
         </React.Fragment>
       ))}
     </Grid>
