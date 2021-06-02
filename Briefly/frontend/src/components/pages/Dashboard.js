@@ -24,6 +24,7 @@ import {
   Avatar,
 } from "@material-ui/core";
 import DashboardBar from "../common/DashboardBar";
+import NestedGrid from '../common/CollectionGrid'
 
 // User View
 const useStyles = makeStyles((theme) => ({}));
@@ -42,6 +43,7 @@ export default function Dashboard(props) {
   return (
     <React.Fragment>
       <DashboardBar {...props} />
+      <NestedGrid />
     </React.Fragment>
   );
 }
