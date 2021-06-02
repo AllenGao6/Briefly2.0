@@ -157,11 +157,6 @@ export default function DashboardBar({ history, user, setUser, switchTheme }) {
   const theme = useTheme();
   const matchesMD = useMediaQuery(theme.breakpoints.down("md"));
   const matchesDark = theme.palette.type === "dark";
-  const trigger = useScrollTrigger({
-    disableHysteresis: false,
-    threshold: 100,
-  });
-  // user = { name: "Boquan Yin" };
 
   // define states
   const [tabValue, setTabValue] = useState(0);

@@ -73,6 +73,7 @@ const useStyles = makeStyles((theme) => ({
   accountAvatar: {
     height: 50,
     width: 50,
+    color: "white",
     background: theme.palette.secondary.main,
     "&:hover": {
       background: theme.palette.secondary.light,
@@ -142,6 +143,7 @@ export default function LandingHeader({ history, user, setUser }) {
   const classes = useStyles();
   const theme = useTheme();
   const matchesMD = useMediaQuery(theme.breakpoints.down("md"));
+  const matchesDark = theme.palette.type === "dark";
   const trigger = useScrollTrigger({
     disableHysteresis: false,
     threshold: 100,
@@ -167,22 +169,35 @@ export default function LandingHeader({ history, user, setUser }) {
 
   const accountMenus = [
     {
-      icon: <AccountBoxOutlinedIcon style={{ fontSize: "1.5rem" }} />,
+      icon: (
+        <AccountBoxOutlinedIcon
+          style={{ fontSize: "1.5rem", color: matchesDark ? "white" : "black" }}
+        />
+      ),
       label: "My Profile",
-      color: "black",
-      backgroundColor: "white",
+      color: matchesDark ? "white" : "black",
+      backgroundColor: matchesDark ? theme.palette.primary.main : "white",
       onClick: () => history.push("/profile"),
     },
     {
-      icon: <DashboardOutlinedIcon style={{ fontSize: "1.5rem" }} />,
+      icon: (
+        <DashboardOutlinedIcon
+          style={{ fontSize: "1.5rem", color: matchesDark ? "white" : "black" }}
+        />
+      ),
       label: "Dashboard",
-      color: "black",
-      backgroundColor: "white",
+      color: matchesDark ? "white" : "black",
+      backgroundColor: matchesDark ? theme.palette.primary.main : "white",
       onClick: () => history.push("/dashboard"),
     },
     {
       icon: (
-        <ExitToAppOutlinedIcon style={{ fontSize: "1.5rem", color: "white" }} />
+        <ExitToAppOutlinedIcon
+          style={{
+            fontSize: "1.5rem",
+            color: "white",
+          }}
+        />
       ),
       label: "Logout",
       color: "white",

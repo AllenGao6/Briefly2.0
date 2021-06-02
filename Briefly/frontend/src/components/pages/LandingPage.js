@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Grid, Typography, useMediaQuery } from "@material-ui/core";
 import LandingHeader from "../common/LandingHeader";
 import { makeStyles, useTheme } from "@material-ui/styles";
@@ -43,6 +43,12 @@ export default function LandingPage(props) {
   const classes = useStyles();
   const theme = useTheme();
   const matchesMD = useMediaQuery(theme.breakpoints.down("md"));
+
+  useEffect(() => {
+    if (theme.palette.type === "dark") {
+      props.switchTheme();
+    }
+  }, [theme]);
 
   return (
     <React.Fragment>
