@@ -21,6 +21,7 @@ const theme = createMuiTheme({
       green: briefGreen,
       grey: briefGrey,
       darkWhite: briefWhite,
+      icon: "white",
     },
     primary: {
       main: briefBlue,
@@ -75,7 +76,7 @@ const theme = createMuiTheme({
     },
     h4: {
       fontFamily: "Raleway",
-      fontSize: "1.75rem",
+      fontSize: "1.5rem",
       fontWeight: 500,
       color: "black",
     },

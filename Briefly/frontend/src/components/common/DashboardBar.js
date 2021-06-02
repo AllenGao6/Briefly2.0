@@ -19,12 +19,14 @@ import {
   Hidden,
   Dialog,
   DialogContent,
+  TextField,
+  InputAdornment,
   ListItemIcon,
   Avatar,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
-import AccountCircle from "@material-ui/icons/AccountCircle";
 import AccountBoxOutlinedIcon from "@material-ui/icons/AccountBoxOutlined";
+import HomeOutlinedIcon from "@material-ui/icons/HomeOutlined";
 import DashboardOutlinedIcon from "@material-ui/icons/DashboardOutlined";
 import ExitToAppOutlinedIcon from "@material-ui/icons/ExitToAppOutlined";
 import MenuIcon from "@material-ui/icons/Menu";
@@ -33,17 +35,24 @@ import DemoIcon from "@material-ui/icons/MovieOutlined";
 import TeamIcon from "@material-ui/icons/GroupOutlined";
 import AboutIcon from "@material-ui/icons/BusinessOutlined";
 import MoreIcon from "@material-ui/icons/MoreHorizOutlined";
+import SearchOutlinedIcon from "@material-ui/icons/SearchOutlined";
+import DarkModeIcon from "@material-ui/icons/Brightness7";
+import LightModeIcon from "@material-ui/icons/Brightness4";
 
 import logo from "../../assets/logo/png/colorLogo.png";
-import googleIcon from "../../assets/google/googleIcon.svg";
+import blackLogo from "../../assets/logo/png/blackLogo.png";
 import MenuPopper from "./MenuPopper";
 import IconTextButton from "./IconTextButton";
 
 import { GoogleLogin, GoogleLogout } from "react-google-login";
 import LoginDialog from "../social_login/LoginDialog";
+import { dark } from "@material-ui/core/styles/createPalette";
 
 const useStyles = makeStyles((theme) => ({
-  appbar: {},
+  appbar: {
+    background: theme.palette.primary.main,
+    transition: "background 0.4",
+  },
   logo: {
     height: "5rem",
   },
@@ -59,28 +68,19 @@ const useStyles = makeStyles((theme) => ({
   },
   loginButton: {
     ...theme.typography.roundedButton,
-    marginTop: 3, // visually align tabs and button vertically
   },
   avatar: { color: "white", width: 50, height: 50, marginTop: 5 },
   accountAvatar: {
     height: 50,
     width: 50,
     background: theme.palette.secondary.main,
+    color: "white",
     "&:hover": {
       background: theme.palette.secondary.light,
     },
   },
   toolbar: {
-    width: 1600,
-    [theme.breakpoints.down("md")]: {
-      width: 1000,
-    },
-    [theme.breakpoints.down("sm")]: {
-      width: 1000,
-    },
-    [theme.breakpoints.down("xs")]: {
-      width: "inherit",
-    },
+    width: "100vw",
   },
   sideNavbar: {
     background: theme.palette.common.grey,
@@ -93,10 +93,7 @@ const useStyles = makeStyles((theme) => ({
   menuIcon: {
     height: "3.5rem",
     width: "3.5rem",
-    color: theme.palette.secondary.main,
-    "&:hover": {
-      color: theme.palette.secondary.light,
-    },
+    color: theme.palette.common.icon,
   },
   menuListContainer: {
     minWidth: 300,
@@ -114,6 +111,31 @@ const useStyles = makeStyles((theme) => ({
     marginRight: "-0.5rem",
     marginLeft: "3rem",
   },
+  welcomeMessage: {
+    color: "white",
+    marginRight: "0.8rem",
+  },
+  search: {
+    background: theme.palette.primary.light,
+    borderRadius: 15,
+    elevation: 2,
+    transition: "all 0.3s",
+    "&:hover": {
+      background: theme.palette.primary.dark,
+    },
+    "& .MuiOutlinedInput-notchedOutline": {
+      border: "none",
+    },
+    "& .MuiOutlinedInput-root.Mui-focused": {
+      background: theme.palette.primary.dark,
+      transition: "width 0.3s",
+      borderRadius: 15,
+      width: 370,
+    },
+  },
+  searchInput: {
+    color: "white",
+  },
 }));
 
 function ElevationScroll(props) {
@@ -129,15 +151,17 @@ function ElevationScroll(props) {
   });
 }
 
-export default function DashboardBar({ history, user, setUser }) {
+export default function DashboardBar({ history, user, setUser, switchTheme }) {
   // styling utilities
   const classes = useStyles();
   const theme = useTheme();
   const matchesMD = useMediaQuery(theme.breakpoints.down("md"));
+  const matchesDark = theme.palette.type === "dark";
   const trigger = useScrollTrigger({
     disableHysteresis: false,
     threshold: 100,
   });
+  // user = { name: "Boquan Yin" };
 
   // define states
   const [tabValue, setTabValue] = useState(0);
@@ -145,6 +169,7 @@ export default function DashboardBar({ history, user, setUser }) {
   const [openMenu, setOpenMenu] = useState(false);
   const [openLoginDialog, setOpenLoginDiaog] = useState(false);
   const [openSideNavbar, setOpenSideNavbar] = useState(false);
+  const [search, setSearch] = useState("");
 
   // json array of objects used for mapping
   const tabs = [
@@ -157,22 +182,35 @@ export default function DashboardBar({ history, user, setUser }) {
 
   const accountMenus = [
     {
-      icon: <AccountBoxOutlinedIcon style={{ fontSize: "1.5rem" }} />,
+      icon: (
+        <AccountBoxOutlinedIcon
+          style={{ fontSize: "1.5rem", color: matchesDark ? "white" : "black" }}
+        />
+      ),
       label: "My Profile",
-      color: "black",
-      backgroundColor: "white",
+      color: matchesDark ? "white" : "black",
+      backgroundColor: matchesDark ? theme.palette.primary.main : "white",
       onClick: () => history.push("/profile"),
     },
     {
-      icon: <DashboardOutlinedIcon style={{ fontSize: "1.5rem" }} />,
-      label: "Dashboard",
-      color: "black",
-      backgroundColor: "white",
-      onClick: () => history.push("/dashboard"),
+      icon: (
+        <HomeOutlinedIcon
+          style={{ fontSize: "1.5rem", color: matchesDark ? "white" : "black" }}
+        />
+      ),
+      label: "Home",
+      color: matchesDark ? "white" : "black",
+      backgroundColor: matchesDark ? theme.palette.primary.main : "white",
+      onClick: () => history.push("/"),
     },
     {
       icon: (
-        <ExitToAppOutlinedIcon style={{ fontSize: "1.5rem", color: "white" }} />
+        <ExitToAppOutlinedIcon
+          style={{
+            fontSize: "1.5rem",
+            color: "white",
+          }}
+        />
       ),
       label: "Logout",
       color: "white",
@@ -300,6 +338,11 @@ export default function DashboardBar({ history, user, setUser }) {
 
   const profileMenu = (
     <React.Fragment>
+      {/*<Grid item style={{ marginTop: "0.5rem" }}>
+          <Typography variant="h4" className={classes.welcomeMessage}>
+            Welcome, {user ? user.name : undefined}!
+          </Typography>
+        </Grid>*/}
       <IconButton aria-controls="menu-avatar" onClick={handleClick}>
         <Avatar className={classes.accountAvatar}>{initial(user)}</Avatar>
       </IconButton>
@@ -317,7 +360,6 @@ export default function DashboardBar({ history, user, setUser }) {
       <IconButton
         className={classes.menuIconContainer}
         onClick={() => setOpenSideNavbar(!openSideNavbar)}
-        disableRipple
       >
         <MenuIcon className={classes.menuIcon} />
       </IconButton>
@@ -355,36 +397,83 @@ export default function DashboardBar({ history, user, setUser }) {
     <React.Fragment>
       <ElevationScroll>
         <AppBar classes={{ root: classes.appbar }}>
-          <Grid container justify="center" alignItems="center">
-            <Grid item>
-              <Toolbar disableGutters className={classes.toolbar}>
-                <Grid
-                  item
-                  container
-                  justify={matchesMD ? "space-evenly" : "center"}
-                  alignItems="center"
-                >
-                  <Hidden lgUp>
-                    <Grid item>{sideNavbar}</Grid>
-                  </Hidden>
-                  <Grid item>
-                    <Button
-                      className={classes.logoContainer}
-                      component={Link}
-                      to="/"
-                    >
-                      <img
-                        src={logo}
-                        alt="briefly logo"
-                        className={classes.logo}
-                      />
-                    </Button>
-                  </Grid>
-                  <Grid item>{user ? profileMenu : loginButton}</Grid>
+          <Toolbar disableGutters className={classes.toolbar}>
+            <Grid container justify="space-around" alignItems="center">
+              <Grid
+                item
+                container
+                justify="flex-start"
+                alignItems="center"
+                style={{ marginLeft: "1rem" }}
+                sm
+              >
+                <Grid item>{sideNavbar}</Grid>
+                <Grid item>
+                  <Button
+                    className={classes.logoContainer}
+                    component={Link}
+                    to="/"
+                  >
+                    <img
+                      src={matchesDark ? logo : blackLogo}
+                      alt="briefly logo"
+                      className={classes.logo}
+                    />
+                  </Button>
                 </Grid>
-              </Toolbar>
+                <Grid item style={{ marginLeft: "1rem" }}>
+                  <TextField
+                    placeholder="Search..."
+                    id="search"
+                    variant="outlined"
+                    value={search}
+                    fullWidth
+                    classes={{ root: classes.search }}
+                    InputProps={{
+                      className: classes.searchInput,
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <SearchOutlinedIcon style={{ fontSize: "2rem" }} />
+                        </InputAdornment>
+                      ),
+                    }}
+                    onChange={(event) => setSearch(event.target.value)}
+                  ></TextField>
+                </Grid>
+              </Grid>
+              <Grid
+                item
+                container
+                justify="flex-end"
+                alignItems="center"
+                sm
+                style={{ marginRight: "1.5rem", width: 100, flexGrow: 0.25 }}
+              >
+                <Grid item style={{ marginRight: "1rem" }}>
+                  {matchesDark ? (
+                    <IconButton onClick={switchTheme}>
+                      <DarkModeIcon
+                        style={{
+                          fontSize: "2rem",
+                          color: "white",
+                        }}
+                      />
+                    </IconButton>
+                  ) : (
+                    <IconButton onClick={switchTheme}>
+                      <LightModeIcon
+                        style={{
+                          fontSize: "2rem",
+                          color: "white",
+                        }}
+                      />
+                    </IconButton>
+                  )}
+                </Grid>
+                <Grid item>{user ? profileMenu : loginButton}</Grid>
+              </Grid>
             </Grid>
-          </Grid>
+          </Toolbar>
         </AppBar>
       </ElevationScroll>
       <LoginDialog

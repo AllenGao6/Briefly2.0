@@ -56,6 +56,7 @@ class App extends Component {
   switchTheme = () => {
     let newTheme = this.state.theme === theme ? darkTheme : theme;
     this.setState({ theme: newTheme });
+    console.log("switched");
   };
 
   handleSocialLogin = (response) => {

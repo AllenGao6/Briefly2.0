@@ -22,12 +22,13 @@ const theme = createMuiTheme({
       green: briefGreen,
       grey: briefGrey,
       darkWhite: briefWhite,
+      icon: briefOrange,
     },
     primary: {
-      main: briefBlue,
+      main: briefGrey,
     },
     secondary: {
-      main: briefOrange,
+      main: briefBlue,
     },
   },
   typography: {
