@@ -9,10 +9,11 @@ import {
   useHistory,
 } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
-import Login from "./Login";
 import Profile from "./pages/Profile";
+import NotFound from "./pages/NotFound";
 //ui interface module
 import theme from "./Theme";
+import darkTheme from "./DarkTheme";
 import { ThemeProvider } from "@material-ui/styles";
 import { withStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
@@ -44,11 +45,17 @@ class App extends Component {
     this.state = {
       pagenumer: 0,
       user: null,
+      theme: theme,
     };
   }
 
   setUser = (user) => {
     this.setState({ user });
+  };
+
+  switchTheme = () => {
+    let newTheme = this.state.theme === theme ? darkTheme : theme;
+    this.setState({ theme: newTheme });
   };
 
   handleSocialLogin = (response) => {
@@ -124,25 +131,28 @@ class App extends Component {
         </AppBar>
       </div>
     );
+    const stateProps = {
+      user: this.state.user,
+      setUser: this.setUser,
+      switchTheme: this.switchTheme,
+    };
 
     return (
-      <ThemeProvider theme={theme}>
+      <ThemeProvider theme={this.state.theme}>
         <BrowserRouter>
           <Switch>
             <Route
               exact
               path="/"
-              render={(props) => (
-                <LandingPage
-                  {...props}
-                  user={this.state.user}
-                  setUser={this.setUser}
-                />
-              )}
+              render={(props) => <LandingPage {...props} {...stateProps} />}
             />
             <Route path="/profile" component={Profile} />
-            <Route path="/dashboard" component={Dashboard} />
-            <Route path="/login" component={Login} />
+            <Route
+              path="/dashboard"
+              render={(props) => <Dashboard {...props} {...stateProps} />}
+            />
+            <Route path="/not-found" component={NotFound} />
+            <Redirect to="/not-found" />
           </Switch>
         </BrowserRouter>
       </ThemeProvider>

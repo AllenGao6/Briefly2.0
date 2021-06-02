@@ -43,20 +43,12 @@ import { GoogleLogin, GoogleLogout } from "react-google-login";
 import LoginDialog from "../social_login/LoginDialog";
 
 const useStyles = makeStyles((theme) => ({
-  appbar: {
-    background: theme.palette.common.grey,
-  },
+  appbar: {},
   logo: {
     height: "5rem",
   },
   logoContainer: {
     paddingRight: 0,
-  },
-  tab: {
-    ...theme.typography.tab,
-    padding: 0,
-    minWidth: 10,
-    marginLeft: 60,
   },
   specialText: {
     color: theme.palette.common.blue,
@@ -137,7 +129,7 @@ function ElevationScroll(props) {
   });
 }
 
-export default function LandingHeader({ history, user, setUser }) {
+export default function DashboardBar({ history, user, setUser }) {
   // styling utilities
   const classes = useStyles();
   const theme = useTheme();
@@ -153,8 +145,6 @@ export default function LandingHeader({ history, user, setUser }) {
   const [openMenu, setOpenMenu] = useState(false);
   const [openLoginDialog, setOpenLoginDiaog] = useState(false);
   const [openSideNavbar, setOpenSideNavbar] = useState(false);
-  // user state is lifted to App.js to maintain login status across pages
-  // const [user, setUser] = useState(null);
 
   // json array of objects used for mapping
   const tabs = [
@@ -390,27 +380,6 @@ export default function LandingHeader({ history, user, setUser }) {
                       />
                     </Button>
                   </Grid>
-                  <Hidden mdDown>
-                    <Grid item>
-                      <Tabs
-                        value={tabValue}
-                        onChange={(event, value) => setTabValue(value)}
-                        indicatorColor="secondary"
-                        className={classes.tabContainer}
-                      >
-                        {tabs.map((tab, i) => (
-                          <Tab
-                            key={tab.name}
-                            component={Link}
-                            className={classes.tab}
-                            to={tab.link}
-                            label={tab.name}
-                            disableRipple
-                          ></Tab>
-                        ))}
-                      </Tabs>
-                    </Grid>
-                  </Hidden>
                   <Grid item>{user ? profileMenu : loginButton}</Grid>
                 </Grid>
               </Toolbar>

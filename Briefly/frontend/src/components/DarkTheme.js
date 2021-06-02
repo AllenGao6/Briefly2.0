@@ -12,6 +12,7 @@ const briefWhite = "#f1f2f6";
 
 const theme = createMuiTheme({
   palette: {
+    type: "dark",
     // dominant color style placed here
     common: {
       blue: briefBlue,
