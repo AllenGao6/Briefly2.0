@@ -1,0 +1,24 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  /* color: white; */
+}
+
+#main {
+  width: 100%;
+
+  left: 0;
+  top: 0;
+}
+
+#app {
+  width: 100%;
+}
+
+.link {
+  color: #fff;
+}
+.link:hover {
+  color: #fff;
+}
