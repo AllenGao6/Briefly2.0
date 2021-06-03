@@ -1,5 +1,58 @@
 # Briefly2.0
 
+
+
+## Database Update (2021/06/04)
+
+Because the database has been shifted to PostgreSQL, you need to make several changes to allow the correct functioning:
+
+1. Download PostgreSQL at https://www.postgresql.org/download/ based on your version
+
+2. `git pull origin`
+
+3. run `pipenv install ` in your virtual environment
+
+4. After download and install, open the postgreSQL command line **psql**. e.g: if you are on Windows, you can type ` psql` at the left bottom search bar and run it. (Set the password based on your preference at this step)
+
+5. Run following command (should be exactly same): 
+
+   1. First, create a database for your project:
+
+      `CREATE DATABASE briefly;`
+
+   2. Next, create a database user for our project.
+
+      `CREATE USER brieflyuser WITH PASSWORD 'brieflypassword';`
+
+   3. Set several other things.
+
+      ```
+      ALTER ROLE myprojectuser SET client_encoding TO 'utf8';
+      ALTER ROLE myprojectuser SET default_transaction_isolation TO 'read committed';
+      ALTER ROLE myprojectuser SET timezone TO 'UTC';
+      ```
+
+   4. Now, we can give our new user access to administer our new database.
+
+      `GRANT ALL PRIVILEGES ON DATABASE briefly TO brieflyuser;`
+
+   5. When you are finished, exit out of the PostgreSQL prompt by typing:
+
+      ```bash
+      \q
+      ```
+
+6. Run following command in your virtual env at directory `Briefly`
+
+   1. `python manage.py makemigrations`
+   2. `python manage.py createsuperuser`
+   3. `python manage.py migrate`
+   4. `python manage.py collectstatic`
+
+Now the new database will be well functioning!  :wink:
+
+------
+
 Prerequisite: 
 
 If something went wrong, you can directly delete the `npm_modules` at the `frontend` folder and do following: 
