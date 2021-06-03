@@ -10,6 +10,8 @@ django-allauth = "*"
 django-rest-auth = "*"
 django-cors-headers = "*"
 urllib3 = "==1.25.11"
+social-auth-app-django = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
 
