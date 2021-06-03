@@ -54,7 +54,7 @@ const useStyles = makeStyles((theme) => ({
     transition: "background 0.4",
   },
   logo: {
-    height: "5rem",
+    height: "3.5rem",
   },
   logoContainer: {
     paddingRight: 0,
@@ -68,11 +68,14 @@ const useStyles = makeStyles((theme) => ({
   },
   loginButton: {
     ...theme.typography.roundedButton,
+    height: "2.5rem",
+    width: "6rem",
+    fontSize: "1.15rem",
   },
-  avatar: { color: "white", width: 50, height: 50, marginTop: 5 },
+  avatar: { color: "white", width: 45, height: 45 },
   accountAvatar: {
-    height: 50,
-    width: 50,
+    height: 45,
+    width: 45,
     background: theme.palette.secondary.main,
     color: "white",
     "&:hover": {
@@ -86,17 +89,18 @@ const useStyles = makeStyles((theme) => ({
     background: theme.palette.common.grey,
   },
   menuIconContainer: {
+    height: "3rem",
     "&:hover": {
       background: "transparent",
     },
   },
   menuIcon: {
-    height: "3.5rem",
-    width: "3.5rem",
+    height: "2.5rem",
+    width: "2.5rem",
     color: theme.palette.common.icon,
   },
   menuListContainer: {
-    minWidth: 300,
+    width: 270,
   },
   listItemText: {
     opacity: 0.7,
@@ -109,7 +113,7 @@ const useStyles = makeStyles((theme) => ({
   tabIcon: {
     color: "white",
     marginRight: "-0.5rem",
-    marginLeft: "3rem",
+    marginLeft: "1rem",
   },
   welcomeMessage: {
     color: "white",
@@ -423,12 +427,13 @@ export default function DashboardBar({ history, user, setUser, switchTheme }) {
                     variant="outlined"
                     value={search}
                     fullWidth
+                    size="small"
                     classes={{ root: classes.search }}
                     InputProps={{
                       className: classes.searchInput,
                       startAdornment: (
                         <InputAdornment position="start">
-                          <SearchOutlinedIcon style={{ fontSize: "2rem" }} />
+                          <SearchOutlinedIcon style={{ fontSize: "1.5rem" }} />
                         </InputAdornment>
                       ),
                     }}
@@ -449,7 +454,7 @@ export default function DashboardBar({ history, user, setUser, switchTheme }) {
                     <IconButton onClick={switchTheme}>
                       <DarkModeIcon
                         style={{
-                          fontSize: "2rem",
+                          fontSize: "1.5rem",
                           color: "white",
                         }}
                       />
@@ -458,7 +463,7 @@ export default function DashboardBar({ history, user, setUser, switchTheme }) {
                     <IconButton onClick={switchTheme}>
                       <LightModeIcon
                         style={{
-                          fontSize: "2rem",
+                          fontSize: "1.5rem",
                           color: "white",
                         }}
                       />
