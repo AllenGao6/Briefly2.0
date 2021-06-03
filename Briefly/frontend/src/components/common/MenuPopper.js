@@ -18,7 +18,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function MenuPopper({ onClose, anchorEl, open, component }) {
+export default function MenuPopper({
+  onClose,
+  anchorEl,
+  open,
+  component,
+  placement,
+}) {
   const classes = useStyles();
 
   return (
@@ -27,7 +33,7 @@ export default function MenuPopper({ onClose, anchorEl, open, component }) {
       anchorEl={anchorEl}
       role={undefined}
       transition
-      placement="bottom"
+      placement={placement}
       disablePortal
     >
       {({ TransitionProps, placement }) => (

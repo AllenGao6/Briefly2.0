@@ -333,6 +333,7 @@ export default function LandingHeader({ history, user, setUser }) {
         open={openMenu}
         anchorEl={anchorEl}
         component={accountDetails}
+        placement="bottom"
       />
     </React.Fragment>
   );

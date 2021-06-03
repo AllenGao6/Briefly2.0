@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import clsx from "clsx";
 import {
   AppBar,
   Toolbar,
@@ -44,9 +45,8 @@ import blackLogo from "../../assets/logo/png/blackLogo.png";
 import MenuPopper from "./MenuPopper";
 import IconTextButton from "./IconTextButton";
 
-import { GoogleLogin, GoogleLogout } from "react-google-login";
+import { GoogleLogout } from "react-google-login";
 import LoginDialog from "../social_login/LoginDialog";
-import { dark } from "@material-ui/core/styles/createPalette";
 
 const useStyles = makeStyles((theme) => ({
   appbar: {
@@ -84,6 +84,7 @@ const useStyles = makeStyles((theme) => ({
   },
   toolbar: {
     width: "100vw",
+    minHeight: "4rem",
   },
   sideNavbar: {
     background: theme.palette.common.grey,
@@ -124,6 +125,7 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: 15,
     elevation: 2,
     transition: "all 0.3s",
+    width: 250,
     "&:hover": {
       background: theme.palette.primary.dark,
     },
@@ -134,11 +136,12 @@ const useStyles = makeStyles((theme) => ({
       background: theme.palette.primary.dark,
       transition: "width 0.3s",
       borderRadius: 15,
-      width: 370,
+      width: 300,
     },
   },
   searchInput: {
     color: "white",
+    fontSize: "1.25rem",
   },
 }));
 
@@ -155,11 +158,20 @@ function ElevationScroll(props) {
   });
 }
 
-export default function DashboardBar({ history, user, setUser, switchTheme }) {
+export default function DashboardBar({
+  history,
+  user,
+  setUser,
+  switchTheme,
+  handleDrawerToggle,
+  marginLeft,
+}) {
   // styling utilities
   const classes = useStyles();
   const theme = useTheme();
   const matchesMD = useMediaQuery(theme.breakpoints.down("md"));
+  const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
+
   const matchesDark = theme.palette.type === "dark";
 
   // define states
@@ -350,104 +362,102 @@ export default function DashboardBar({ history, user, setUser, switchTheme }) {
         open={openMenu}
         anchorEl={anchorEl}
         component={accountDetails}
+        placement="bottom-start"
       />
-    </React.Fragment>
-  );
-
-  const sideNavbar = (
-    <React.Fragment>
-      <IconButton
-        className={classes.menuIconContainer}
-        onClick={() => setOpenSideNavbar(!openSideNavbar)}
-      >
-        <MenuIcon className={classes.menuIcon} />
-      </IconButton>
-      <SwipeableDrawer
-        open={openSideNavbar}
-        onClose={() => setOpenSideNavbar(false)}
-        onOpen={() => setOpenSideNavbar(true)}
-        classes={{ paper: classes.sideNavbar }}
-      >
-        <List className={classes.menuListContainer}>
-          {tabs.map((tab, i) => (
-            <ListItem
-              key={`ListItem-${tab}${i}`}
-              onClick={() => setOpenSideNavbar(false)}
-              divider
-              button
-              style={{ height: "5rem" }}
-            >
-              <ListItemIcon className={classes.tabIcon}>
-                {tab.icon}
-              </ListItemIcon>
-              <ListItemText disableTypography>
-                <Typography variant="tab" className={classes.listItemText}>
-                  {tab.name}
-                </Typography>
-              </ListItemText>
-            </ListItem>
-          ))}
-        </List>
-      </SwipeableDrawer>
     </React.Fragment>
   );
 
   return (
     <React.Fragment>
       <ElevationScroll>
-        <AppBar classes={{ root: classes.appbar }}>
+        <AppBar className={classes.appbar}>
           <Toolbar disableGutters className={classes.toolbar}>
-            <Grid container justify="space-around" alignItems="center">
+            <Grid
+              container
+              justify="space-around"
+              alignItems="center"
+              style={{ marginLeft: marginLeft }}
+            >
               <Grid
                 item
                 container
                 justify="flex-start"
                 alignItems="center"
-                style={{ marginLeft: "1rem" }}
-                sm
+                style={{
+                  marginLeft: "1rem",
+                }}
+                xs
               >
-                <Grid item>{sideNavbar}</Grid>
                 <Grid item>
-                  <Button
-                    className={classes.logoContainer}
-                    component={Link}
-                    to="/"
+                  <IconButton
+                    className={classes.menuIconContainer}
+                    onClick={handleDrawerToggle}
                   >
-                    <img
-                      src={matchesDark ? logo : blackLogo}
-                      alt="briefly logo"
-                      className={classes.logo}
-                    />
-                  </Button>
+                    <MenuIcon className={classes.menuIcon} />
+                  </IconButton>
                 </Grid>
-                <Grid item style={{ marginLeft: "1rem" }}>
-                  <TextField
-                    placeholder="Search..."
-                    id="search"
-                    variant="outlined"
-                    value={search}
-                    fullWidth
-                    size="small"
-                    classes={{ root: classes.search }}
-                    InputProps={{
-                      className: classes.searchInput,
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <SearchOutlinedIcon style={{ fontSize: "1.5rem" }} />
-                        </InputAdornment>
-                      ),
-                    }}
-                    onChange={(event) => setSearch(event.target.value)}
-                  ></TextField>
-                </Grid>
+                <Hidden smDown>
+                  <Grid item>
+                    <Button
+                      className={classes.logoContainer}
+                      component={Link}
+                      to="/"
+                    >
+                      <img
+                        src={matchesDark ? logo : blackLogo}
+                        alt="briefly logo"
+                        className={classes.logo}
+                      />
+                    </Button>
+                  </Grid>
+                </Hidden>
+                <Hidden xsDown>
+                  {marginLeft === 0 ? (
+                    <Grid item style={{ marginLeft: "1rem" }}>
+                      <TextField
+                        placeholder="Search..."
+                        id="search"
+                        variant="outlined"
+                        value={search}
+                        fullWidth
+                        size="small"
+                        classes={{ root: classes.search }}
+                        InputProps={{
+                          className: classes.searchInput,
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <SearchOutlinedIcon
+                                style={{ fontSize: "1.5rem" }}
+                              />
+                            </InputAdornment>
+                          ),
+                        }}
+                        onChange={(event) => setSearch(event.target.value)}
+                      ></TextField>
+                    </Grid>
+                  ) : (
+                    <div></div>
+                  )}
+                </Hidden>
               </Grid>
               <Grid
                 item
                 container
                 justify="flex-end"
                 alignItems="center"
-                sm
-                style={{ marginRight: "1.5rem", width: 100, flexGrow: 0.25 }}
+                xs
+                style={{
+                  marginRight: "1.5rem",
+                  width: 100,
+                  flexGrow:
+                    marginLeft === 0
+                      ? matchesXS
+                        ? 1.2
+                        : 0.55
+                      : matchesXS
+                      ? 1.2
+                      : 1.2,
+                }}
               >
                 <Grid item style={{ marginRight: "1rem" }}>
                   {matchesDark ? (

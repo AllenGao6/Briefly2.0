@@ -24,14 +24,27 @@ import {
   Avatar,
 } from "@material-ui/core";
 import DashboardBar from "../common/DashboardBar";
-import NestedGrid from '../common/CollectionGrid'
+import NestedGrid from "../common/CollectionGrid";
+import Navigator from "../common/Navigator";
 
 // User View
-const useStyles = makeStyles((theme) => ({}));
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: "flex",
+  },
+}));
 
 export default function Dashboard(props) {
   const classes = useStyles();
   const theme = useTheme();
+  const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [marginLeft, setMarginLeft] = useState(0);
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+    setMarginLeft(marginLeft === 0 ? 256 : 0);
+  };
 
   // prevent user from manually entering "/dashboard" Url
   useEffect(() => {
@@ -42,8 +55,13 @@ export default function Dashboard(props) {
 
   return (
     <React.Fragment>
-      <DashboardBar {...props} />
-      <NestedGrid />
+      <Navigator open={mobileOpen} onClose={handleDrawerToggle} />
+      <DashboardBar
+        handleDrawerToggle={handleDrawerToggle}
+        marginLeft={matchesXS ? 0 : marginLeft}
+        {...props}
+      />
+      <NestedGrid style={{ marginLeft: matchesXS ? 0 : marginLeft }} />
     </React.Fragment>
   );
 }

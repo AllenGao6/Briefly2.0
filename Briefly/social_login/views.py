@@ -47,7 +47,7 @@ def exchange_token(request, backend):
                 }},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
+            
         if user:
             if user.is_active:
                 token, _ = Token.objects.get_or_create(user=user)

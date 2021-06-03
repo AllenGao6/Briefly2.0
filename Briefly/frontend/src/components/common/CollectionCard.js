@@ -7,11 +7,15 @@ import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
+import bookImage from "../../assets/dummy/book.png";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     maxWidth: 345,
     background: theme.palette.common.icon,
+  },
+  description: {
+    color: theme.palette.type === "dark" ? "white" : theme.palette.common.grey,
   },
 }));
 
@@ -25,14 +29,18 @@ export default function ImgMediaCard() {
           component="img"
           alt="An image"
           height="140"
-          image="/static/images/cards/contemplative-reptile.jpg"
+          image={bookImage}
           title="Contemplative Reptile"
         />
         <CardContent>
           <Typography gutterBottom variant="h5" component="h2">
             Math 230
           </Typography>
-          <Typography variant="body2" color="textSecondary" component="p">
+          <Typography
+            variant="body2"
+            component="p"
+            className={classes.description}
+          >
             This is a collection of advance math in multi calculas
           </Typography>
         </CardContent>
