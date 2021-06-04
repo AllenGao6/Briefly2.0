@@ -97,12 +97,12 @@ REST_FRAMEWORK = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'briefly',
-        'USER': 'brieflyuser',
-        'PASSWORD': 'brieflypassword',
-        'HOST': 'localhost',
-        'PORT': '',
+        'ENGINE': 'django.db.backends.postgresql', 
+        'NAME': 'Briefly',
+        'USER': 'postgres',
+        'PASSWORD': '1qa2ws3ed',
+        'HOST': '127.0.0.1',
+        'PORT': 5432,
     }
 }
 # Password validation
