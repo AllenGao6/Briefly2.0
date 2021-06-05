@@ -167,7 +167,7 @@ export default function LandingPage(props) {
 
   const MyCard = ({ icon, caption, description }) => (
     <Card>
-      <Grid container>
+      <Grid container xs={12}>
 
         <Grid item xs={1}></Grid>
 
@@ -201,12 +201,14 @@ export default function LandingPage(props) {
         {frame.map((item, idx) => (
           <Grid 
             item 
-            xs={4} 
+            xs={12}
+            md={6}
+            lg={4}
             key={idx} 
             container>
 
             <Grid item xs={1}></Grid>
-            <Grid item xs={11}>
+            <Grid item>
               <MyCard
                 icon={icon[idx]}
                 caption={caption[idx]}
@@ -223,7 +225,7 @@ export default function LandingPage(props) {
       <div className={classes.root}>
         <Grid container spacing={3}>
           {props.frame.map((item, idx) => (
-            <Grid container item xs={12} spacing={3} key={idx}>
+            <Grid container item spacing={3} key={idx} >
               <FormRow
                 frame={item}
                 icon={icons[idx]}
@@ -287,7 +289,8 @@ export default function LandingPage(props) {
       <Grid 
         container 
         className={classes.featureContainer}
-        justify='space evenly'
+        justify="center"
+        direction="column"
         alignItems='center'
         spacing={6}
       >
@@ -295,7 +298,7 @@ export default function LandingPage(props) {
 
         <Grid item xs={10}>
           <Grid item style={{ height: 100}}></Grid>
-          <Typography variant="h1" align='center'>What is Briefly ?</Typography>
+          <Typography variant="h1" align='center'>What is Briefly?</Typography>
           <Grid item style={{ height: 100}}></Grid>
           <MatrixArea frame={border}/>
         </Grid>
