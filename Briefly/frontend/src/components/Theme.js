@@ -55,14 +55,14 @@ const theme = createMuiTheme({
       },
     },
     h1: {
-      fontFamily: "Raleway",
+      fontFamily: 'Roboto',
       fontWeight: 800,
       fontSize: "3.5rem",
       color: briefBlue,
       lineHeight: 1.5,
     },
     h2: {
-      fontFamily: "Raleway",
+      fontFamily: 'Odibee Sans',
       fontWeight: 700,
       fontSize: "2rem",
       color: briefBlue,

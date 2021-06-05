@@ -113,6 +113,7 @@ const useStyles = makeStyles((theme) => ({
   listItemText: {
     opacity: 0.7,
     color: "white",
+    fontFamily: 'Odibee Sans',
     fontSize: "1.35rem",
     "&:hover": {
       opacity: 1,
