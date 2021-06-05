@@ -222,10 +222,10 @@ export default function LandingPage(props) {
     );
   
     return (
-      <div className={classes.root}>
+      <div>
         <Grid container spacing={3}>
           {props.frame.map((item, idx) => (
-            <Grid container item spacing={3} key={idx} >
+            <Grid container item spacing={3} key={idx} align="center">
               <FormRow
                 frame={item}
                 icon={icons[idx]}
@@ -289,8 +289,6 @@ export default function LandingPage(props) {
       <Grid 
         container 
         className={classes.featureContainer}
-        justify="center"
-        direction="column"
         alignItems='center'
         spacing={6}
       >
