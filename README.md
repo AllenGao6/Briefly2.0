@@ -27,9 +27,9 @@ Because the database has been shifted to PostgreSQL, you need to make several ch
    3. Set several other things.
 
       ```
-      ALTER ROLE brieflyuser SET client_encoding TO 'utf8';
-      ALTER ROLE brieflyuser SET default_transaction_isolation TO 'read committed';
-      ALTER ROLE brieflyuser SET timezone TO 'UTC';
+      ALTER ROLE myprojectuser SET client_encoding TO 'utf8';
+      ALTER ROLE myprojectuser SET default_transaction_isolation TO 'read committed';
+      ALTER ROLE myprojectuser SET timezone TO 'UTC';
       ```
 
    4. Now, we can give our new user access to administer our new database.
