@@ -3,8 +3,8 @@ from .views import index
 
 urlpatterns = [
     path('', index),
-    path('not-found', index),
-    path('dashboard', index),
-    path('home', index),
+    path('not-found/', index),
+    path('dashboard/', index),
+    path('home/', index),
 ]
 
