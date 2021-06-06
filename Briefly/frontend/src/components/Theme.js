@@ -3,7 +3,7 @@ import { createMuiTheme } from "@material-ui/core/styles";
 // install "color highlight" extension
 const briefBlue = "#1e90ff";
 const briefDarkBlue = "#3742fa";
-const briefOrange = "#ffa502";
+const briefOrange = "#f39c12";
 const briefYellow = "#f9ca24";
 const briefRed = "#ff6348";
 const briefGreen = "#2ed573";
@@ -58,7 +58,7 @@ const theme = createMuiTheme({
       fontFamily: 'Roboto',
       fontWeight: 800,
       fontSize: "3.5rem",
-      color: briefBlue,
+      color: briefOrange,
       lineHeight: 1.5,
     },
     h2: {
