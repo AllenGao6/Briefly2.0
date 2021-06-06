@@ -88,6 +88,8 @@ npm install @material-ui/icons
 npm install @material-ui/styles
 
 npm install --save file-loader url-loader
+
+npm install react-player
 ```
 To run the code, open two shell prompts:
 In the first one:
