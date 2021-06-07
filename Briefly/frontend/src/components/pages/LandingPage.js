@@ -232,7 +232,7 @@ export default function LandingPage(props) {
         <Typography className={classes.captionMargins} variant="h1" align='center'>
           Briefly's Mission
         </Typography>
-        <Grid justify='center'>
+        <Grid container justify='center'>
           <Card>
             <PlayingVideo />
           </Card>
