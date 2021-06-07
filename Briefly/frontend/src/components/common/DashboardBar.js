@@ -261,7 +261,8 @@ export default function DashboardBar({
       }),
     };
 
-    fetch("auth/google-oauth2/", requestOptions)
+    // IMPORTANT：Make sure change the Url when deploy!!!
+    fetch("http://localhost:8000/auth/google-oauth2/", requestOptions)
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
