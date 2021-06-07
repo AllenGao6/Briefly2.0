@@ -1,6 +1,4 @@
 from django.conf import settings
-from django.contrib.auth import authenticate, login
-
 
 from rest_framework import serializers
 from rest_framework import status
@@ -13,13 +11,20 @@ from requests.exceptions import HTTPError
 
 from social_django.utils import psa
 
-#from .models import UserProfile
-from .serializers import SocialSerializer
+from .models import UserProfile
 
 
+class SocialSerializer(serializers.Serializer):
+    """
+    Serializer which accepts an OAuth2 access token.
+    """
+    access_token = serializers.CharField(
+        allow_blank=False,
+        trim_whitespace=True,
+    )
 
 
-@api_view(['POST'])
+@api_view(http_method_names=['POST'])
 @permission_classes([AllowAny])
 @psa()
 def exchange_token(request, backend):
@@ -44,24 +49,19 @@ def exchange_token(request, backend):
             )
             
         if user:
-            login(request, user)
-            token, _ = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key, 'firstname': user.first_name, 'lastname': user.last_name, 'email': user.email})
-            
-            
-            # if user.is_active:
-            #     token, _ = Token.objects.get_or_create(user=user)
-            #     #Userprofile is automaticlly created
-            #     userProfile = UserProfile.objects.filter(user=user.id)[0]
-            #     userProfile.is_signed_in = True
-            #     userProfile.save()
+            if user.is_active:
+                token, _ = Token.objects.get_or_create(user=user)
+                #Uerprofile is automaticlly created
+                userProfile = UserProfile.objects.filter(user=user.id)[0]
+                userProfile.is_signed_in = True
+                userProfile.save()
 
-            #     return Response({'token': token.key, 'firstname': user.first_name, 'lastname': user.last_name, 'email': user.email})
-            # else:
-            #     return Response(
-            #         {'errors': {nfe: 'This user account is inactive'}},
-            #         status=status.HTTP_400_BAD_REQUEST,
-            #     )
+                return Response({'token': token.key, 'firstname': user.first_name, 'lastname': user.last_name, 'email': user.email})
+            else:
+                return Response(
+                    {'errors': {nfe: 'This user account is inactive'}},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
         else:
             return Response(
                 {'errors': {nfe: "Authentication Failed"}},
