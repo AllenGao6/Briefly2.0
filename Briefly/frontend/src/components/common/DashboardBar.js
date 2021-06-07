@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import clsx from "clsx";
 import {
@@ -230,6 +230,17 @@ export default function DashboardBar({
     },
   ];
 
+  useEffect(() => {
+    const login = async () => {
+      const accessToken = localStorage.getItem("accessToken");
+      if (!user && accessToken) {
+        await handleSocialLogin({accessToken});
+        console.log("AAAAA");
+      }
+    }
+    login();
+  }, [user]);
+
   // functions
   const handleClick = (e) => {
     setAnchorEl(e.currentTarget);
@@ -249,14 +260,17 @@ export default function DashboardBar({
         access_token: response.accessToken,
       }),
     };
+
     fetch("auth/google-oauth2/", requestOptions)
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
+        localStorage.setItem("accessToken", response.accessToken);
         setUser({ name: data.firstname + " " + data.lastname });
         setOpenMenu(false);
         setOpenLoginDiaog(false);
-      });
+      })
+      .catch(error => console.log(error));
   };
 
   const handleSocialLoginFailure = (err) => {
@@ -271,6 +285,7 @@ export default function DashboardBar({
 
   const logout = () => {
     console.log("logged out");
+    localStorage.removeItem("accessToken");
     setUser(null);
   };
 
