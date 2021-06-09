@@ -1,4 +1,6 @@
+from re import I
 from django.conf import settings
+from django.shortcuts import redirect
 
 from rest_framework import serializers
 from rest_framework import status
@@ -12,10 +14,8 @@ from requests.exceptions import HTTPError
 from social_django.utils import psa
 
 from .models import UserProfile
-
-
-
-
+from .serializers import SocialSerializer
+from django.contrib.auth import login, logout
 
 @api_view(http_method_names=['POST'])
 @permission_classes([AllowAny])
@@ -31,6 +31,7 @@ def exchange_token(request, backend):
 
         try:
             user = request.backend.do_auth(serializer.validated_data['access_token'])
+            
         except HTTPError as e:
  
             return Response(
@@ -42,6 +43,7 @@ def exchange_token(request, backend):
             )
             
         if user:
+            login(request, user)
             if user.is_active:
                 token, _ = Token.objects.get_or_create(user=user)
                 #Uerprofile is automaticlly created
@@ -60,3 +62,11 @@ def exchange_token(request, backend):
                 {'errors': {nfe: "Authentication Failed"}},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+            
+            
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def logout_view(request):
+    logout(request)
+    # Redirect to a success page.
+    return redirect("/")
