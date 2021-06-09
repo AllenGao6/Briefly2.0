@@ -14,14 +14,7 @@ from social_django.utils import psa
 from .models import UserProfile
 
 
-class SocialSerializer(serializers.Serializer):
-    """
-    Serializer which accepts an OAuth2 access token.
-    """
-    access_token = serializers.CharField(
-        allow_blank=False,
-        trim_whitespace=True,
-    )
+
 
 
 @api_view(http_method_names=['POST'])
