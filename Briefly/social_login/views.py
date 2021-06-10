@@ -22,6 +22,7 @@ from django.contrib.auth import login, logout
 @psa()
 def exchange_token(request, backend):
     
+    # this will be rarely triggered because it is used to prevent potential bug of out of sync bewteen frontend and backend
     if request.user.is_authenticated is True:
         token, _ = Token.objects.get_or_create(user=request.user)
         #Uerprofile is automaticlly created
@@ -84,3 +85,21 @@ def logout_view(request):
         logout(request)
     # Redirect to a success page.
     return Response({"Message": 'Logout Success!'})
+
+
+@api_view(['POST','GET'])
+@permission_classes([AllowAny])
+def login_view(request, backend):
+    print("here")
+    if request.user.is_authenticated:
+        print("have already logined ")
+        token, _ = Token.objects.get_or_create(user=request.user)
+        userProfile = UserProfile.objects.filter(user=request.user)[0]
+        userProfile.is_signed_in = True
+        userProfile.save()
+        return Response({'token': token.key, 'firstname': request.user.first_name, 'lastname': request.user.last_name, 'email': request.user.email})
+    else:
+        print("logging or registering...")
+        
+        # request must be an instance of `django.http.HttpRequest`, not `rest_framework.request.Request`.
+        return exchange_token(request._request, backend)
