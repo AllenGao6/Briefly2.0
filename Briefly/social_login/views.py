@@ -22,6 +22,15 @@ from django.contrib.auth import login, logout
 @psa()
 def exchange_token(request, backend):
     
+    if request.user.is_authenticated is True:
+        token, _ = Token.objects.get_or_create(user=request.user)
+        #Uerprofile is automaticlly created
+        userProfile = UserProfile.objects.filter(user=request.user)[0]
+        userProfile.is_signed_in = True
+        userProfile.save()
+        return Response({'token': token.key, 'firstname': request.user.first_name, 'lastname': request.user.last_name, 'email': request.user.email})
+            
+    
     serializer = SocialSerializer(data=request.data)
     if serializer.is_valid(raise_exception=True):
         try:
@@ -30,6 +39,7 @@ def exchange_token(request, backend):
             nfe = 'non_field_errors'
 
         try:
+            print("hello")
             user = request.backend.do_auth(serializer.validated_data['access_token'])
             
         except HTTPError as e:
@@ -44,6 +54,8 @@ def exchange_token(request, backend):
             
         if user:
             login(request, user)
+            print("if user:")
+            print(user)
             if user.is_active:
                 token, _ = Token.objects.get_or_create(user=user)
                 #Uerprofile is automaticlly created
@@ -66,7 +78,9 @@ def exchange_token(request, backend):
             
 @api_view(['GET'])
 @permission_classes([AllowAny])
-def logout_view(request):
-    logout(request)
+def logout_view(request): 
+    if request.user.is_authenticated is True:
+        print("logging out")
+        logout(request)
     # Redirect to a success page.
     return redirect("/")
