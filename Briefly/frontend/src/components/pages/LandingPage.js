@@ -1,11 +1,19 @@
 import React, { useEffect } from "react";
-import { Card, Grid, Typography, useMediaQuery } from "@material-ui/core";
+import {Card, 
+        Grid, 
+        Typography, 
+        useMediaQuery, 
+        Accordion, 
+        AccordionSummary, 
+        AccordionDetails } from "@material-ui/core";
+import Avatar from '@material-ui/core/Avatar';
 import LandingHeader from "../common/LandingHeader";
 import { makeStyles, useTheme } from "@material-ui/styles";
 import heroIcon from "../../assets/hero/heroIcon.svg";
-import ReactPlayer from "react-player";
-import {icons, captions, descriptions, border} from "./data.js";
 
+import ReactPlayer from "react-player";
+import {icons, captions, descriptions, border, teamInfo} from "./data.js";
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -47,6 +55,19 @@ const useStyles = makeStyles((theme) => ({
   captionMargins : {
     marginTop : "100px",
     marginBottom : "50px"
+  },
+  teamContainer : {
+    width : "70%"
+  },
+  teamMemberStrip : {
+    marginBottom : "10px",
+    backgroundColor : theme.palette.common.cloud
+  },
+  teamMemberDescription : {
+    backgroundColor : theme.palette.common.silver
+  },
+  avatarAndName : {
+    margin : "5px"
   }
 }));
 
@@ -145,6 +166,28 @@ export default function LandingPage(props) {
         height="495px"
         url={'https://www.youtube.com/watch?v=Mqps4anhz0Q&t=156s'}
       />
+  )
+
+  const MemberInfoStrip = (props) => (
+    <Grid>
+      <Accordion className={classes.teamMemberStrip}>
+        <AccordionSummary
+          expandIcon = {<ExpandMoreIcon />}
+        >
+          <Avatar 
+            alt={props.memberInfo.name} 
+            src={props.memberInfo.headImage}
+            style={{margin:5, height:50, width:50}}>
+          </Avatar>
+          <Typography variant='h2' style={{margin:5}}>{props.memberInfo.name}</Typography>
+          <Typography variant='h4'>{props.memberInfo.brief}</Typography>
+        </AccordionSummary>
+        <AccordionDetails className={classes.teamMemberDescription}>
+          <Typography variant='body1'>{props.memberInfo.description}</Typography>
+        </AccordionDetails>
+      </Accordion>
+      <Grid height={20}></Grid>
+    </Grid>
   )
 
   return (
@@ -247,9 +290,18 @@ export default function LandingPage(props) {
         direction='column'
         id="team"
       >
-        <Typography className={classes.captionMargins} variant="h1" align='center'>
-          Team
-        </Typography>
+        <Grid
+          className={classes.teamContainer}
+        >
+          <Typography className={classes.captionMargins} variant="h1" align='center'>
+            Team
+          </Typography>
+          <Grid container  justify='center' direction='column'>
+            {teamInfo.map((memberInfo, idx) => (
+              <MemberInfoStrip key={idx} memberInfo={memberInfo} />
+            ))}
+          </Grid>
+        </Grid>
       </Grid>
 
 

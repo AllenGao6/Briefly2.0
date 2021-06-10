@@ -8,7 +8,8 @@ const briefYellow = "#f9ca24";
 const briefRed = "#ff6348";
 const briefGreen = "#2ed573";
 const briefGrey = "#2f3542";
-const briefWhite = "#f1f2f6";
+const briefSilver = "#bdc3c7";
+const briefCloud = "#ecf0f1";
 
 const theme = createMuiTheme({
   palette: {
@@ -20,7 +21,8 @@ const theme = createMuiTheme({
       red: briefRed,
       green: briefGreen,
       grey: briefGrey,
-      darkWhite: briefWhite,
+      silver: briefSilver,
+      cloud: briefCloud,
       icon: "white",
     },
     primary: {
@@ -78,7 +80,7 @@ const theme = createMuiTheme({
       fontFamily: "Raleway",
       fontSize: "1.5rem",
       fontWeight: 500,
-      color: "black",
+      color: 'black',
     },
     h5: {
       fontFamily: "Raleway",
@@ -103,7 +105,7 @@ const theme = createMuiTheme({
       fontWeight: 300,
     },
     body1: {
-      fontSize: "1.5rem",
+      fontSize: "1.0rem",
       color: briefGrey,
       fontWeight: 300,
     },
