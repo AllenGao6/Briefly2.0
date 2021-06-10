@@ -42,6 +42,8 @@ import IconTextButton from "./IconTextButton";
 import { GoogleLogin, GoogleLogout } from "react-google-login";
 import LoginDialog from "../social_login/LoginDialog";
 
+import axios from 'axios';
+
 const useStyles = makeStyles((theme) => ({
   appbar: {
     background: theme.palette.common.grey,
@@ -261,9 +263,13 @@ export default function LandingHeader({ history, user, setUser }) {
   };
 
   const logout = () => {
-    console.log("logged out");
-    localStorage.removeItem("accessToken");
-    setUser(null);
+    axios.get(`/logout/`)
+      .then(res => {
+        console.log(res.message);
+        console.log("logged out");
+        localStorage.removeItem("accessToken");
+        setUser(null);
+      })
   };
 
   // jsx components
