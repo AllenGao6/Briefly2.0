@@ -83,4 +83,4 @@ def logout_view(request):
         print("logging out")
         logout(request)
     # Redirect to a success page.
-    return redirect("/")
+    return Response({"Message": 'Logout Success!'})
