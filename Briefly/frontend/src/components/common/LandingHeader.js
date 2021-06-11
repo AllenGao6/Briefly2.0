@@ -289,7 +289,7 @@ export default function LandingHeader({ history, user, setUser }) {
       direction="column"
       style={{
         padding: "1rem",
-        background: theme.palette.common.darkWhite,
+        background: theme.palette.common.cloud,
         borderRadius: 10,
       }}
     >
