@@ -254,25 +254,36 @@ export default function DashboardBar({
   };
 
   const handleSocialLogin = (response) => {
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        access_token: response.accessToken,
-      }),
-    };
+    const handleSocialLogin = (response) => {
 
-    // IMPORTANT：Make sure change the Url when deploy!!!
-    fetch("http://localhost:8000/auth/google-oauth2/", requestOptions)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-        localStorage.setItem("accessToken", response.accessToken);
-        setUser({ name: data.firstname + " " + data.lastname });
-        setOpenMenu(false);
-        setOpenLoginDiaog(false);
-      })
-      .catch(error => console.log(error));
+      axios.get('auth/google-oauth2/')
+        .then((result) => {
+          localStorage.setItem("accessToken", response.accessToken);
+          setUser({ name: result.data.firstname + " " + result.data.lastname });
+          setOpenMenu(false);
+          setOpenLoginDiaog(false);
+        })
+        .catch(function (error) {
+          console.log("not logged in yet");
+          return error.response.status;
+      }).then((code =>{
+        if (code === 405) {
+          console.log("requesting");
+          axios.post('auth/google-oauth2/', {
+            access_token: response.accessToken,
+          })
+          .then(function (result) {
+            localStorage.setItem("accessToken", response.accessToken);
+            console.log(result.data.firstname + " " + result.data.lastname);
+            setUser({ name: result.data.firstname + " " + result.data.lastname });
+            setOpenMenu(false);
+            setOpenLoginDiaog(false);
+          }).catch(function (error) {
+            console.log(error.response);
+          });
+        }
+      }));
+    };
   };
 
   const handleSocialLoginFailure = (err) => {

@@ -196,7 +196,7 @@ export default function LandingHeader({ history, user, setUser }) {
     {
       icon: (
         <ExitToAppOutlinedIcon
-          style={{
+          style = {{
             fontSize: "1.5rem",
             color: "white",
           }}
@@ -232,24 +232,34 @@ export default function LandingHeader({ history, user, setUser }) {
   };
 
   const handleSocialLogin = (response) => {
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        access_token: response.accessToken,
-      }),
-    };
 
-    fetch("auth/google-oauth2/", requestOptions)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
+    axios.get('auth/google-oauth2/')
+      .then((result) => {
         localStorage.setItem("accessToken", response.accessToken);
-        setUser({ name: data.firstname + " " + data.lastname });
+        setUser({ name: result.data.firstname + " " + result.data.lastname });
         setOpenMenu(false);
         setOpenLoginDiaog(false);
       })
-      .catch(error => console.log(error));
+      .catch(function (error) {
+        console.log("not logged in yet");
+        return error.response.status;
+    }).then((code =>{
+      if (code === 405) {
+        console.log("requesting");
+        axios.post('auth/google-oauth2/', {
+          access_token: response.accessToken,
+        })
+        .then(function (result) {
+          localStorage.setItem("accessToken", response.accessToken);
+          console.log(result.data.firstname + " " + result.data.lastname);
+          setUser({ name: result.data.firstname + " " + result.data.lastname });
+          setOpenMenu(false);
+          setOpenLoginDiaog(false);
+        }).catch(function (error) {
+          console.log(error.response);
+        });
+      }
+    }));
   };
 
   const handleSocialLoginFailure = (err) => {
