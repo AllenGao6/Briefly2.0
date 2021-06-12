@@ -253,38 +253,38 @@ export default function DashboardBar({
     setOpenMenu(false);
   };
 
-  const handleSocialLogin = (response) => {
-    const handleSocialLogin = (response) => {
 
-      axios.get('auth/google-oauth2/')
-        .then((result) => {
+  const handleSocialLogin = (response) => {
+
+    axios.get('http://localhost:8000/auth/google-oauth2/')
+      .then((result) => {
+        localStorage.setItem("accessToken", response.accessToken);
+        setUser({ name: result.data.firstname + " " + result.data.lastname });
+        setOpenMenu(false);
+        setOpenLoginDiaog(false);
+      })
+      .catch(function (error) {
+        console.log("not logged in yet");
+        return error.response.status;
+    }).then((code => {
+      if (code === 405) {
+        console.log("requesting");
+        axios.post('http://localhost:8000/auth/google-oauth2/', {
+          access_token: response.accessToken,
+        })
+        .then(function (result) {
           localStorage.setItem("accessToken", response.accessToken);
+          console.log(result.data.firstname + " " + result.data.lastname);
           setUser({ name: result.data.firstname + " " + result.data.lastname });
           setOpenMenu(false);
           setOpenLoginDiaog(false);
-        })
-        .catch(function (error) {
-          console.log("not logged in yet");
-          return error.response.status;
-      }).then((code =>{
-        if (code === 405) {
-          console.log("requesting");
-          axios.post('auth/google-oauth2/', {
-            access_token: response.accessToken,
-          })
-          .then(function (result) {
-            localStorage.setItem("accessToken", response.accessToken);
-            console.log(result.data.firstname + " " + result.data.lastname);
-            setUser({ name: result.data.firstname + " " + result.data.lastname });
-            setOpenMenu(false);
-            setOpenLoginDiaog(false);
-          }).catch(function (error) {
-            console.log(error.response);
-          });
-        }
-      }));
-    };
+        }).catch(function (error) {
+          console.log(error.response);
+        });
+      }
+    }));
   };
+
 
   const handleSocialLoginFailure = (err) => {
     console.log(err);
