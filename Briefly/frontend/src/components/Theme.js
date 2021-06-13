@@ -10,6 +10,7 @@ const briefGreen = "#2ed573";
 const briefGrey = "#2f3542";
 const briefSilver = "#bdc3c7";
 const briefCloud = "#ecf0f1";
+const briefPurple = "#8e44ad";
 
 const theme = createMuiTheme({
   palette: {
@@ -23,6 +24,7 @@ const theme = createMuiTheme({
       grey: briefGrey,
       silver: briefSilver,
       cloud: briefCloud,
+      purple: briefPurple,
       icon: "white",
     },
     primary: {
@@ -59,31 +61,31 @@ const theme = createMuiTheme({
     h1: {
       fontFamily: 'Roboto',
       fontWeight: 800,
-      fontSize: "3rem",
+      fontSize: "4rem",
       color: briefOrange,
       lineHeight: 1.5,
     },
     h2: {
-      fontFamily: 'Odibee Sans',
-      fontWeight: 700,
-      fontSize: "2rem",
-      color: briefBlue,
+      fontFamily: 'Roboto',
+      fontWeight: 400,
+      fontSize: "3.5rem",
+      color: briefGrey,
       lineHeight: 1.5,
     },
     h3: {
-      fontFamily: "Raleway",
-      fontSize: "2rem",
+      fontFamily: "Odibee Sans",
+      fontSize: "3.5rem",
       fontWeight: 600,
-      color: briefBlue,
+      color: briefPurple,
     },
     h4: {
-      fontFamily: "Raleway",
-      fontSize: "1.5rem",
+      fontFamily: "Roboto",
+      fontSize: "2rem",
       fontWeight: 500,
       color: 'black',
     },
     h5: {
-      fontFamily: "Raleway",
+      fontFamily: "Roboto",
       fontSize: "1.15rem",
       color: "black",
       fontWeight: 400,
@@ -95,7 +97,7 @@ const theme = createMuiTheme({
       color: briefYellow,
     },
     subtitle1: {
-      fontSize: "1.25rem",
+      fontSize: "1.Roboto",
       fontWeight: 300,
       color: briefGrey,
     },

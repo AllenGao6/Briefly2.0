@@ -1,6 +1,10 @@
 import React, { useEffect } from "react";
-import {Card, 
-        Grid, 
+import React, { useEffect, useState } from "react";
+import {Button,
+        Card,
+        CardMedia, 
+        Grid,
+        Paper, 
         Typography, 
         useMediaQuery, 
         Accordion, 
@@ -12,9 +16,13 @@ import { makeStyles, useTheme } from "@material-ui/styles";
 import heroIcon from "../../assets/hero/heroIcon.svg";
 
 import ReactPlayer from "react-player";
-import {icons, captions, descriptions, border, teamInfo} from "./data.js";
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-
+import {icons, 
+        captions, 
+        descriptions, 
+        border, 
+        teamInfo, 
+        ratingComment} from "./data.js";
+import GradeRoundedIcon from "@material-ui/icons/GradeRounded";
 
 const useStyles = makeStyles((theme) => ({
   heroContainer: {
@@ -57,10 +65,10 @@ const useStyles = makeStyles((theme) => ({
     marginBottom : "50px"
   },
   teamContainer : {
-    width : "70%"
+    width : '80%'
   },
   teamMemberStrip : {
-    marginBottom : "10px",
+    marginBottom : '50px',
     backgroundColor : theme.palette.common.cloud
   },
   teamMemberDescription : {
@@ -101,7 +109,7 @@ export default function LandingPage(props) {
             <Typography align='center'>{icon}</Typography>
           </Grid>
           <Grid item>
-            <Typography variant='h2' align="center">{caption}</Typography>
+            <Typography variant='h3' align="center">{caption}</Typography>
           </Grid>
           <Grid item>
             <Typography variant='body2'>{description}</Typography>
@@ -169,26 +177,76 @@ export default function LandingPage(props) {
   )
 
   const MemberInfoStrip = (props) => (
-    <Grid>
-      <Accordion className={classes.teamMemberStrip}>
-        <AccordionSummary
-          expandIcon = {<ExpandMoreIcon />}
-        >
-          <Avatar 
-            alt={props.memberInfo.name} 
-            src={props.memberInfo.headImage}
-            style={{margin:5, height:50, width:50}}>
-          </Avatar>
-          <Typography variant='h2' style={{margin:5}}>{props.memberInfo.name}</Typography>
-          <Typography variant='h4'>{props.memberInfo.brief}</Typography>
-        </AccordionSummary>
-        <AccordionDetails className={classes.teamMemberDescription}>
-          <Typography variant='body1'>{props.memberInfo.description}</Typography>
-        </AccordionDetails>
-      </Accordion>
-      <Grid height={20}></Grid>
+    <Grid
+    justify='center' 
+    alignItems='flex-start'
+    direction={props.reversed ? "row-reverse" : "row"}
+    style={{marginBottom : 50}}
+    container
+    >
+      <Grid item align-self='flex-start'>
+        <Paper>
+          <CardMedia
+            component="img"
+            alt="profile image"
+            image={props.memberInfo.headImage}
+            title={props.memberInfo.name}
+            height="auto"
+            width="auto"
+            style={{minHeight: '280px', minWidth: '280px',
+                    maxHeight: '280px', maxWidth: '280px'}}
+          >
+          </CardMedia>
+        </Paper>
+      </Grid>
+      <Grid item style={{width:50}}></Grid>
+      <Grid 
+        item 
+        container 
+        direction='column'
+        style={{width:'60%', padding:40, borderRadius: '20px'}}
+        className={classes.teamMemberStrip}
+      >
+        <Typography variant='h3'>{props.memberInfo.name}</Typography>
+        <Typography variant='h4'>{props.memberInfo.description}</Typography>
+      </Grid>
     </Grid>
   )
+
+  const createArray = length => [...Array(length)]
+
+  const MyStar = ({selected = false, onSelect = f => f}) => (
+    <GradeRoundedIcon 
+      style={{fontSize:'500%'}}
+      color = {selected ? theme.palette.common.primary : theme.palette.common.secondary} 
+      onClick={onSelect}/>
+  )
+
+  const StarRating = ({totalStars = 5}) => {
+    const [rating, setRating] = useState(0)
+    const [clicked, setClicked] = useState(false)
+    return (
+      <>
+        <Grid style={{padding: 10}}>
+          {createArray(totalStars).map((star, idx) => (
+            <MyStar
+              key={idx}
+              selected={rating > idx}
+              onSelect={() => {setRating(idx + 1)
+                               setClicked(true)}}
+            />
+          ))}
+        </Grid>
+        <Typography variant='h3' style={{color: '#c0392b'}}>
+          {clicked ? ratingComment[rating-1] : <Typography variant='h3'>Click to rate the page.</Typography>}
+        </Typography>
+      </>
+    )
+  }
+
+  const RatingSection = (props) => {
+    return {}
+  }
 
   return (
     <React.Fragment>
@@ -244,7 +302,7 @@ export default function LandingPage(props) {
         direction='column'
         id="introduction"
       >
-        <Typography className={classes.captionMargins} variant="h1" align='center'>
+        <Typography className={classes.captionMargins} variant="h2" align='center'>
           What is Briefly
         </Typography>
 
@@ -265,6 +323,7 @@ export default function LandingPage(props) {
         </Grid>
       </Grid>
 
+
       <Grid 
         justify='center' 
         alignItems='center' 
@@ -272,7 +331,7 @@ export default function LandingPage(props) {
         direction='column'
         id="demo"
       >
-        <Typography className={classes.captionMargins} variant="h1" align='center'>
+        <Typography className={classes.captionMargins} variant="h2" align='center'>
           Briefly's Mission
         </Typography>
         <Grid container justify='center'>
@@ -293,12 +352,19 @@ export default function LandingPage(props) {
         <Grid
           className={classes.teamContainer}
         >
-          <Typography className={classes.captionMargins} variant="h1" align='center'>
+          <Typography 
+            className={classes.captionMargins} 
+            variant="h2" 
+            align='center'
+          >
             Team
           </Typography>
           <Grid container  justify='center' direction='column'>
             {teamInfo.map((memberInfo, idx) => (
-              <MemberInfoStrip key={idx} memberInfo={memberInfo} />
+              <MemberInfoStrip 
+                key={idx} 
+                reversed={idx % 2 === 1} 
+                memberInfo={memberInfo} />
             ))}
           </Grid>
         </Grid>
@@ -312,9 +378,26 @@ export default function LandingPage(props) {
         direction='column'
         id="about-us"
       >
-        <Typography className={classes.captionMargins} variant="h1" align='center'>
+        <Typography className={classes.captionMargins} variant="h2" align='center'>
           About Us
         </Typography>
+      </Grid>
+
+      <Grid
+        justify='center' 
+        alignItems='center' 
+        container 
+        direction='column'
+        id="about-us"
+        style={{marginBottom : 200}}
+      >
+        <Typography 
+          className={classes.captionMargins} 
+          variant="h2" 
+          align='center'>
+          Contact Us
+        </Typography>
+        <StarRating />
       </Grid>
       
     </React.Fragment>
