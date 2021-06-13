@@ -40,7 +40,6 @@ export default function Dashboard(props) {
   const theme = useTheme();
   const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [marginLeft, setMarginLeft] = useState(0);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -58,7 +57,6 @@ export default function Dashboard(props) {
       <Navigator open={mobileOpen} onClose={handleDrawerToggle} />
       <DashboardBar
         handleDrawerToggle={handleDrawerToggle}
-        marginLeft={matchesXS ? 0 : marginLeft}
         open={mobileOpen}
         {...props}
       />

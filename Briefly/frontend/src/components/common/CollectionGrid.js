@@ -8,7 +8,7 @@ import clsx from "clsx"
 const useStyles = makeStyles((theme) => ({
   gridsContainer: {
     width: "100%",
-    marginTop: 64,
+    paddingTop: 100,
     background:
       theme.palette.type === "dark" ? theme.palette.primary.main : "inherit",
   },
@@ -19,6 +19,12 @@ const useStyles = makeStyles((theme) => ({
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen
     })
+  },
+  rowContainer: {
+    paddingLeft: 0,
+    paddingRight: 0,
+    paddingBottom: 20,
+    width: "100%"
   }
 }));
 
@@ -44,21 +50,21 @@ export default function NestedGrid({ open }) {
   return (
     <Grid
       container
-      spacing={4}
       className={classes.gridsContainer}
       justify="center"
+      alignItems="center"
       direction="column"
       className={clsx({
         [classes.contentShift]: open
       }, classes.gridsContainer)}
     >
-      <Grid container item spacing={3} justify="center">
+      <Grid container item spacing={3} justify="center" className={classes.rowContainer}>
         <FormRow />
       </Grid>
-      <Grid container item spacing={3} justify="center">
+      <Grid container item spacing={3} justify="center" className={classes.rowContainer}>
         <FormRow />
       </Grid>
-      <Grid container item spacing={3} justify="center">
+      <Grid container item spacing={3} justify="center" className={classes.rowContainer}>
         <FormRow />
       </Grid>
     </Grid>

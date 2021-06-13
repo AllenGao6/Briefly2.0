@@ -74,19 +74,19 @@ const theme = createMuiTheme({
     },
     h3: {
       fontFamily: "Odibee Sans",
-      fontSize: "3.5rem",
+      fontSize: "2.5rem",
       fontWeight: 600,
       color: briefPurple,
     },
     h4: {
-      fontFamily: "Roboto",
+      fontFamily: "Raleway",
       fontSize: "2rem",
       fontWeight: 500,
       color: 'black',
     },
     h5: {
-      fontFamily: "Roboto",
-      fontSize: "1.15rem",
+      fontFamily: "Raleway",
+      fontSize: "1.2rem",
       color: "black",
       fontWeight: 400,
     },

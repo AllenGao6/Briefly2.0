@@ -145,7 +145,7 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "1.25rem",
   },
   appBarShift: {
-    marginLeft: 256,
+    marginLeft: 240,
     transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen
@@ -172,7 +172,6 @@ export default function DashboardBar({
   setUser,
   switchTheme,
   handleDrawerToggle,
-  marginLeft,
   open
 }) {
   // styling utilities
@@ -184,21 +183,12 @@ export default function DashboardBar({
   const matchesDark = theme.palette.type === "dark";
 
   // define states
-  const [tabValue, setTabValue] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
   const [openMenu, setOpenMenu] = useState(false);
   const [openLoginDialog, setOpenLoginDiaog] = useState(false);
   const [search, setSearch] = useState("");
 
   // json array of objects used for mapping
-  const tabs = [
-    { name: "Introduction", link: "/", icon: <IntroIcon /> },
-    { name: "Demo", link: "/", icon: <DemoIcon /> },
-    { name: "Team", link: "/", icon: <TeamIcon /> },
-    { name: "About Us", link: "/", icon: <AboutIcon /> },
-    { name: "More ...", link: "/", icon: <MoreIcon /> },
-  ];
-
   const accountMenus = [
     {
       icon: (
@@ -243,7 +233,6 @@ export default function DashboardBar({
       const accessToken = localStorage.getItem("accessToken");
       if (!user && accessToken) {
         await handleSocialLogin({accessToken});
-        console.log("AAAAA");
       }
     }
     login();
@@ -262,8 +251,7 @@ export default function DashboardBar({
 
 
   const handleSocialLogin = (response) => {
-
-    axios.get('http://localhost:8000/auth/google-oauth2/')
+    axios.get('/auth/google-oauth2/')
       .then((result) => {
         localStorage.setItem("accessToken", response.accessToken);
         setUser({ name: result.data.firstname + " " + result.data.lastname });
@@ -276,7 +264,7 @@ export default function DashboardBar({
     }).then((code => {
       if (code === 405) {
         console.log("requesting");
-        axios.post('http://localhost:8000/auth/google-oauth2/', {
+        axios.post('/auth/google-oauth2/', {
           access_token: response.accessToken,
         })
         .then(function (result) {
