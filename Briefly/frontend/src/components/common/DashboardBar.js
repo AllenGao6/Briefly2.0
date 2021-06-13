@@ -144,6 +144,13 @@ const useStyles = makeStyles((theme) => ({
     color: "white",
     fontSize: "1.25rem",
   },
+  appBarShift: {
+    marginLeft: 256,
+    transition: theme.transitions.create(['margin', 'width'], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen
+    })
+  }
 }));
 
 function ElevationScroll(props) {
@@ -166,6 +173,7 @@ export default function DashboardBar({
   switchTheme,
   handleDrawerToggle,
   marginLeft,
+  open
 }) {
   // styling utilities
   const classes = useStyles();
@@ -180,7 +188,6 @@ export default function DashboardBar({
   const [anchorEl, setAnchorEl] = useState(null);
   const [openMenu, setOpenMenu] = useState(false);
   const [openLoginDialog, setOpenLoginDiaog] = useState(false);
-  const [openSideNavbar, setOpenSideNavbar] = useState(false);
   const [search, setSearch] = useState("");
 
   // json array of objects used for mapping
@@ -408,7 +415,9 @@ export default function DashboardBar({
               container
               justify="space-around"
               alignItems="center"
-              style={{ marginLeft: marginLeft }}
+              className={{
+                [classes.appBarShift]: open
+              }}
             >
               <Grid
                 item
@@ -444,7 +453,7 @@ export default function DashboardBar({
                   </Grid>
                 </Hidden>
                 <Hidden xsDown>
-                  {marginLeft === 0 ? (
+                  {!open ? (
                     <Grid item style={{ marginLeft: "1rem" }}>
                       <TextField
                         placeholder="Search..."
@@ -482,7 +491,7 @@ export default function DashboardBar({
                   marginRight: "1.5rem",
                   width: 100,
                   flexGrow:
-                    marginLeft === 0
+                    !open
                       ? matchesXS
                         ? 1.2
                         : 0.55
