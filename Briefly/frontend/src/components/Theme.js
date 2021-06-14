@@ -74,7 +74,7 @@ const theme = createMuiTheme({
     },
     h3: {
       fontFamily: "Odibee Sans",
-      fontSize: "3.5rem",
+      fontSize: "2.5rem",
       fontWeight: 600,
       color: briefPurple
     },

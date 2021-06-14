@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import clsx from "clsx";
-import { useTheme, useMediaQuery } from "@material-ui/core";
+import { useTheme, useMediaQuery, Typography, Grid, Icon } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
 import Divider from "@material-ui/core/Divider";
 import Drawer from "@material-ui/core/Drawer";
@@ -20,6 +20,8 @@ import TimerIcon from "@material-ui/icons/Timer";
 import SettingsIcon from "@material-ui/icons/Settings";
 import PhonelinkSetupIcon from "@material-ui/icons/PhonelinkSetup";
 import { makeStyles } from "@material-ui/styles";
+import IconTextButton from "./IconTextButton";
+import AddCircleIcon from '@material-ui/icons/AddCircle';
 
 const categories = [
   {
@@ -54,20 +56,15 @@ const useStyles = makeStyles((theme) => ({
   item: {
     paddingTop: 1,
     paddingBottom: 1,
-    color: "rgba(255, 255, 255, 0.7)",
-    "&:hover,&:focus": {
-      backgroundColor: "rgba(255, 255, 255, 0.08)",
+    "&:hover": {
+      backgroundColor: "#404854",
     },
   },
   itemCategory: {
-    backgroundColor: "#232f3e",
+    backgroundColor: theme.palette.common.grey,
     boxShadow: "0 -1px 0 #404854 inset",
     paddingTop: theme.spacing(2),
     paddingBottom: theme.spacing(2),
-  },
-  firebase: {
-    fontSize: 24,
-    color: theme.palette.common.white,
   },
   itemActiveItem: {
     color: "#4fc3f7",
@@ -86,6 +83,9 @@ const useStyles = makeStyles((theme) => ({
     width: 256,
     flexShrink: 0,
   },
+  noBorder: {
+    borderRight: `1px solid ${theme.palette.common.silver}`
+  }
 }));
 
 export default function Navigator(props) {
@@ -100,25 +100,32 @@ export default function Navigator(props) {
       variant={matchesXS ? "temporary" : "persistent"}
       anchor="left"
       {...other}
-      classes={{ paper: classes.drawerPaper }}
+      classes={{ paper: classes.drawerPaper,  paperAnchorDockedLeft: classes.noBorder}}
     >
       <List disablePadding>
         <ListItem
-          className={clsx(classes.firebase, classes.item, classes.itemCategory)}
-        >
-          Briefly
+          className={clsx(classes.item, classes.itemCategory)}
+          style={{textAlign: "center", height: 69}}
+        > 
+          <Typography variant="h4" style={{color: theme.palette.secondary.main}}>
+            Briefly
+          </Typography>
         </ListItem>
         <ListItem className={clsx(classes.item, classes.itemCategory)}>
           <ListItemIcon className={classes.itemIcon}>
-            <HomeIcon />
+            <HomeIcon style={{color: "white"}}/>
           </ListItemIcon>
-          <ListItemText
-            classes={{
-              primary: classes.itemPrimary,
-            }}
-          >
-            Project Overview
-          </ListItemText>
+          <Typography variant="h5" style={{color: "white"}}>
+            Home
+          </Typography>
+        </ListItem>
+        <ListItem className={clsx(classes.item, classes.itemCategory)}>
+          <IconTextButton 
+            icon={<AddCircleIcon />}
+            label="Add Collection"
+            backgroundColor="white"
+            onClick={() => console.log("Clicked")}
+          />
         </ListItem>
         {categories.map(({ id, children }) => (
           <React.Fragment key={id}>

@@ -77,13 +77,13 @@ const theme = createMuiTheme({
     },
     h4: {
       fontFamily: "Raleway",
-      fontSize: "1.75rem",
+      fontSize: "2rem",
       fontWeight: 500,
-      color: "black",
+      color: 'black',
     },
     h5: {
       fontFamily: "Raleway",
-      fontSize: "1.15rem",
+      fontSize: "1.2rem",
       color: "black",
       fontWeight: 400,
     },
