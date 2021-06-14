@@ -73,10 +73,10 @@ const theme = createMuiTheme({
       lineHeight: 1.5
     },
     h3: {
-      fontFamily: "Odibee Sans",
-      fontSize: "2.5rem",
-      fontWeight: 600,
-      color: briefPurple
+      fontFamily: "Roboto",
+      fontSize: "2rem",
+      fontWeight: 400,
+      color: briefGrey
     },
     h4: {
       fontFamily: "Roboto",
@@ -86,7 +86,7 @@ const theme = createMuiTheme({
     },
     h5: {
       fontFamily: "Roboto",
-      fontSize: "1rem",
+      fontSize: "1.2rem",
       color: "black",
       fontWeight: 400,
     },
@@ -107,13 +107,14 @@ const theme = createMuiTheme({
       fontWeight: 300,
     },
     body1: {
-      fontFamily: "Odibee Sans",
-      fontSize: "3.5rem",
-      fontWeight: 600,
+      fontFamily: "Roboto",
+      fontSize: "1.3rem",
+      fontWeight: 300,
+      lineHeight: "2rem",
       color: briefGrey
     },
     body2: {
-      fontFamily :"Odibee Sans",
+      fontFamily :"Roboto",
       fontSize: "1.8rem",
       fontWeight: 300,
       color: briefGrey

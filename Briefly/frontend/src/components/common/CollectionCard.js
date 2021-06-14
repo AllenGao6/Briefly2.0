@@ -33,12 +33,12 @@ export default function ImgMediaCard() {
           title="Contemplative Reptile"
         />
         <CardContent>
-          <Typography gutterBottom variant="h5" component="h2">
+          <Typography gutterBottom variant="h3">
             Math 230
           </Typography>
           <Typography
-            variant="body2"
-            component="p"
+            variant="body1"
+            paragraph
             className={classes.description}
           >
             This is a collection of advance math in multi calculas
