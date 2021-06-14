@@ -1,7 +1,7 @@
-from .models import Video
+from .models import Collection, Video
 from django.shortcuts import render
 from rest_framework import serializers, viewsets
-from .serializers import VideoSerializer
+from .serializers import VideoSerializer, CollectionSerializer
 
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -25,4 +25,11 @@ class VideoViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer_class()(newest)
         return Response(serializer.data)
     
-    
+class CollectionViewSet(viewsets.ModelViewSet):
+    serializer_class = CollectionSerializer
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
+
+    def get_queryset(self):
+        #currently authenticated user
+        user = self.request.user
+        return Collection.objects.filter(owner=user)
