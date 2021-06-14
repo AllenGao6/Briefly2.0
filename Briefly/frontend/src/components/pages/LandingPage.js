@@ -4,6 +4,7 @@ import {Button,
         CardMedia, 
         Grid,
         Paper, 
+        TextareaAutosize,
         Typography, 
         useMediaQuery, 
         Accordion, 
@@ -11,7 +12,7 @@ import {Button,
         AccordionDetails } from "@material-ui/core";
 import Avatar from '@material-ui/core/Avatar';
 import LandingHeader from "../common/LandingHeader";
-import { makeStyles, useTheme } from "@material-ui/styles";
+import { makeStyles, useTheme, MuiThemeProvider, createMuiTheme } from "@material-ui/styles";
 import heroIcon from "../../assets/hero/heroIcon.svg";
 
 import ReactPlayer from "react-player";
@@ -20,8 +21,12 @@ import {icons,
         descriptions, 
         border, 
         teamInfo, 
-        ratingComment} from "./data.js";
+        ratingComment,
+        contactInfo} from "./data.js";
 import GradeRoundedIcon from "@material-ui/icons/GradeRounded";
+import StarOutlineRoundedIcon from '@material-ui/icons/StarOutlineRounded';
+import StarRoundedIcon from '@material-ui/icons/StarRounded';
+import ArrowForwardIosRoundedIcon from '@material-ui/icons/ArrowForwardIosRounded';
 
 const useStyles = makeStyles((theme) => ({
   heroContainer: {
@@ -71,14 +76,15 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor : theme.palette.common.cloud
   },
   teamMemberDescription : {
-    backgroundColor : theme.palette.common.silver
+    backgroundColor : theme.palette.common.cloud
   },
   avatarAndName : {
     margin : "5px"
+  },
+  contactArea : {
+    backgroundColor : theme.palette.common.cloud
   }
 }));
-
-
 
 
 export default function LandingPage(props) {
@@ -94,29 +100,28 @@ export default function LandingPage(props) {
 
   const MyCard = ({ icon, caption, description }) => (
     <Card>
-      <Grid container xs={12}>
+      <Grid container>
 
         <Grid item xs={1}></Grid>
 
         <Grid 
           item 
-          xs={10} 
           container 
-          direction='column'>
+          direction='column'
+          justify='space-evenly'
+          style={{minHeight:350, paddingLeft:10, paddingRight: 10}}>
 
           <Grid item>
             <Typography align='center'>{icon}</Typography>
           </Grid>
           <Grid item>
-            <Typography variant='h3' align="center">{caption}</Typography>
+            <Typography variant='h3' align="center" style={{fontSize:"150%"}}>{caption}</Typography>
           </Grid>
           <Grid item>
-            <Typography variant='body2'>{description}</Typography>
+            <Typography variant='h5'>{description}</Typography>
           </Grid>
 
         </Grid>
-
-        <Grid item xs={1}></Grid>
       </Grid>
     </Card>
   );
@@ -214,12 +219,17 @@ export default function LandingPage(props) {
 
   const createArray = length => [...Array(length)]
 
-  const MyStar = ({selected = false, onSelect = f => f}) => (
-    <GradeRoundedIcon 
-      style={{fontSize:'500%'}}
-      color = {selected ? theme.palette.common.primary : theme.palette.common.secondary} 
+  const MyStar = ({selected = false, onSelect = f => f}) => {
+    {return selected ? 
+    <StarRoundedIcon  
+      style={{fontSize:'500%', color:"#f1c40f"}} 
       onClick={onSelect}/>
-  )
+    :
+    <StarOutlineRoundedIcon
+      style={{fontSize:'500%'}} 
+      onClick={onSelect}/>
+    }
+  }
 
   const StarRating = ({totalStars = 5}) => {
     const [rating, setRating] = useState(0)
@@ -236,8 +246,16 @@ export default function LandingPage(props) {
             />
           ))}
         </Grid>
-        <Typography variant='h3' style={{color: '#c0392b'}}>
-          {clicked ? ratingComment[rating-1] : <Typography variant='h3'>Click to rate the page.</Typography>}
+        <Typography>
+          {clicked
+          ? 
+          <Typography variant='body1' style={{color:'#c0392b'}}>
+            {ratingComment[rating-1]}
+          </Typography>
+          :  
+          <Typography variant='body1' style={{color:'#7f8c8d'}}>
+            Click to rate the page.
+          </Typography>}
         </Typography>
       </>
     )
@@ -246,6 +264,25 @@ export default function LandingPage(props) {
   const RatingSection = (props) => {
     return {}
   }
+
+
+  const InfoStrip = (props) => (
+    <Grid container direction='column'>
+      <Grid container alignItems="baseline" 
+            style={{backgroundColor : theme.palette.common.silver, maxWidth:200}}>
+        <ArrowForwardIosRoundedIcon />
+        <Typography variant='body2'>{props.data.type}</Typography>
+      </Grid>
+      <Typography variant='body2' style={{marginLeft:40}}>{props.data.info}</Typography>
+    </Grid>
+  )
+
+  const InfoSection = (props) => (
+    <Grid container>
+      {props.data.map((item, idx) => 
+        <InfoStrip data={item}/>)}
+    </Grid>
+  )
 
   return (
     <React.Fragment>
@@ -269,7 +306,7 @@ export default function LandingPage(props) {
               <Typography variant="h1">Briefly</Typography>
             </Grid>
             <Grid item>
-              <Typography variant="body1" style={{ color: "white" }}>
+              <Typography variant="caption" style={{ color: "white" }}>
                 The ultimate AI-powered platform to review course material.
                 Everything you need, in one streamlined platform.
               </Typography>
@@ -389,6 +426,7 @@ export default function LandingPage(props) {
         direction='column'
         id="about-us"
         style={{marginBottom : 200}}
+        
       >
         <Typography 
           className={classes.captionMargins} 
@@ -396,7 +434,29 @@ export default function LandingPage(props) {
           align='center'>
           Contact Us
         </Typography>
-        <StarRating />
+        <Grid container justify='center'>
+          <Grid item style={{width:'40%'}}>
+            <InfoSection data={contactInfo} />
+          </Grid>
+          <Grid 
+            item container 
+            direction='column' 
+            alignItems='center'
+            className={classes.contactArea}
+            style={{maxWidth:'50%'}}
+            >
+            <StarRating />
+            <TextareaAutosize 
+              aria-label="minimum height" rowsMin={6} style={{width:'80%'}}
+              placeholder="Some Feedbacks ..." colsMin={50}/>
+            <Button variant="contained" 
+                    color="secondary" 
+                    onClick={() => alert("Thanks you! Your feedback is valuable.")}
+                    style={{margin:20, textTransform:'none'}}>
+              <Typography variant='body2'>Submit</Typography>
+            </Button>
+          </Grid>
+        </Grid>
       </Grid>
       
     </React.Fragment>

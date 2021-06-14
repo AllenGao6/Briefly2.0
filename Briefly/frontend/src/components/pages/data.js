@@ -125,31 +125,31 @@ export const descriptions = [
     {
       name : 'Allen',
       headImage : head1,
-      brief : '',
+      quote : '',
       description : dummyText
     },
     {
       name : 'Brian',
       headImage : head2,
-      brief : '',
+      quote : '',
       description : dummyText    
     },
     {
       name : 'Shawn',
       headImage : head3,
-      brief : '',
+      quote : '',
       description : dummyText    
     },
     {
       name : 'Hugo',
       headImage : head4,
-      brief : '',
+      quote : '',
       description : dummyText    
     },
     {
       name : 'Stanford',
       headImage : head5,
-      brief : '',
+      quote : '',
       description : dummyText    
     },
   ]
@@ -161,3 +161,22 @@ export const descriptions = [
     "Good",
     "Excellent"
   ]
+
+export const contactInfo = [
+  {
+    type : 'Tel',
+    info : '814-846-2770'
+  },
+  {
+    type : 'Email',
+    info : 'thevalley@homesteadcos.com'
+  },
+  {
+    type : 'Address',
+    info : '870 Toftrees Ave. State College, PA 16803' 
+  },
+  {
+    type : 'Office Hours',
+    info : 'M-F 9am-7pm'
+  }
+]

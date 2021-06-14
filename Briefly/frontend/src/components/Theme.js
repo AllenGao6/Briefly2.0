@@ -63,30 +63,30 @@ const theme = createMuiTheme({
       fontWeight: 800,
       fontSize: "4rem",
       color: briefOrange,
-      lineHeight: 1.5,
+      lineHeight: 1.5
     },
     h2: {
       fontFamily: 'Roboto',
       fontWeight: 400,
       fontSize: "3.5rem",
       color: briefGrey,
-      lineHeight: 1.5,
+      lineHeight: 1.5
     },
     h3: {
       fontFamily: "Odibee Sans",
       fontSize: "3.5rem",
       fontWeight: 600,
-      color: briefPurple,
+      color: briefPurple
     },
     h4: {
       fontFamily: "Roboto",
-      fontSize: "2rem",
+      fontSize: "1.2rem",
       fontWeight: 500,
       color: 'black',
     },
     h5: {
       fontFamily: "Roboto",
-      fontSize: "1.15rem",
+      fontSize: "1rem",
       color: "black",
       fontWeight: 400,
     },
@@ -107,14 +107,21 @@ const theme = createMuiTheme({
       fontWeight: 300,
     },
     body1: {
-      fontSize: "1.0rem",
-      color: briefGrey,
+      fontFamily: "Odibee Sans",
+      fontSize: "3.5rem",
+      fontWeight: 600,
+      color: briefGrey
+    },
+    body2: {
+      fontFamily :"Odibee Sans",
+      fontSize: "1.8rem",
       fontWeight: 300,
+      color: briefGrey
     },
     caption: {
-      fontSize: "1em",
-      fontWeight: 300,
-      color: briefGrey,
+      fontFamily: "Roboto",
+      fontSize: "1.5rem",
+      color: briefSilver,
     },
   },
   overrides: {
