@@ -1,6 +1,9 @@
 # Briefly2.0
 
-
+## React-Redux Update (2021/06/15)
+```
+npm install redux redux-devtools-extension redux-thunk redux-persist react-redux redux-immutable-state-invariant
+```
 
 ## Database Update (2021/06/04)
 
