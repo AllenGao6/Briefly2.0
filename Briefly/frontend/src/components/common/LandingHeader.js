@@ -42,7 +42,10 @@ import IconTextButton from "./IconTextButton";
 import { GoogleLogin, GoogleLogout } from "react-google-login";
 import LoginDialog from "../social_login/LoginDialog";
 
-import axios from 'axios';
+import axios from "axios";
+import PropTypes from "prop-types";
+import { connect } from "react-redux";
+import { login, logout } from "../../redux/actions/auth_actions";
 
 const useStyles = makeStyles((theme) => ({
   appbar: {
@@ -115,7 +118,7 @@ const useStyles = makeStyles((theme) => ({
   listItemText: {
     opacity: 0.7,
     color: "white",
-    fontFamily: 'Odibee Sans',
+    fontFamily: "Odibee Sans",
     fontSize: "1.35rem",
     "&:hover": {
       opacity: 1,
@@ -141,16 +144,12 @@ function ElevationScroll(props) {
   });
 }
 
-export default function LandingHeader({ history, user, setUser }) {
+function LandingHeader({ history, user, accessToken, login, logout }) {
   // styling utilities
   const classes = useStyles();
   const theme = useTheme();
   const matchesMD = useMediaQuery(theme.breakpoints.down("md"));
   const matchesDark = theme.palette.type === "dark";
-  const trigger = useScrollTrigger({
-    disableHysteresis: false,
-    threshold: 100,
-  });
 
   // define states
   const [tabValue, setTabValue] = useState(0);
@@ -196,7 +195,7 @@ export default function LandingHeader({ history, user, setUser }) {
     {
       icon: (
         <ExitToAppOutlinedIcon
-          style = {{
+          style={{
             fontSize: "1.5rem",
             color: "white",
           }}
@@ -210,14 +209,9 @@ export default function LandingHeader({ history, user, setUser }) {
   ];
 
   useEffect(() => {
-    const login = async () => {
-      const accessToken = localStorage.getItem("accessToken");
-      if (!user && accessToken) {
-        await handleSocialLogin({accessToken});
-        console.log("AAAAA");
-      }
+    if (!user && accessToken) {
+      handleSocialLogin({ accessToken });
     }
-    login();
   }, [user]);
 
   // functions
@@ -226,40 +220,18 @@ export default function LandingHeader({ history, user, setUser }) {
     setOpenMenu(true);
   };
 
-  const handleClose = (e) => {
+  const handleClose = () => {
     setAnchorEl(null);
     setOpenMenu(false);
   };
 
-  const handleSocialLogin = (response) => {
+  const handleLoginDialogClose = () => {
+    setOpenMenu(false);
+    setOpenLoginDiaog(false);
+  };
 
-    axios.get('auth/google-oauth2/')
-      .then((result) => {
-        localStorage.setItem("accessToken", response.accessToken);
-        setUser({ name: result.data.firstname + " " + result.data.lastname });
-        setOpenMenu(false);
-        setOpenLoginDiaog(false);
-      })
-      .catch(function (error) {
-        console.log("not logged in yet");
-        return error.response.status;
-    }).then((code =>{
-      if (code === 405) {
-        console.log("requesting");
-        axios.post('auth/google-oauth2/', {
-          access_token: response.accessToken,
-        })
-        .then(function (result) {
-          localStorage.setItem("accessToken", response.accessToken);
-          console.log(result.data.firstname + " " + result.data.lastname);
-          setUser({ name: result.data.firstname + " " + result.data.lastname });
-          setOpenMenu(false);
-          setOpenLoginDiaog(false);
-        }).catch(function (error) {
-          console.log(error.response);
-        });
-      }
-    }));
+  const handleSocialLogin = (response) => {
+    login(response, handleLoginDialogClose);
   };
 
   const handleSocialLoginFailure = (err) => {
@@ -268,18 +240,10 @@ export default function LandingHeader({ history, user, setUser }) {
 
   const initial = (user) => {
     if (!user) return;
-    const [first, last] = user.name.split(" ");
-    return first.slice(0, 1).toUpperCase() + last.slice(0, 1).toUpperCase();
-  };
-
-  const logout = () => {
-    axios.get(`/logout/`)
-      .then(res => {
-        console.log(res.message);
-        console.log("logged out");
-        localStorage.removeItem("accessToken");
-        setUser(null);
-      })
+    return (
+      user.firstname.slice(0, 1).toUpperCase() +
+      user.lastname.slice(0, 1).toUpperCase()
+    );
   };
 
   // jsx components
@@ -475,3 +439,17 @@ export default function LandingHeader({ history, user, setUser }) {
     </React.Fragment>
   );
 }
+
+function mapStateToProps(state) {
+  return {
+    user: state.authReducer.user,
+    accessToken: state.authReducer.accessToken,
+  };
+}
+
+const mapDispatchToProps = {
+  login,
+  logout,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(LandingHeader);

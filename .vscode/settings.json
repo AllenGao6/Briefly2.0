@@ -1,4 +1,5 @@
 {
     "git.ignoreLimitWarning": true,
-    "jupyter.jupyterServerType": "local"
+    "jupyter.jupyterServerType": "local",
+    "python.pythonPath": "/usr/local/bin/python3"
 }

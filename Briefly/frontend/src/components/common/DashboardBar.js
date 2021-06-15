@@ -48,7 +48,11 @@ import IconTextButton from "./IconTextButton";
 import { GoogleLogout } from "react-google-login";
 import LoginDialog from "../social_login/LoginDialog";
 
-import axios from 'axios';
+import { connect } from "react-redux";
+import { login, logout } from "../../redux/actions/auth_actions";
+
+import axios from "axios";
+import Dashboard from "../pages/Dashboard";
 const useStyles = makeStyles((theme) => ({
   appbar: {
     background: theme.palette.primary.main,
@@ -146,11 +150,11 @@ const useStyles = makeStyles((theme) => ({
   },
   appBarShift: {
     marginLeft: 240,
-    transition: theme.transitions.create(['margin', 'width'], {
+    transition: theme.transitions.create(["margin", "width"], {
       easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen
-    })
-  }
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  },
 }));
 
 function ElevationScroll(props) {
@@ -166,13 +170,15 @@ function ElevationScroll(props) {
   });
 }
 
-export default function DashboardBar({
+function DashboardBar({
   history,
   user,
-  setUser,
+  accessToken,
+  login,
+  logout,
   switchTheme,
   handleDrawerToggle,
-  open
+  open,
 }) {
   // styling utilities
   const classes = useStyles();
@@ -229,13 +235,9 @@ export default function DashboardBar({
   ];
 
   useEffect(() => {
-    const login = async () => {
-      const accessToken = localStorage.getItem("accessToken");
-      if (!user && accessToken) {
-        await handleSocialLogin({accessToken});
-      }
+    if (!user && accessToken) {
+      handleSocialLogin({ accessToken });
     }
-    login();
   }, [user]);
 
   // functions
@@ -249,37 +251,14 @@ export default function DashboardBar({
     setOpenMenu(false);
   };
 
-
-  const handleSocialLogin = (response) => {
-    axios.get('/auth/google-oauth2/')
-      .then((result) => {
-        localStorage.setItem("accessToken", response.accessToken);
-        setUser({ name: result.data.firstname + " " + result.data.lastname });
-        setOpenMenu(false);
-        setOpenLoginDiaog(false);
-      })
-      .catch(function (error) {
-        console.log("not logged in yet");
-        return error.response.status;
-    }).then((code => {
-      if (code === 405) {
-        console.log("requesting");
-        axios.post('/auth/google-oauth2/', {
-          access_token: response.accessToken,
-        })
-        .then(function (result) {
-          localStorage.setItem("accessToken", response.accessToken);
-          console.log(result.data.firstname + " " + result.data.lastname);
-          setUser({ name: result.data.firstname + " " + result.data.lastname });
-          setOpenMenu(false);
-          setOpenLoginDiaog(false);
-        }).catch(function (error) {
-          console.log(error.response);
-        });
-      }
-    }));
+  const handleLoginDialogClose = () => {
+    setOpenMenu(false);
+    setOpenLoginDiaog(false);
   };
 
+  const handleSocialLogin = (response) => {
+    login(response, handleLoginDialogClose);
+  };
 
   const handleSocialLoginFailure = (err) => {
     console.log(err);
@@ -287,18 +266,10 @@ export default function DashboardBar({
 
   const initial = (user) => {
     if (!user) return;
-    const [first, last] = user.name.split(" ");
-    return first.slice(0, 1).toUpperCase() + last.slice(0, 1).toUpperCase();
-  };
-
-  const logout = () => {
-    axios.get(`/logout/`)
-      .then(res => {
-        console.log(res.message);
-        console.log("logged out");
-        localStorage.removeItem("accessToken");
-        setUser(null);
-      })
+    return (
+      user.firstname.slice(0, 1).toUpperCase() +
+      user.lastname.slice(0, 1).toUpperCase()
+    );
   };
 
   // jsx components
@@ -404,7 +375,7 @@ export default function DashboardBar({
               justify="space-around"
               alignItems="center"
               className={{
-                [classes.appBarShift]: open
+                [classes.appBarShift]: open,
               }}
             >
               <Grid
@@ -478,14 +449,13 @@ export default function DashboardBar({
                 style={{
                   marginRight: "1.5rem",
                   width: 100,
-                  flexGrow:
-                    !open
-                      ? matchesXS
-                        ? 1.2
-                        : 0.55
-                      : matchesXS
+                  flexGrow: !open
+                    ? matchesXS
                       ? 1.2
-                      : 1.2,
+                      : 0.55
+                    : matchesXS
+                    ? 1.2
+                    : 1.2,
                 }}
               >
                 <Grid item style={{ marginRight: "1rem" }}>
@@ -524,3 +494,17 @@ export default function DashboardBar({
     </React.Fragment>
   );
 }
+
+function mapStateToProps(state) {
+  return {
+    user: state.authReducer.user,
+    accessToken: state.authReducer.accessToken,
+  };
+}
+
+const mapDispatchToProps = {
+  login,
+  logout,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(DashboardBar);

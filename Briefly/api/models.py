@@ -15,7 +15,7 @@ def generate_unique_code():
 def validate_video(video):
     limit_mb = 200
     file_size = video.size 
-    if file_size> limit_mb * 1024 * 1024:
+    if file_size > limit_mb * 1024 * 1024:
         raise ValidationError(f"maximum size is {limit_mb} mb")
    
    

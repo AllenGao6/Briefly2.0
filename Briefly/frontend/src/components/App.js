@@ -27,7 +27,6 @@ import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import { GoogleLogin } from "react-google-login";
 import LandingPage from "./pages/LandingPage";
 
-
 class App extends Component {
   constructor(props) {
     super(props);
@@ -49,11 +48,8 @@ class App extends Component {
     console.log("switched");
   };
 
-
   render() {
-  
     const stateProps = {
-      user: this.state.user,
       setUser: this.setUser,
       switchTheme: this.switchTheme,
     };

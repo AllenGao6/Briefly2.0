@@ -16,6 +16,7 @@ class VideoViewSet(viewsets.ModelViewSet):
         for the currently authenticated user.
         """
         user = self.request.user
+        print(user)
         return Video.objects.filter(owner=user)
 
     # Test
@@ -32,4 +33,5 @@ class CollectionViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         #currently authenticated user
         user = self.request.user
+        print(user)
         return Collection.objects.filter(owner=user)
