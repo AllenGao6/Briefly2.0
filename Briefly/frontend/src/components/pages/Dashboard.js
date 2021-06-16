@@ -11,23 +11,10 @@ import {
   IconButton,
   useMediaQuery,
   useTheme,
-  SwipeableDrawer,
-  List,
-  ListItem,
-  ListItemText,
-  Typography,
-  Grid,
-  Hidden,
-  Dialog,
-  DialogContent,
-  ListItemIcon,
-  Avatar,
 } from "@material-ui/core";
 import DashboardBar from "../common/DashboardBar";
-import NestedGrid from "../common/CollectionGrid";
 import Navigator from "../common/Navigator";
 import DashboardContent from "../common/DashboardContent";
-
 import { connect } from "react-redux";
 import { loadCollections } from "../../redux/actions/collection_actions";
 
@@ -77,6 +64,7 @@ function Dashboard(props) {
 function mapStateToProps(state) {
   return {
     collections: state.collectionReducer.collections,
+    isLoading: state.collectionReducer.isLoading,
   };
 }
 

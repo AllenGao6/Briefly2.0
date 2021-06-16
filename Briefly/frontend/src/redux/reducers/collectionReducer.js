@@ -1,4 +1,5 @@
 import * as type from "../actions/action_types";
+import { toast } from "react-toastify";
 
 const initialState = {
   collections: [],
@@ -8,6 +9,7 @@ const initialState = {
 export default function collectionReducer(state = initialState, action) {
   switch (action.type) {
     case type.LOADING_COLLECTIONS:
+      toast.info("🦄 Wow so easy!");
       return {
         ...state,
         isLoading: true,

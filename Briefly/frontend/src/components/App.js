@@ -1,13 +1,5 @@
-import React, { Component, Fragment } from "react";
-import { render } from "react-dom";
-import {
-  BrowserRouter,
-  Route,
-  Switch,
-  Redirect,
-  Link,
-  useHistory,
-} from "react-router-dom";
+import React, { Component } from "react";
+import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -15,17 +7,11 @@ import NotFound from "./pages/NotFound";
 import theme from "./Theme";
 import darkTheme from "./DarkTheme";
 import { ThemeProvider } from "@material-ui/styles";
-import { withStyles } from "@material-ui/core/styles";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import Typography from "@material-ui/core/Typography";
-import Button from "@material-ui/core/Button";
-import IconButton from "@material-ui/core/IconButton";
-import MenuIcon from "@material-ui/icons/Menu";
-import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 //google login
-import { GoogleLogin } from "react-google-login";
 import LandingPage from "./pages/LandingPage";
+//toast
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 class App extends Component {
   constructor(props) {
@@ -51,6 +37,17 @@ class App extends Component {
     return (
       <ThemeProvider theme={this.state.theme}>
         <BrowserRouter>
+          <ToastContainer
+            position="bottom-left"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+          />
           <Switch>
             <Route
               exact
