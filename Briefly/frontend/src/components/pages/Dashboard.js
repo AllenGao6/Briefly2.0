@@ -26,16 +26,25 @@ import {
 import DashboardBar from "../common/DashboardBar";
 import NestedGrid from "../common/CollectionGrid";
 import Navigator from "../common/Navigator";
-import DashboardContent from "../common/DashboardContent"
+import DashboardContent from "../common/DashboardContent";
+
+import { connect } from "react-redux";
+import { loadCollections } from "../../redux/actions/collection_actions";
 
 // User View
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
   },
+  button: {
+    ...theme.typography.roundedButton,
+    background: theme.palette.secondary.main,
+    width: "13rem",
+    margin: "2rem",
+  },
 }));
 
-export default function Dashboard(props) {
+function Dashboard(props) {
   const classes = useStyles();
   const theme = useTheme();
   const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
@@ -44,13 +53,6 @@ export default function Dashboard(props) {
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
-
-  // prevent user from manually entering "/dashboard" Url
-  useEffect(() => {
-    if (!props.user) {
-      // props.history.replace("/");
-    }
-  }, [props.user]);
 
   return (
     <React.Fragment>
@@ -61,6 +63,25 @@ export default function Dashboard(props) {
         {...props}
       />
       <DashboardContent open={mobileOpen} />
+      <Button
+        variant="contained"
+        className={classes.button}
+        onClick={props.loadCollections}
+      >
+        Load Collections
+      </Button>
     </React.Fragment>
   );
 }
+
+function mapStateToProps(state) {
+  return {
+    collections: state.collectionReducer.collections,
+  };
+}
+
+const mapDispatchToProps = {
+  loadCollections,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);
