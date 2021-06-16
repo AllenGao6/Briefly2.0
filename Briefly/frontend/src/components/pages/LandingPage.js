@@ -323,7 +323,7 @@ export default function LandingPage(props) {
               <Typography variant="h1">Briefly</Typography>
             </Grid>
             <Grid item>
-              <Typography variant="caption" style={{ color: "white" }}>
+              <Typography variant="body1" style={{ color: "white" }}>
                 The ultimate AI-powered platform to review course material.
                 Everything you need, in one streamlined platform.
               </Typography>

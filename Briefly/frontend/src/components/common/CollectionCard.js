@@ -11,11 +11,14 @@ import bookImage from "../../assets/dummy/book.png";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    maxWidth: 345,
+    maxWidth: 360,
     background: theme.palette.common.icon,
   },
-  description: {
+  cardText: {
     color: theme.palette.type === "dark" ? "white" : theme.palette.common.grey,
+    marginBottom: "0.25rem",
+    maxHeight: "4rem",
+    overflow: "scroll",
   },
 }));
 
@@ -28,20 +31,17 @@ export default function ImgMediaCard() {
         <CardMedia
           component="img"
           alt="An image"
-          height="140"
+          height="150"
           image={bookImage}
           title="Contemplative Reptile"
         />
-        <CardContent>
-          <Typography gutterBottom variant="h3">
+        <CardContent style={{ paddingBottom: 0, paddingRight: "0.5rem" }}>
+          <Typography gutterBottom variant="h4" className={classes.cardText}>
             Math 230
           </Typography>
-          <Typography
-            variant="body1"
-            paragraph
-            className={classes.description}
-          >
-            This is a collection of advance math in multi calculas
+          <Typography variant="body2" paragraph className={classes.cardText}>
+            The collection of whatever stuffs it is supposed to be, this is a
+            randomly typed sentence just to make sure it has more words.
           </Typography>
         </CardContent>
       </CardActionArea>

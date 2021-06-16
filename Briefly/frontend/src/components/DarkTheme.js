@@ -10,6 +10,7 @@ const briefGreen = "#2ed573";
 const briefGrey = "#2f3542";
 const briefWhite = "#f1f2f6";
 const briefPurple = "#8e44ad";
+const briefSilver = "#bdc3c7";
 
 const theme = createMuiTheme({
   palette: {
@@ -57,30 +58,31 @@ const theme = createMuiTheme({
       },
     },
     h1: {
-      fontFamily: "Raleway",
-      fontWeight: 800,
-      fontSize: "3.5rem",
-      color: briefBlue,
+      fontFamily: "Roboto",
+      fontWeight: 700,
+      fontSize: "3.8rem",
+      color: briefOrange,
       lineHeight: 1.5,
+      letterSpacing: 1.2,
     },
     h2: {
-      fontFamily: "Raleway",
-      fontWeight: 700,
-      fontSize: "2rem",
+      fontFamily: "Ubuntu",
+      fontWeight: 500,
+      fontSize: "3rem",
       color: briefBlue,
       lineHeight: 1.5,
     },
     h3: {
       fontFamily: "Roboto",
-      fontSize: "2.25rem",
-      fontWeight: 600,
-      color: briefGrey
+      fontSize: "2rem",
+      fontWeight: 400,
+      color: briefGrey,
     },
     h4: {
-      fontFamily: "Raleway",
-      fontSize: "2rem",
+      fontFamily: "Roboto",
+      fontSize: "1.75rem",
       fontWeight: 500,
-      color: 'black',
+      color: "black",
     },
     h5: {
       fontFamily: "Raleway",
@@ -90,12 +92,13 @@ const theme = createMuiTheme({
     },
     h6: {
       fontFamily: "Raleway",
+      fontSize: "1rem",
       fontWeight: 300,
       lineHeight: 1,
       color: briefYellow,
     },
     subtitle1: {
-      fontSize: "1.25rem",
+      fontSize: "Roboto",
       fontWeight: 300,
       color: briefGrey,
     },
@@ -106,21 +109,21 @@ const theme = createMuiTheme({
     },
     body1: {
       fontFamily: "Roboto",
-      fontSize: "1.3rem",
+      fontSize: "1.25rem",
       fontWeight: 300,
-      lineHeight: "2rem",
-      color: briefGrey
+      lineHeight: "1.6rem",
+      color: briefGrey,
     },
     body2: {
-      fontFamily :"Roboto",
-      fontSize: "1.8rem",
-      fontWeight: 300,
-      color: briefGrey
-    },
-    caption: {
-      fontSize: "1em",
+      fontFamily: "Ubuntu",
+      fontSize: "1rem",
       fontWeight: 300,
       color: briefGrey,
+    },
+    caption: {
+      fontFamily: "Roboto",
+      fontSize: "1.6rem",
+      color: briefSilver,
     },
   },
   overrides: {

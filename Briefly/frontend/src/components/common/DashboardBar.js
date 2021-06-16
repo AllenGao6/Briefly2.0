@@ -5,16 +5,10 @@ import {
   AppBar,
   Toolbar,
   useScrollTrigger,
-  Tabs,
-  Tab,
   Button,
   IconButton,
   useMediaQuery,
   useTheme,
-  SwipeableDrawer,
-  List,
-  ListItem,
-  ListItemText,
   Typography,
   Grid,
   Hidden,
@@ -22,20 +16,13 @@ import {
   DialogContent,
   TextField,
   InputAdornment,
-  ListItemIcon,
   Avatar,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import AccountBoxOutlinedIcon from "@material-ui/icons/AccountBoxOutlined";
 import HomeOutlinedIcon from "@material-ui/icons/HomeOutlined";
-import DashboardOutlinedIcon from "@material-ui/icons/DashboardOutlined";
 import ExitToAppOutlinedIcon from "@material-ui/icons/ExitToAppOutlined";
 import MenuIcon from "@material-ui/icons/Menu";
-import IntroIcon from "@material-ui/icons/ImportContactsOutlined";
-import DemoIcon from "@material-ui/icons/MovieOutlined";
-import TeamIcon from "@material-ui/icons/GroupOutlined";
-import AboutIcon from "@material-ui/icons/BusinessOutlined";
-import MoreIcon from "@material-ui/icons/MoreHorizOutlined";
 import SearchOutlinedIcon from "@material-ui/icons/SearchOutlined";
 import DarkModeIcon from "@material-ui/icons/Brightness7";
 import LightModeIcon from "@material-ui/icons/Brightness4";
@@ -51,8 +38,6 @@ import LoginDialog from "../social_login/LoginDialog";
 import { connect } from "react-redux";
 import { login, logout } from "../../redux/actions/auth_actions";
 
-import axios from "axios";
-import Dashboard from "../pages/Dashboard";
 const useStyles = makeStyles((theme) => ({
   appbar: {
     background: theme.palette.primary.main,
@@ -307,7 +292,7 @@ function DashboardBar({
         </Grid>
         <Grid item>
           <Typography variant="h5" className={classes.specialText}>
-            {user ? user.name : "Anonymous"}
+            {user ? `${user.firstname} ${user.lastname}` : "Anonymous"}
           </Typography>
         </Grid>
       </Grid>

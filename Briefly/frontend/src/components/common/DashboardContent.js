@@ -1,10 +1,10 @@
-import React from 'react';
-import NestedGrid from './CollectionGrid';
+import React from "react";
+import CollectionGrid from "./CollectionGrid";
 
-export default function DashboardContent({open}) {
-    return (
-        <React.Fragment>
-            <NestedGrid open={open}/>
-        </React.Fragment>
-    )
+export default function DashboardContent({ open }) {
+  return (
+    <React.Fragment>
+      <CollectionGrid open={open} />
+    </React.Fragment>
+  );
 }

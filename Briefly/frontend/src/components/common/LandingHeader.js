@@ -17,13 +17,10 @@ import {
   Typography,
   Grid,
   Hidden,
-  Dialog,
-  DialogContent,
   ListItemIcon,
   Avatar,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
-import AccountCircle from "@material-ui/icons/AccountCircle";
 import AccountBoxOutlinedIcon from "@material-ui/icons/AccountBoxOutlined";
 import DashboardOutlinedIcon from "@material-ui/icons/DashboardOutlined";
 import ExitToAppOutlinedIcon from "@material-ui/icons/ExitToAppOutlined";
@@ -35,15 +32,12 @@ import AboutIcon from "@material-ui/icons/BusinessOutlined";
 import MoreIcon from "@material-ui/icons/MoreHorizOutlined";
 
 import logo from "../../assets/logo/png/colorLogo.png";
-import googleIcon from "../../assets/google/googleIcon.svg";
 import MenuPopper from "./MenuPopper";
 import IconTextButton from "./IconTextButton";
 
 import { GoogleLogin, GoogleLogout } from "react-google-login";
 import LoginDialog from "../social_login/LoginDialog";
 
-import axios from "axios";
-import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { login, logout } from "../../redux/actions/auth_actions";
 
@@ -157,8 +151,6 @@ function LandingHeader({ history, user, accessToken, login, logout }) {
   const [openMenu, setOpenMenu] = useState(false);
   const [openLoginDialog, setOpenLoginDiaog] = useState(false);
   const [openSideNavbar, setOpenSideNavbar] = useState(false);
-  // user state is lifted to App.js to maintain login status across pages
-  // const [user, setUser] = useState(null);
 
   // json array of objects used for mapping
   const tabs = [
@@ -281,7 +273,7 @@ function LandingHeader({ history, user, accessToken, login, logout }) {
         </Grid>
         <Grid item>
           <Typography variant="h5" className={classes.specialText}>
-            {user ? user.name : "Anonymous"}
+            {user ? `${user.firstname} ${user.lastname}` : "Anonymous"}
           </Typography>
         </Grid>
       </Grid>

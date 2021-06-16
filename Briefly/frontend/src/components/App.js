@@ -32,25 +32,19 @@ class App extends Component {
     super(props);
     this.state = {
       pagenumer: 0,
-      user: null,
       theme: theme,
       //add in other user information here later
     };
   }
 
-  setUser = (user) => {
-    this.setState({ user });
-  };
-
   switchTheme = () => {
-    let newTheme = this.state.theme === theme ? darkTheme : theme;
+    const newTheme = this.state.theme === theme ? darkTheme : theme;
     this.setState({ theme: newTheme });
     console.log("switched");
   };
 
   render() {
     const stateProps = {
-      setUser: this.setUser,
       switchTheme: this.switchTheme,
     };
 
