@@ -5,24 +5,17 @@ from rest_framework import serializers, viewsets
 from .serializers import VideoSerializer, CollectionSerializer
 
 from rest_framework.decorators import api_view, permission_classes
-
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-
 class VideoViewSet(viewsets.ModelViewSet):
+
     serializer_class = VideoSerializer
     authentication_classes = [SessionAuthentication, TokenAuthentication]
-    def get_queryset(self):
-        """
-        This view should return a list of all the videos
-        for the currently authenticated user.
-        """
-        user = self.request.user
-        collection = Collection.objects.filter(owner=user)[0]
-
-        return Video.objects.filter(collection=collection)
+    def get_queryset(self, *args, **kwargs):
+        return Video.objects.filter(collection=self.kwargs['collection_pk'])
 
     # Test
     @action(methods=['get'], detail=False)
@@ -41,7 +34,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
     serializer_class = CollectionSerializer
     authentication_classes = [SessionAuthentication, TokenAuthentication]
 
-    def get_queryset(self):
+    def get_queryset(self,*args, **kwargs):
         #currently authenticated user
         user = self.request.user
         print(user)

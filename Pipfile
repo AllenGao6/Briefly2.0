@@ -12,6 +12,8 @@ django-cors-headers = "*"
 urllib3 = "==1.25.11"
 social-auth-app-django = "*"
 psycopg2-binary = "*"
+django-storages = "*"
+drf-nested-routers = "*"
 
 [dev-packages]
 
