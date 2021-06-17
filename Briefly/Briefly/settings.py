@@ -168,3 +168,25 @@ SOCIAL_AUTH_PIPELINE = (
 )
 
 SITE_ID = 1
+
+#amazon s3 database
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+AWS_ACCESS_KEY_ID = 'AKIA4Q6A67QESQQAFLMF'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 'briefly41'
+
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+AWS_DEFAULT_ACL = 'public-read'
+
+AWS_LOCATION = 'static'
+
+#STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
+#STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+
+#MEDIA_ROOT = os.path.join(BASE_DIR, 'static/media')
+
+AWS_S3_FILE_OVERWRITE = False

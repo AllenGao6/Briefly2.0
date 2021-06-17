@@ -1,11 +1,15 @@
+from django.db.models.expressions import Col
 from .models import Collection, Video
 from django.shortcuts import render
 from rest_framework import serializers, viewsets
 from .serializers import VideoSerializer, CollectionSerializer
 
+from rest_framework.decorators import api_view, permission_classes
+
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 class VideoViewSet(viewsets.ModelViewSet):
     serializer_class = VideoSerializer
@@ -16,8 +20,9 @@ class VideoViewSet(viewsets.ModelViewSet):
         for the currently authenticated user.
         """
         user = self.request.user
-        print(user)
-        return Video.objects.filter(owner=user)
+        collection = Collection.objects.filter(owner=user)[0]
+
+        return Video.objects.filter(collection=collection)
 
     # Test
     @action(methods=['get'], detail=False)
@@ -25,7 +30,13 @@ class VideoViewSet(viewsets.ModelViewSet):
         newest = self.get_queryset().order_by("created").last()
         serializer = self.get_serializer_class()(newest)
         return Response(serializer.data)
-    
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def upload_video(request):
+    user = request.user
+    return Response({'user':user.email})
+
 class CollectionViewSet(viewsets.ModelViewSet):
     serializer_class = CollectionSerializer
     authentication_classes = [SessionAuthentication, TokenAuthentication]

@@ -9,5 +9,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/<backend>/', login_view),
     path('logout/', logout_view),
-    path('api/', include(router.urls))
+    path('api/', include('api.urls'))
+
 ]  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
