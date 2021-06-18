@@ -1,0 +1,40 @@
+import React, { useState } from "react";
+import {
+  makeStyles,
+  Card,
+  CardActionArea,
+  Button,
+  Typography,
+  useTheme,
+  Paper,
+} from "@material-ui/core";
+import PostAddOutlinedIcon from "@material-ui/icons/PostAddOutlined";
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    width: 360,
+    height: 320,
+    transition: "all 0.3s",
+    opacity: 0.6,
+    background: theme.palette.common.white,
+    "&:hover": {
+      opacity: 1,
+      background: theme.palette.common.cloud,
+    },
+  },
+  addIcon: {
+    fontSize: "12rem",
+    color: theme.palette.type === "dark" ? "white" : theme.palette.common.grey,
+  },
+}));
+
+export default function AddCollectionCard() {
+  const classes = useStyles();
+  const theme = useTheme();
+
+  return (
+    <Card className={classes.root} component={Button} elevation={6}>
+      <PostAddOutlinedIcon className={classes.addIcon} />
+    </Card>
+  );
+}

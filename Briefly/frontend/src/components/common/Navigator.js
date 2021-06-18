@@ -89,6 +89,9 @@ const useStyles = makeStyles((theme) => ({
     width: 256,
     flexShrink: 0,
   },
+  noBorder: {
+    borderRight: `1px solid ${theme.palette.common.silver}`,
+  },
 }));
 
 export default function Navigator(props) {
@@ -105,6 +108,7 @@ export default function Navigator(props) {
       {...other}
       classes={{
         paper: classes.drawerPaper,
+        paperAnchorDockedLeft: classes.noBorder,
       }}
     >
       <List disablePadding>

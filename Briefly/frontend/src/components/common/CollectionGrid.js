@@ -7,6 +7,7 @@ import {
   useTheme,
 } from "@material-ui/core";
 import CollectionCard from "./CollectionCard";
+import AddCollectionCard from "./AddCollectionCard";
 import clsx from "clsx";
 import { connect } from "react-redux";
 
@@ -46,10 +47,6 @@ function CollectionGrid({ open, collections }) {
   const threePerRowOpened = useMediaQuery("(max-width:1800px)");
   const fourPerRowOpened = useMediaQuery("(max-width:2190px)");
 
-  const AddCollectionCard = (
-    <CollectionCard collection={{ name: "Add More", description: "..." }} />
-  );
-
   const collectionIterator = () => {
     // This boolean is carefully designed, do not modify it unless been notified!
     const numItemsPerRow = open
@@ -71,7 +68,6 @@ function CollectionGrid({ open, collections }) {
     const iterator = new Array(numRows)
       .fill(null)
       .map(() => new Array(numItemsPerRow).fill(null));
-    console.log(iterator, numRows, numItemsPerRow, collections.length);
 
     let idx = 0;
     for (let i = 0; i < numRows; i++) {
@@ -87,22 +83,6 @@ function CollectionGrid({ open, collections }) {
       if (idx === collections.length + 1) break;
     }
     return iterator;
-  };
-
-  const FormRow = () => {
-    return (
-      <React.Fragment>
-        <Grid item>
-          <CollectionCard />
-        </Grid>
-        <Grid item>
-          <CollectionCard />
-        </Grid>
-        <Grid item>
-          <CollectionCard />
-        </Grid>
-      </React.Fragment>
-    );
   };
 
   return (
@@ -131,13 +111,11 @@ function CollectionGrid({ open, collections }) {
           {row.map((collection, i) => (
             <Grid item key={`collection-card-${i}`}>
               {collection === "Add More" ? (
-                <CollectionCard
-                  collection={{ name: "Add More", description: "..." }}
-                />
+                <AddCollectionCard />
               ) : collection !== null ? (
                 <CollectionCard collection={collection} />
               ) : (
-                <CollectionCard collection={{ name: ".", description: "." }} />
+                <div style={{ width: 360, height: 320 }}></div>
               )}
             </Grid>
           ))}

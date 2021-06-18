@@ -2,13 +2,8 @@ import { makeStyles } from "@material-ui/styles";
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
-  AppBar,
-  Toolbar,
-  useScrollTrigger,
-  Tabs,
-  Tab,
-  Button,
-  IconButton,
+  Dialog,
+  DialogContent,
   useMediaQuery,
   useTheme,
 } from "@material-ui/core";

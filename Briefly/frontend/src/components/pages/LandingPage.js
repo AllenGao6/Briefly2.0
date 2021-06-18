@@ -142,7 +142,15 @@ export default function LandingPage(props) {
     const FormRow = ({ frame, icon, caption, description }) => (
       <React.Fragment>
         {frame.map((item, idx) => (
-          <Grid item xs={12} md={6} lg={4} key={idx} container>
+          <Grid
+            item
+            xs={12}
+            md={6}
+            lg={4}
+            key={idx}
+            container
+            key={`${item}-${idx}`}
+          >
             <Grid item xs={1}></Grid>
             <Grid item>
               <MyCard
@@ -160,7 +168,14 @@ export default function LandingPage(props) {
       <div>
         <Grid container spacing={3}>
           {props.frame.map((item, idx) => (
-            <Grid container item spacing={3} key={idx} align="center">
+            <Grid
+              container
+              item
+              spacing={3}
+              key={idx}
+              align="center"
+              key={`${item}-${idx}`}
+            >
               <FormRow
                 frame={item}
                 icon={icons[idx]}
@@ -249,7 +264,7 @@ export default function LandingPage(props) {
         <Grid style={{ padding: 10 }}>
           {createArray(totalStars).map((star, idx) => (
             <MyStar
-              key={idx}
+              key={`${star}-${idx}`}
               selected={rating > idx}
               onSelect={() => {
                 setRating(idx + 1);
@@ -296,7 +311,7 @@ export default function LandingPage(props) {
   const InfoSection = (props) => (
     <Grid container>
       {props.data.map((item, idx) => (
-        <InfoStrip data={item} />
+        <InfoStrip key={`${item}-${idx}`} data={item} />
       ))}
     </Grid>
   );
@@ -417,7 +432,7 @@ export default function LandingPage(props) {
           <Grid container justify="center" direction="column">
             {teamInfo.map((memberInfo, idx) => (
               <MemberInfoStrip
-                key={idx}
+                key={`${memberInfo}-${idx}`}
                 reversed={idx % 2 === 1}
                 memberInfo={memberInfo}
               />
@@ -475,7 +490,7 @@ export default function LandingPage(props) {
               rowsMin={6}
               style={{ width: "80%" }}
               placeholder="Some Feedbacks ..."
-              colsMin={50}
+              colsmin={50}
             />
             <Button
               variant="contained"

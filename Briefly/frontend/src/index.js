@@ -10,10 +10,8 @@ const store = configureStore(initialState);
 const rootElement = document.getElementById("app");
 
 ReactDOM.render(
-  <React.StrictMode>
-    <ReduxProvider store={store}>
-      <App />
-    </ReduxProvider>
-  </React.StrictMode>,
+  <ReduxProvider store={store}>
+    <App />
+  </ReduxProvider>,
   rootElement
 );

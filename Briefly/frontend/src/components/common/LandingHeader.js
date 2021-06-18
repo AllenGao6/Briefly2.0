@@ -277,13 +277,14 @@ function LandingHeader({ history, user, accessToken, login, logout }) {
           </Typography>
         </Grid>
       </Grid>
-      {accountMenus.map((menu) => (
+      {accountMenus.map((menu, i) => (
         <React.Fragment>
           {menu.label === "Logout" ? (
-            <div style={{ marginTop: "1.25rem" }} />
+            <div key={`account-margin-${i}`} style={{ marginTop: "1.25rem" }} />
           ) : undefined}
           {menu.label === "Logout" ? (
             <GoogleLogout
+              key={`account-logout-${i}`}
               clientId="372223287259-nit3rukskraic3obnog1v3n3mpqn3ab7.apps.googleusercontent.com"
               buttonText="Sign Out"
               onLogoutSuccess={logout}
@@ -299,6 +300,7 @@ function LandingHeader({ history, user, accessToken, login, logout }) {
             ></GoogleLogout>
           ) : (
             <IconTextButton
+              key={`account-${menu.label}-${i}`}
               icon={menu.icon}
               label={menu.label}
               color={menu.color}
@@ -344,7 +346,7 @@ function LandingHeader({ history, user, accessToken, login, logout }) {
         <List className={classes.menuListContainer}>
           {tabs.map((tab, i) => (
             <ListItem
-              key={`ListItem-${tab}${i}`}
+              key={`ListItem-${tab.name}${i}`}
               onClick={() => setOpenSideNavbar(false)}
               divider
               button
@@ -404,7 +406,7 @@ function LandingHeader({ history, user, accessToken, login, logout }) {
                       >
                         {tabs.map((tab, i) => (
                           <Tab
-                            key={tab.name}
+                            key={`Tab-${tab.name}-${i}`}
                             component={Link}
                             className={classes.tab}
                             to={tab.link}

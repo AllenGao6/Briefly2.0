@@ -22,10 +22,11 @@ export default function IconTextButton({
     <Paper
       elevation={2}
       component={Button}
-      cl
       classes={{ root: classes.container }}
       onClick={onClick}
-      style={{ background: backgroundColor }}
+      style={{
+        background: backgroundColor,
+      }}
     >
       <Grid
         item

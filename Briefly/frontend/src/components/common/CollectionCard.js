@@ -20,6 +20,7 @@ import MoreVertIcon from "@material-ui/icons/MoreVert";
 const useStyles = makeStyles((theme) => ({
   root: {
     width: 360,
+    height: 320,
     background: theme.palette.common.icon,
   },
   cardText: {
@@ -73,8 +74,8 @@ export default function CollectionCard({ collection }) {
   );
 
   return (
-    <Card className={classes.root}>
-      <CardActionArea>
+    <Card className={classes.root} elevation={6}>
+      <CardActionArea style={{ height: 272 }}>
         <CardMedia
           component="img"
           alt="An image"
