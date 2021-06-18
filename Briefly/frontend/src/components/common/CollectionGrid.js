@@ -30,24 +30,63 @@ const useStyles = makeStyles((theme) => ({
     paddingRight: 0,
     paddingBottom: 20,
     width: "100%",
+    overflow: "hidden",
   },
 }));
 
 function CollectionGrid({ open, collections }) {
   const classes = useStyles();
   const theme = useTheme();
-  const matchesLG = useMediaQuery(theme.breakpoints.down("lg"));
-  const matchesMD = useMediaQuery(theme.breakpoints.down("md"));
-  const matchesSM = useMediaQuery(theme.breakpoints.down("sm"));
+  const twoPerRow = useMediaQuery("(max-width:1155px)");
+  const threePerRow = useMediaQuery("(max-width:1550px)");
+  const fourPerRow = useMediaQuery(theme.breakpoints.down("lg"));
+  const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
+
+  const twoPerRowOpened = useMediaQuery("(max-width:1450px)");
+  const threePerRowOpened = useMediaQuery("(max-width:1800px)");
+  const fourPerRowOpened = useMediaQuery("(max-width:2190px)");
+
+  const AddCollectionCard = (
+    <CollectionCard collection={{ name: "Add More", description: "..." }} />
+  );
 
   const collectionIterator = () => {
-    const numItemsPerRow = matchesSM ? 1 : matchesMD ? 2 : matchesLG ? 3 : 4;
-    const numRows = Math.ceil(collections.length / numItemsPerRow);
+    // This boolean is carefully designed, do not modify it unless been notified!
+    const numItemsPerRow = open
+      ? twoPerRowOpened
+        ? 2
+        : threePerRowOpened
+        ? 3
+        : fourPerRowOpened
+        ? 4
+        : 5
+      : twoPerRow
+      ? 2
+      : threePerRow
+      ? 3
+      : fourPerRow
+      ? 4
+      : 5;
+    const numRows = Math.ceil((collections.length + 1) / numItemsPerRow);
     const iterator = new Array(numRows)
       .fill(null)
-      .map(() => new Array(numItemsPerRow).fill(0));
+      .map(() => new Array(numItemsPerRow).fill(null));
+    console.log(iterator, numRows, numItemsPerRow, collections.length);
 
-    console.log(iterator, numItemsPerRow, numRows);
+    let idx = 0;
+    for (let i = 0; i < numRows; i++) {
+      for (let j = 0; j < numItemsPerRow; j++) {
+        if (idx === collections.length) {
+          iterator[i][j] = "Add More";
+          idx++;
+          break;
+        }
+        iterator[i][j] = collections[idx];
+        idx++;
+      }
+      if (idx === collections.length + 1) break;
+    }
+    return iterator;
   };
 
   const FormRow = () => {
@@ -66,8 +105,6 @@ function CollectionGrid({ open, collections }) {
     );
   };
 
-  const createCollectionGrid = () => {};
-
   return (
     <Grid
       container
@@ -77,39 +114,35 @@ function CollectionGrid({ open, collections }) {
       direction="column"
       className={clsx(
         {
-          [classes.contentShift]: open,
+          [classes.contentShift]: open && !matchesXS,
         },
         classes.gridsContainer
       )}
     >
-      {collectionIterator()}
-      <Grid
-        container
-        item
-        spacing={3}
-        justify="center"
-        className={classes.rowContainer}
-      >
-        <FormRow />
-      </Grid>
-      <Grid
-        container
-        item
-        spacing={3}
-        justify="center"
-        className={classes.rowContainer}
-      >
-        <FormRow />
-      </Grid>
-      <Grid
-        container
-        item
-        spacing={3}
-        justify="center"
-        className={classes.rowContainer}
-      >
-        <FormRow />
-      </Grid>
+      {collectionIterator().map((row, i) => (
+        <Grid
+          key={`collection-grid-${i}`}
+          container
+          item
+          spacing={3}
+          justify="center"
+          className={classes.rowContainer}
+        >
+          {row.map((collection, i) => (
+            <Grid item key={`collection-card-${i}`}>
+              {collection === "Add More" ? (
+                <CollectionCard
+                  collection={{ name: "Add More", description: "..." }}
+                />
+              ) : collection !== null ? (
+                <CollectionCard collection={collection} />
+              ) : (
+                <CollectionCard collection={{ name: ".", description: "." }} />
+              )}
+            </Grid>
+          ))}
+        </Grid>
+      ))}
     </Grid>
   );
 }

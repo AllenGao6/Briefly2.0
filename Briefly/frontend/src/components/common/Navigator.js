@@ -1,7 +1,13 @@
 import React from "react";
 import PropTypes from "prop-types";
 import clsx from "clsx";
-import { useTheme, useMediaQuery, Typography, Grid, Icon } from "@material-ui/core";
+import {
+  useTheme,
+  useMediaQuery,
+  Typography,
+  Grid,
+  Icon,
+} from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
 import Divider from "@material-ui/core/Divider";
 import Drawer from "@material-ui/core/Drawer";
@@ -21,7 +27,7 @@ import SettingsIcon from "@material-ui/icons/Settings";
 import PhonelinkSetupIcon from "@material-ui/icons/PhonelinkSetup";
 import { makeStyles } from "@material-ui/styles";
 import IconTextButton from "./IconTextButton";
-import AddCircleIcon from '@material-ui/icons/AddCircle';
+import AddCircleIcon from "@material-ui/icons/AddCircle";
 
 const categories = [
   {
@@ -83,9 +89,6 @@ const useStyles = makeStyles((theme) => ({
     width: 256,
     flexShrink: 0,
   },
-  noBorder: {
-    borderRight: `1px solid ${theme.palette.common.silver}`
-  }
 }));
 
 export default function Navigator(props) {
@@ -100,27 +103,32 @@ export default function Navigator(props) {
       variant={matchesXS ? "temporary" : "persistent"}
       anchor="left"
       {...other}
-      classes={{ paper: classes.drawerPaper,  paperAnchorDockedLeft: classes.noBorder}}
+      classes={{
+        paper: classes.drawerPaper,
+      }}
     >
       <List disablePadding>
         <ListItem
           className={clsx(classes.item, classes.itemCategory)}
-          style={{textAlign: "center", height: 69}}
-        > 
-          <Typography variant="h4" style={{color: theme.palette.secondary.main}}>
+          style={{ textAlign: "center", height: 69 }}
+        >
+          <Typography
+            variant="h4"
+            style={{ color: theme.palette.secondary.main }}
+          >
             Briefly
           </Typography>
         </ListItem>
         <ListItem className={clsx(classes.item, classes.itemCategory)}>
           <ListItemIcon className={classes.itemIcon}>
-            <HomeIcon style={{color: "white"}}/>
+            <HomeIcon style={{ color: "white" }} />
           </ListItemIcon>
-          <Typography variant="h5" style={{color: "white"}}>
+          <Typography variant="h5" style={{ color: "white" }}>
             Home
           </Typography>
         </ListItem>
         <ListItem className={clsx(classes.item, classes.itemCategory)}>
-          <IconTextButton 
+          <IconTextButton
             icon={<AddCircleIcon />}
             label="Add Collection"
             backgroundColor="white"
