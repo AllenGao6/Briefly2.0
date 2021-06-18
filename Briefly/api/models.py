@@ -12,7 +12,7 @@ class Collection(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Collection{self.id}"
+        return f"Collection: {self.id}-{self.name}"
 
 def validate_video(video):
     limit_mb = 200
@@ -23,10 +23,14 @@ def validate_video(video):
 
 #video model
 def upload_video_name(instance, filename):
-    collection_dir = str(instance.collection)
+    collection_dir = "Collection"+str(instance.collection.id)
     video_id = str(instance.id)
-    url_path = ['video', collection_dir, video_id, filename]
-    return '/'.join(url_path)
+    if not video_id:
+        url_path = ['video', collection_dir, "temp", filename]
+        return '/'.join(url_path)
+    else:
+        url_path = ['video', collection_dir, video_id, filename]
+        return '/'.join(url_path)
 
 class Video(models.Model):
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
@@ -40,6 +44,7 @@ class Video(models.Model):
     
     def __str__(self):
         return f"Video: {self.title}"
+    
 #audio model
 def upload_audio_name(instance, filename):
     collection_dir = str(instance.collection)
