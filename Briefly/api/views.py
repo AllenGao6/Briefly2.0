@@ -12,12 +12,18 @@ from rest_framework.authentication import SessionAuthentication, TokenAuthentica
 from rest_framework.permissions import IsAuthenticated
 from Briefly import settings
 import boto3
+from .permissions import CollectionUserPermission,VideoUserPermission
+from django.db.models import Q
+
 class VideoViewSet(viewsets.ModelViewSet):
 
     serializer_class = VideoSerializer
     authentication_classes = [SessionAuthentication, TokenAuthentication]
+    permission_classes = [VideoUserPermission]
     def get_queryset(self, *args, **kwargs):
-        return Video.objects.filter(collection=self.kwargs['collection_pk'])
+        user = self.request.user
+        
+        return Video.objects.filter(Q(collection=self.kwargs['collection_pk']) & Q(collection__owner=user))
 
     '''similar to post_save: call save twice to know the id of the video just created and save to the correct directory'''
     def perform_create(self, serializer):
@@ -64,6 +70,7 @@ def upload_video(request):
 class CollectionViewSet(viewsets.ModelViewSet):
     serializer_class = CollectionSerializer
     authentication_classes = [SessionAuthentication, TokenAuthentication]
+    permission_classes = [CollectionUserPermission]
 
     def get_queryset(self,*args, **kwargs):
         #currently authenticated user
