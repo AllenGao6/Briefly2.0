@@ -33,23 +33,12 @@ class App extends Component {
     const stateProps = {
       switchTheme: this.switchTheme,
     };
-    <ToastContainer
-      position="bottom-left"
-      autoClose={5000}
-      hideProgressBar={false}
-      newestOnTop={false}
-      closeOnClick
-      rtl={false}
-      pauseOnFocusLoss
-      draggable
-      pauseOnHover
-    />;
     return (
       <ThemeProvider theme={this.state.theme}>
         <BrowserRouter>
           <ToastContainer
-            position="bottom-left"
-            autoClose={5000}
+            position="top-right"
+            autoClose={2500}
             hideProgressBar={false}
             newestOnTop={false}
             closeOnClick
