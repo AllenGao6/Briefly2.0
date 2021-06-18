@@ -7,7 +7,8 @@ import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
-import bookImage from "../../assets/dummy/book.png";
+import { useTheme } from "@material-ui/core";
+import defaultImage from "../../assets/dummy/book.png";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -20,9 +21,15 @@ const useStyles = makeStyles((theme) => ({
     maxHeight: "4rem",
     overflow: "scroll",
   },
+  button: {
+    color: theme.palette.primary.main,
+    "&:hover": {
+      background: "rgba(230, 230, 230, 0.4)",
+    },
+  },
 }));
 
-export default function ImgMediaCard() {
+export default function CollectionCard({ collection }) {
   const classes = useStyles();
 
   return (
@@ -32,7 +39,7 @@ export default function ImgMediaCard() {
           component="img"
           alt="An image"
           height="150"
-          image={bookImage}
+          image={defaultImage}
           title="Contemplative Reptile"
         />
         <CardContent style={{ paddingBottom: 0, paddingRight: "0.5rem" }}>
@@ -46,10 +53,10 @@ export default function ImgMediaCard() {
         </CardContent>
       </CardActionArea>
       <CardActions>
-        <Button size="small" color="primary">
+        <Button size="small" className={classes.button}>
           Explore
         </Button>
-        <Button size="small" color="primary">
+        <Button size="small" className={classes.button}>
           Edit
         </Button>
       </CardActions>

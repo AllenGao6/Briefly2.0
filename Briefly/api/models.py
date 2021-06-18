@@ -32,7 +32,7 @@ class Video(models.Model):
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     is_archived = models.BooleanField(blank=True, default=False)
-    video = models.FileField(upload_to=upload_video_name)
+    video = models.FileField(upload_to=upload_video_name, null=True, blank=True)
     transcript = models.URLField(max_length=200, null=True, blank=True)
     summarization = models.JSONField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -47,6 +47,7 @@ def upload_audio_name(instance, filename):
     url_path = ['video', collection_dir, video_id, filename]
     return '/'.join(url_path)
 
+"""
 class Video(models.Model):
     id = models.AutoField(primary_key=True)
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
@@ -60,6 +61,7 @@ class Video(models.Model):
     
     def __str__(self):
         return f"Audio: {self.title}"
+"""
 '''
 #Text File
 class Text(models.Model):

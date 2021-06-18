@@ -1,9 +1,14 @@
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
-import Grid from "@material-ui/core/Grid";
-import ImgMediaCard from "./CollectionCard";
-import clsx from "clsx"
+import {
+  Paper,
+  Grid,
+  useMediaQuery,
+  makeStyles,
+  useTheme,
+} from "@material-ui/core";
+import CollectionCard from "./CollectionCard";
+import clsx from "clsx";
+import { connect } from "react-redux";
 
 const useStyles = makeStyles((theme) => ({
   gridsContainer: {
@@ -15,37 +20,53 @@ const useStyles = makeStyles((theme) => ({
   contentShift: {
     marginLeft: 256,
     width: `calc(100% - ${256}px)`,
-    transition: theme.transitions.create(['margin', 'width'], {
+    transition: theme.transitions.create(["margin", "width"], {
       easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen
-    })
+      duration: theme.transitions.duration.enteringScreen,
+    }),
   },
   rowContainer: {
     paddingLeft: 0,
     paddingRight: 0,
     paddingBottom: 20,
-    width: "100%"
-  }
+    width: "100%",
+  },
 }));
 
-export default function NestedGrid({ open }) {
+function CollectionGrid({ open, collections }) {
   const classes = useStyles();
+  const theme = useTheme();
+  const matchesLG = useMediaQuery(theme.breakpoints.down("lg"));
+  const matchesMD = useMediaQuery(theme.breakpoints.down("md"));
+  const matchesSM = useMediaQuery(theme.breakpoints.down("sm"));
 
-  function FormRow() {
+  const collectionIterator = () => {
+    const numItemsPerRow = matchesSM ? 1 : matchesMD ? 2 : matchesLG ? 3 : 4;
+    const numRows = Math.ceil(collections.length / numItemsPerRow);
+    const iterator = new Array(numRows)
+      .fill(null)
+      .map(() => new Array(numItemsPerRow).fill(0));
+
+    console.log(iterator, numItemsPerRow, numRows);
+  };
+
+  const FormRow = () => {
     return (
       <React.Fragment>
         <Grid item>
-          <ImgMediaCard />
+          <CollectionCard />
         </Grid>
         <Grid item>
-          <ImgMediaCard />
+          <CollectionCard />
         </Grid>
         <Grid item>
-          <ImgMediaCard />
+          <CollectionCard />
         </Grid>
       </React.Fragment>
     );
-  }
+  };
+
+  const createCollectionGrid = () => {};
 
   return (
     <Grid
@@ -54,19 +75,49 @@ export default function NestedGrid({ open }) {
       justify="center"
       alignItems="center"
       direction="column"
-      className={clsx({
-        [classes.contentShift]: open
-      }, classes.gridsContainer)}
+      className={clsx(
+        {
+          [classes.contentShift]: open,
+        },
+        classes.gridsContainer
+      )}
     >
-      <Grid container item spacing={3} justify="center" className={classes.rowContainer}>
+      {collectionIterator()}
+      <Grid
+        container
+        item
+        spacing={3}
+        justify="center"
+        className={classes.rowContainer}
+      >
         <FormRow />
       </Grid>
-      <Grid container item spacing={3} justify="center" className={classes.rowContainer}>
+      <Grid
+        container
+        item
+        spacing={3}
+        justify="center"
+        className={classes.rowContainer}
+      >
         <FormRow />
       </Grid>
-      <Grid container item spacing={3} justify="center" className={classes.rowContainer}>
+      <Grid
+        container
+        item
+        spacing={3}
+        justify="center"
+        className={classes.rowContainer}
+      >
         <FormRow />
       </Grid>
     </Grid>
   );
 }
+
+function mapStateToProps(state) {
+  return {
+    collections: state.collectionReducer.collections,
+  };
+}
+
+export default connect(mapStateToProps, {})(CollectionGrid);
