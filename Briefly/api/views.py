@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+
 class VideoViewSet(viewsets.ModelViewSet):
 
     serializer_class = VideoSerializer
@@ -17,6 +18,11 @@ class VideoViewSet(viewsets.ModelViewSet):
     def get_queryset(self, *args, **kwargs):
         return Video.objects.filter(collection=self.kwargs['collection_pk'])
 
+    #override create
+    '''def create(self, request, *args, **kwargs):
+        print(self.kwargs['collection_pk'])
+        return Response({})
+    '''
     # Test
     @action(methods=['get'], detail=False)
     def newest(self, request):
