@@ -11,7 +11,7 @@ import { ThemeProvider } from "@material-ui/styles";
 import LandingPage from "./pages/LandingPage";
 //toast
 import { ToastContainer } from "react-toastify";
-//import "react-toastify/dist/ReactToastify.css";
+import "react-toastify/dist/ReactToastify.css";
 
 class App extends Component {
   constructor(props) {
@@ -33,21 +33,21 @@ class App extends Component {
     const stateProps = {
       switchTheme: this.switchTheme,
     };
-    /*<ToastContainer
-            position="bottom-left"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-          />*/
+    <ToastContainer
+      position="bottom-left"
+      autoClose={5000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+    />;
     return (
       <ThemeProvider theme={this.state.theme}>
         <BrowserRouter>
-        <ToastContainer
+          <ToastContainer
             position="bottom-left"
             autoClose={5000}
             hideProgressBar={false}
