@@ -4,6 +4,7 @@
 ```
 npm install redux redux-devtools-extension redux-thunk redux-persist react-redux redux-immutable-state-invariant
 npm intall react-toastify
+npm install --save-dev style-loader css-loader
 ```
 
 ## Database Update (2021/06/04)
