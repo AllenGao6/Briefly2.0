@@ -3,7 +3,7 @@
 ## React-Redux Update (2021/06/15)
 ```
 npm install redux redux-devtools-extension redux-thunk redux-persist react-redux redux-immutable-state-invariant
-npm intall react-toastify
+npm install react-toastify
 npm install --save-dev style-loader css-loader
 ```
 
