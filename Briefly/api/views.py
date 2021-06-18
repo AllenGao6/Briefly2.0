@@ -24,6 +24,10 @@ class VideoViewSet(viewsets.ModelViewSet):
         instance = serializer.save()
         instance.video.delete(save=False)
         serializer.save()  #update from serializer, worked
+    
+    def perform_destroy(self, instance):
+        instance.video.delete(save=False)
+        return super().perform_destroy(instance)
         
         '''another way: update from instance itself, also worked but lengthy'''
         # update from instance itself
