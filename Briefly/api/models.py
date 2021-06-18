@@ -25,12 +25,8 @@ def validate_video(video):
 def upload_video_name(instance, filename):
     collection_dir = "Collection"+str(instance.collection.id)
     video_id = str(instance.id)
-    if not video_id:
-        url_path = ['video', collection_dir, "temp", filename]
-        return '/'.join(url_path)
-    else:
-        url_path = ['video', collection_dir, video_id, filename]
-        return '/'.join(url_path)
+    url_path = ['video', collection_dir, video_id, filename]
+    return '/'.join(url_path)
 
 class Video(models.Model):
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
