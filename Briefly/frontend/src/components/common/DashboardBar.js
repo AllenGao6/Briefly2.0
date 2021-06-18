@@ -360,7 +360,7 @@ function DashboardBar({
               justify="space-around"
               alignItems="center"
               className={{
-                [classes.appBarShift]: open,
+                [classes.appBarShift]: open && !matchesXS,
               }}
             >
               <Grid

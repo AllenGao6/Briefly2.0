@@ -33,7 +33,8 @@ def upload_video_name(instance, filename):
         return '/'.join(url_path)
 
 class Video(models.Model):
-    collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
+    id = models.AutoField(primary_key=True)
+    collection = models.OneToOneField(Collection, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     is_archived = models.BooleanField(blank=True, default=False)
     video = models.FileField(upload_to=upload_video_name, null=True, blank=True)

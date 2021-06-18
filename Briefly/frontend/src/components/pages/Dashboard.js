@@ -41,6 +41,10 @@ function Dashboard(props) {
     setMobileOpen(!mobileOpen);
   };
 
+  useEffect(() => {
+    props.loadCollections();
+  }, []);
+
   return (
     <React.Fragment>
       <Navigator open={mobileOpen} onClose={handleDrawerToggle} />
@@ -50,13 +54,6 @@ function Dashboard(props) {
         {...props}
       />
       <DashboardContent open={mobileOpen} />
-      <Button
-        variant="contained"
-        className={classes.button}
-        onClick={props.loadCollections}
-      >
-        Load Collections
-      </Button>
     </React.Fragment>
   );
 }

@@ -1,18 +1,25 @@
-import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import Card from "@material-ui/core/Card";
-import CardActionArea from "@material-ui/core/CardActionArea";
-import CardActions from "@material-ui/core/CardActions";
-import CardContent from "@material-ui/core/CardContent";
-import CardMedia from "@material-ui/core/CardMedia";
-import Button from "@material-ui/core/Button";
-import Typography from "@material-ui/core/Typography";
-import { useTheme } from "@material-ui/core";
+import React, { useState } from "react";
+import {
+  makeStyles,
+  Card,
+  CardActionArea,
+  CardActions,
+  CardContent,
+  CardMedia,
+  IconButton,
+  Typography,
+  MenuList,
+  MenuItem,
+  Grid,
+  useTheme,
+} from "@material-ui/core";
 import defaultImage from "../../assets/dummy/book.png";
+import MenuPopper from "./MenuPopper";
+import MoreVertIcon from "@material-ui/icons/MoreVert";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    maxWidth: 360,
+    width: 360,
     background: theme.palette.common.icon,
   },
   cardText: {
@@ -22,7 +29,6 @@ const useStyles = makeStyles((theme) => ({
     overflow: "scroll",
   },
   button: {
-    color: theme.palette.primary.main,
     "&:hover": {
       background: "rgba(230, 230, 230, 0.4)",
     },
@@ -31,6 +37,40 @@ const useStyles = makeStyles((theme) => ({
 
 export default function CollectionCard({ collection }) {
   const classes = useStyles();
+  const theme = useTheme();
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [open, setOpen] = useState(false);
+
+  const handleListKeyDown = (event) => {
+    if (event.key === "Tab") {
+      event.preventDefault();
+      setOpen(false);
+    }
+  };
+
+  const handleClose = (e) => {
+    setAnchorEl(null);
+    setOpen(false);
+  };
+
+  const handleOpenMenu = (e) => {
+    setAnchorEl(e.currentTarget);
+    setOpen(true);
+  };
+
+  const CardSettings = (
+    <MenuList autoFocusItem={open} onKeyDown={handleListKeyDown}>
+      <MenuItem onClick={handleClose} className={classes.button}>
+        Explore
+      </MenuItem>
+      <MenuItem onClick={handleClose} className={classes.button}>
+        Edit
+      </MenuItem>
+      <MenuItem onClick={handleClose} className={classes.button}>
+        Delete
+      </MenuItem>
+    </MenuList>
+  );
 
   return (
     <Card className={classes.root}>
@@ -44,22 +84,42 @@ export default function CollectionCard({ collection }) {
         />
         <CardContent style={{ paddingBottom: 0, paddingRight: "0.5rem" }}>
           <Typography gutterBottom variant="h4" className={classes.cardText}>
-            Math 230
+            {collection.name}
           </Typography>
           <Typography variant="body2" paragraph className={classes.cardText}>
-            The collection of whatever stuffs it is supposed to be, this is a
-            randomly typed sentence just to make sure it has more words.
+            {collection.description}
           </Typography>
         </CardContent>
       </CardActionArea>
       <CardActions>
-        <Button size="small" className={classes.button}>
-          Explore
-        </Button>
-        <Button size="small" className={classes.button}>
-          Edit
-        </Button>
+        <Grid container justify="flex-end">
+          <Grid item>
+            <IconButton
+              size="small"
+              onClick={handleOpenMenu}
+              className={classes.button}
+            >
+              <MoreVertIcon
+                style={{
+                  color:
+                    theme.palette.type === "dark"
+                      ? "white"
+                      : theme.palette.common.grey,
+                }}
+              />
+            </IconButton>
+          </Grid>
+        </Grid>
       </CardActions>
+      <MenuPopper
+        open={open}
+        anchorEl={anchorEl}
+        placement="bottom"
+        onClose={handleClose}
+        component={CardSettings}
+        elevation={3}
+        style={{ borderRadius: 0, background: "white" }}
+      />
     </Card>
   );
 }

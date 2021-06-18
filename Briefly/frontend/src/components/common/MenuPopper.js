@@ -13,7 +13,7 @@ import { makeStyles } from "@material-ui/styles";
 
 const useStyles = makeStyles((theme) => ({
   popper: {
-    borderRadius: 15,
+    borderRadius: 10,
     background: theme.palette.common.cloud,
   },
 }));
@@ -24,6 +24,7 @@ export default function MenuPopper({
   open,
   component,
   placement,
+  style,
 }) {
   const classes = useStyles();
 
@@ -35,6 +36,7 @@ export default function MenuPopper({
       transition
       placement={placement}
       disablePortal
+      style={{ zIndex: 99999 }}
     >
       {({ TransitionProps, placement }) => (
         <Grow
@@ -43,7 +45,11 @@ export default function MenuPopper({
             transformOrigin: "top center",
           }}
         >
-          <Paper elevation={10} classes={{ root: classes.popper }}>
+          <Paper
+            elevation={10}
+            classes={{ root: classes.popper }}
+            style={style}
+          >
             <ClickAwayListener onClickAway={onClose}>
               {component}
             </ClickAwayListener>
