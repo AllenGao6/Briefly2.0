@@ -77,3 +77,8 @@ class CollectionViewSet(viewsets.ModelViewSet):
         user = self.request.user
         print(user)
         return Collection.objects.filter(owner=user)
+
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        instance.image.delete(save=False)
+        serializer.save()  #update from serializer, worked

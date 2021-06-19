@@ -15,6 +15,7 @@ psycopg2-binary = "*"
 django-storages = "*"
 drf-nested-routers = "*"
 boto3 = "*"
+pillow = "*"
 
 [dev-packages]
 

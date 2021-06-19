@@ -3,6 +3,15 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 import random, string
 
+
+   
+#Collection model
+def upload_image_name(instance, filename):
+    collection_dir = "Collection"+str(instance.id)
+    url_path = ['video', collection_dir, filename]
+    print('/'.join(url_path))
+    return '/'.join(url_path)
+
 #collection model
 class Collection(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -10,7 +19,7 @@ class Collection(models.Model):
     description = models.CharField(max_length=1000, blank=True, default='')
     is_archived =  models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
-
+    image = models.ImageField(upload_to=upload_image_name,null=True,blank=True)
     def __str__(self):
         return f"Collection: {self.id}-{self.name}"
 
@@ -19,7 +28,8 @@ def validate_video(video):
     file_size = video.size 
     if file_size > limit_mb * 1024 * 1024:
         raise ValidationError(f"maximum size is {limit_mb} mb")
-   
+
+
 
 #video model
 def upload_video_name(instance, filename):
