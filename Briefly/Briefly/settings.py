@@ -196,3 +196,13 @@ DEFAULT_FILE_STORAGE = 'api.storages.CustomS3Boto3Storage'
 #MEDIA_ROOT = os.path.join(BASE_DIR, 'static/media')
 
 AWS_S3_FILE_OVERWRITE = False
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.qq.com'
+EMAIL_PORT = 25
+EMAIL_USE_TLS = True
+#EMAIL_HOST_USER = os.environ.get('EMAIL_USER')
+#EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_PASS")
+EMAIL_HOST_USER = "hugh_megumi@qq.com" 
+EMAIL_HOST_PASSWORD = "tihoaydexrpvbgdj"
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
