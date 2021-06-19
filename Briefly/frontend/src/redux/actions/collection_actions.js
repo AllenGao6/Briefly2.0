@@ -1,6 +1,7 @@
 import axios from "axios";
 import * as type from "./action_types";
 import { BASE_URL } from "../constant";
+import Cookies from "js-cookie";
 
 const GET_ALL_COLLECTIONS_URL = BASE_URL + "api/collection/";
 const CREATE_COLLECTION_URL = BASE_URL + "api/collection/";
@@ -26,27 +27,26 @@ export const loadCollections = () => (dispatch) => {
     });
 };
 
-export const createCollection =
-  ({ name, description, is_archived, image, owner }) =>
-  (dispatch) => {
-    return axios
-      .post(CREATE_COLLECTION_URL, {
-        name,
-        description,
-        is_archived,
-        image,
-        owner,
-      })
-      .then((res) => {
-        dispatch({
-          type: type.CREATE_COLLECTION_SUCCESS,
-          collection: res.data,
-        });
-      })
-      .catch((err) => {
-        console.log(err);
-        dispatch({
-          type: type.CREATE_COLLECTION_FAILURE,
-        });
+export const createCollection = (formData) => (dispatch) => {
+  const csrftoken = Cookies.get("csrftoken");
+
+  return axios
+    .post(CREATE_COLLECTION_URL, formData, {
+      headers: {
+        "content-type": "multipart/form-data",
+        "X-CSRFToken": csrftoken,
+      },
+    })
+    .then((res) => {
+      dispatch({
+        type: type.CREATE_COLLECTION_SUCCESS,
+        collection: res.data,
       });
-  };
+    })
+    .catch((err) => {
+      console.log(err);
+      dispatch({
+        type: type.CREATE_COLLECTION_FAILURE,
+      });
+    });
+};

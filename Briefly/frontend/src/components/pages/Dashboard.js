@@ -25,7 +25,10 @@ import DashboardBar from "../common/DashboardBar";
 import Navigator from "../common/Navigator";
 import DashboardContent from "../common/DashboardContent";
 import { connect } from "react-redux";
-import { loadCollections } from "../../redux/actions/collection_actions";
+import {
+  loadCollections,
+  createCollection,
+} from "../../redux/actions/collection_actions";
 import defaultImage from "../../assets/dummy/book.png";
 import PublishRoundedIcon from "@material-ui/icons/PublishRounded";
 
@@ -127,6 +130,16 @@ function Dashboard(props) {
     setOpenDialog(true);
   };
 
+  const handleCreateCollection = () => {
+    const formData = new FormData();
+    formData.append("image", imageFile, imageFile.name);
+    formData.append("name", name);
+    formData.append("description", description);
+    formData.append("is_archived", is_archived);
+    formData.append("owner", props.user.pk);
+    props.createCollection(formData);
+  };
+
   return (
     <React.Fragment>
       <Navigator
@@ -204,7 +217,7 @@ function Dashboard(props) {
                 accept="image/*"
                 onChange={(e) => {
                   setImageUrl(URL.createObjectURL(e.target.files[0]));
-                  console.log(e.target.files[0]);
+                  setImageFile(e.target.files[0]);
                 }}
               />
               <Button
@@ -224,7 +237,11 @@ function Dashboard(props) {
               style={{ width: "35rem" }}
             >
               <Grid item>
-                <Button variant="contained" className={classes.createButton}>
+                <Button
+                  variant="contained"
+                  className={classes.createButton}
+                  onClick={handleCreateCollection}
+                >
                   Create
                 </Button>
               </Grid>
@@ -245,11 +262,13 @@ function mapStateToProps(state) {
   return {
     collections: state.collectionReducer.collections,
     isLoading: state.collectionReducer.isLoading,
+    user: state.authReducer.user,
   };
 }
 
 const mapDispatchToProps = {
   loadCollections,
+  createCollection,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);
