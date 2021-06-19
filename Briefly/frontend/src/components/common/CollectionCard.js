@@ -30,6 +30,9 @@ const useStyles = makeStyles((theme) => ({
     overflow: "scroll",
   },
   button: {
+    ...theme.typography.h6,
+    fontWeight: 350,
+    color: "black",
     "&:hover": {
       background: "rgba(230, 230, 230, 0.4)",
     },
@@ -119,7 +122,7 @@ export default function CollectionCard({ collection }) {
         onClose={handleClose}
         component={CardSettings}
         elevation={3}
-        style={{ borderRadius: 0, background: "white" }}
+        style={{ borderRadius: 5, background: "white" }}
       />
     </Card>
   );

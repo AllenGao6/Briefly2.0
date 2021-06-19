@@ -108,8 +108,8 @@ function CollectionGrid({ open, collections }) {
           justify="center"
           className={classes.rowContainer}
         >
-          {row.map((collection, i) => (
-            <Grid item key={`collection-card-${i}`}>
+          {row.map((collection, j) => (
+            <Grid item key={`collection-card-${j}`}>
               {collection === "Add More" ? (
                 <AddCollectionCard />
               ) : collection !== null ? (

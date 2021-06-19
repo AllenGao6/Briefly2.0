@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Dialog,
+  DialogTitle,
   DialogContent,
   useMediaQuery,
   useTheme,
@@ -30,7 +31,9 @@ function Dashboard(props) {
   const classes = useStyles();
   const theme = useTheme();
   const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
+
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -39,6 +42,26 @@ function Dashboard(props) {
   useEffect(() => {
     props.loadCollections();
   }, []);
+
+  const handleDialogCLose = () => {
+    setOpenDialog(false);
+  };
+
+  const collectionDialog = (collection) => {
+    if (collection === undefined) {
+      collection = { name: "", description: "" };
+    }
+    return (
+      <Dialog open={openDialog} onCLose={handleDialogCLose} fullWidth>
+        <DialogTitle>
+          {collection === undefined
+            ? "Create a New Collection"
+            : "Update Collection Information"}
+        </DialogTitle>
+        <DialogContent></DialogContent>
+      </Dialog>
+    );
+  };
 
   return (
     <React.Fragment>

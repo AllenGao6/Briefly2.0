@@ -16,14 +16,18 @@ const useStyles = makeStyles((theme) => ({
     height: 320,
     transition: "all 0.3s",
     opacity: 0.6,
-    background: theme.palette.common.white,
+    background: theme.palette.type === "dark" ? "silver" : "white",
     "&:hover": {
       opacity: 1,
-      background: theme.palette.common.cloud,
+      background:
+        theme.palette.type === "dark"
+          ? theme.palette.common.grey
+          : theme.palette.common.cloud,
     },
   },
   addIcon: {
     fontSize: "12rem",
+
     color: theme.palette.type === "dark" ? "white" : theme.palette.common.grey,
   },
 }));
