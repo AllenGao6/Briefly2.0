@@ -7,12 +7,17 @@ import {
   DialogContent,
   useMediaQuery,
   useTheme,
+  Grid,
+  Typography,
+  Button,
+  Input,
 } from "@material-ui/core";
 import DashboardBar from "../common/DashboardBar";
 import Navigator from "../common/Navigator";
 import DashboardContent from "../common/DashboardContent";
 import { connect } from "react-redux";
 import { loadCollections } from "../../redux/actions/collection_actions";
+import defaultImage from "../../assets/dummy/book.png";
 
 // User View
 const useStyles = makeStyles((theme) => ({
@@ -34,6 +39,7 @@ function Dashboard(props) {
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
+  const [newCollection, setNewCollection] = useState(null);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -48,30 +54,53 @@ function Dashboard(props) {
   };
 
   const collectionDialog = (collection) => {
-    if (collection === undefined) {
-      collection = { name: "", description: "" };
+    // initialize state variables
+    if (collection !== null) {
+      setNewCollection({
+        ...collection,
+        image: collection.image ? collection.image : defaultImage,
+      });
+    } else {
+      setNewCollection({
+        name: "",
+        description: "",
+        isArchived: false,
+        image: defaultImage,
+      });
     }
-    return (
-      <Dialog open={openDialog} onCLose={handleDialogCLose} fullWidth>
-        <DialogTitle>
-          {collection === undefined
-            ? "Create a New Collection"
-            : "Update Collection Information"}
-        </DialogTitle>
-        <DialogContent></DialogContent>
-      </Dialog>
-    );
+
+    setOpenDialog(true);
   };
 
   return (
     <React.Fragment>
-      <Navigator open={mobileOpen} onClose={handleDrawerToggle} />
+      <Navigator
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        collectionDialog={collectionDialog}
+      />
       <DashboardBar
         handleDrawerToggle={handleDrawerToggle}
         open={mobileOpen}
         {...props}
       />
-      <DashboardContent open={mobileOpen} />
+      <DashboardContent open={mobileOpen} collectionDialog={collectionDialog} />
+      <Dialog open={openDialog} onClose={handleDialogCLose} fullWidth>
+        <DialogContent>
+          <Grid item>
+            <Typography variant="h3" align="left">
+              {newCollection && newCollection.name === ""
+                ? "Create a New Collection"
+                : "Update Collection Information"}
+            </Typography>
+          </Grid>
+          <Grid container direction="column" alignItems="center">
+            <Button variant="contained">
+              <Input type="file" />
+            </Button>
+          </Grid>
+        </DialogContent>
+      </Dialog>
     </React.Fragment>
   );
 }

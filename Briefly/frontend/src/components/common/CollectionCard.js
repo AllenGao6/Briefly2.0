@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function CollectionCard({ collection }) {
+export default function CollectionCard({ collection, collectionDialog }) {
   const classes = useStyles();
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -83,10 +83,12 @@ export default function CollectionCard({ collection }) {
           component="img"
           alt="An image"
           height="150"
-          image={defaultImage}
+          image={collection.image === null ? defaultImage : collection.image}
           title="Contemplative Reptile"
         />
-        <CardContent style={{ paddingBottom: 0, paddingRight: "0.5rem" }}>
+        <CardContent
+          style={{ paddingBottom: 0, paddingRight: "0.5rem", height: 120 }}
+        >
           <Typography gutterBottom variant="h4" className={classes.cardText}>
             {collection.name}
           </Typography>

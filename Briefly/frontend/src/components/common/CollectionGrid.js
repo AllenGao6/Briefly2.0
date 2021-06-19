@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function CollectionGrid({ open, collections }) {
+function CollectionGrid({ open, collections, collectionDialog }) {
   const classes = useStyles();
   const theme = useTheme();
   const twoPerRow = useMediaQuery("(max-width:1155px)");
@@ -111,9 +111,12 @@ function CollectionGrid({ open, collections }) {
           {row.map((collection, j) => (
             <Grid item key={`collection-card-${j}`}>
               {collection === "Add More" ? (
-                <AddCollectionCard />
+                <AddCollectionCard collectionDialog={collectionDialog} />
               ) : collection !== null ? (
-                <CollectionCard collection={collection} />
+                <CollectionCard
+                  collection={collection}
+                  collectionDialog={collectionDialog}
+                />
               ) : (
                 <div style={{ width: 360, height: 320 }}></div>
               )}
