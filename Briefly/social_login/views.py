@@ -28,7 +28,7 @@ def exchange_token(request, backend):
         #Uerprofile is automaticlly created
         userProfile = UserProfile.objects.filter(user=request.user)[0]
         userProfile.is_signed_in = True
-        
+        userProfile.save()
         return Response({'token': token.key, 'firstname': request.user.first_name, 'lastname': request.user.last_name, 'email': request.user.email, 'pk': request.user.pk})
             
             
