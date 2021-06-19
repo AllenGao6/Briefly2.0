@@ -13,7 +13,7 @@ import PostAddOutlinedIcon from "@material-ui/icons/PostAddOutlined";
 const useStyles = makeStyles((theme) => ({
   root: {
     width: 360,
-    height: 320,
+    height: 305,
     transition: "all 0.3s",
     opacity: 0.6,
     background: theme.palette.type === "dark" ? "silver" : "white",
