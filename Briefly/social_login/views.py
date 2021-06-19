@@ -1,6 +1,7 @@
 from re import I
 from django.conf import settings
 from django.shortcuts import redirect
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 from rest_framework import serializers
 from rest_framework import status
@@ -86,7 +87,7 @@ def logout_view(request):
     # Redirect to a success page.
     return Response({"Message": 'Logout Success!'})
 
-
+@ensure_csrf_cookie
 @api_view(['POST','GET'])
 @permission_classes([AllowAny])
 def login_view(request, backend):
