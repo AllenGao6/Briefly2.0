@@ -28,10 +28,10 @@ def exchange_token(request, backend):
         #Uerprofile is automaticlly created
         userProfile = UserProfile.objects.filter(user=request.user)[0]
         userProfile.is_signed_in = True
-        userProfile.save()
-        return Response({'token': token.key, 'firstname': request.user.first_name, 'lastname': request.user.last_name, 'email': request.user.email})
+        
+        return Response({'token': token.key, 'firstname': request.user.first_name, 'lastname': request.user.last_name, 'email': request.user.email, 'pk': request.user.pk})
             
-    
+            
     serializer = SocialSerializer(data=request.data)
     if serializer.is_valid(raise_exception=True):
         try:
@@ -94,11 +94,12 @@ def login_view(request, backend):
     print("here")
     if request.user.is_authenticated:
         print("have already logined ")
+        print(f'USER:{request.user.pk}')
         token, _ = Token.objects.get_or_create(user=request.user)
         userProfile = UserProfile.objects.filter(user=request.user)[0]
         userProfile.is_signed_in = True
         userProfile.save()
-        return Response({'token': token.key, 'firstname': request.user.first_name, 'lastname': request.user.last_name, 'email': request.user.email})
+        return Response({'token': token.key, 'firstname': request.user.first_name, 'lastname': request.user.last_name, 'email': request.user.email, 'pk': request.user.pk})
     else:
         print("logging or registering...")
         
