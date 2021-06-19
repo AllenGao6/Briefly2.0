@@ -32,12 +32,17 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function AddCollectionCard() {
+export default function AddCollectionCard({ collectionDialog }) {
   const classes = useStyles();
   const theme = useTheme();
 
   return (
-    <Card className={classes.root} component={Button} elevation={6}>
+    <Card
+      className={classes.root}
+      component={Button}
+      elevation={6}
+      onClick={() => collectionDialog(null)}
+    >
       <PostAddOutlinedIcon className={classes.addIcon} />
     </Card>
   );
