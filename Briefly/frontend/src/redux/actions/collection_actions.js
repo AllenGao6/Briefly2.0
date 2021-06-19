@@ -29,7 +29,9 @@ export const loadCollections = () => (dispatch) => {
 
 export const createCollection = (formData) => (dispatch) => {
   const csrftoken = Cookies.get("csrftoken");
-
+  dispatch({
+    type: type.CREATING_COLLECTION,
+  });
   return axios
     .post(CREATE_COLLECTION_URL, formData, {
       headers: {

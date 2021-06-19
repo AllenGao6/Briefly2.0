@@ -240,7 +240,10 @@ function Dashboard(props) {
                 <Button
                   variant="contained"
                   className={classes.createButton}
-                  onClick={handleCreateCollection}
+                  onClick={() => {
+                    handleCreateCollection();
+                    handleDialogCLose();
+                  }}
                 >
                   Create
                 </Button>

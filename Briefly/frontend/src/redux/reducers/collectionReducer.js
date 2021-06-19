@@ -20,15 +20,31 @@ export default function collectionReducer(state = initialState, action) {
         collections: action.collections,
         isLoading: false,
       };
+    case type.CREATING_COLLECTION:
+      return {
+        ...state,
+        isLoading: true,
+      };
     case type.CREATE_COLLECTION_SUCCESS:
       toast.success("😎 Your collection has been created!");
       const newCollections = [...state.collections, action.collection];
       return {
         ...state,
         collections: newCollections,
+        isLoading: false,
       };
     case type.CREATE_COLLECTION_FAILURE:
+      toast.failure("Fail to create collection.");
+      return {
+        ...state,
+        isLoading: false,
+      };
     case type.LOAD_COLLECTIONS_FAILURE:
+      toast.failure("Fail to load collections.");
+      return {
+        ...state,
+        isLoading: false,
+      };
     default:
       return state;
   }
