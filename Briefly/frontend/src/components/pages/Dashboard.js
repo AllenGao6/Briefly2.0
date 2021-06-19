@@ -1,5 +1,5 @@
 import { makeStyles } from "@material-ui/styles";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
   Dialog,
@@ -11,6 +11,15 @@ import {
   Typography,
   Button,
   Input,
+  InputBase,
+  FormControlLabel,
+  InputLabel,
+  IconButton,
+  FormControl,
+  OutlinedInput,
+  TextField,
+  Switch,
+  withStyles,
 } from "@material-ui/core";
 import DashboardBar from "../common/DashboardBar";
 import Navigator from "../common/Navigator";
@@ -18,6 +27,7 @@ import DashboardContent from "../common/DashboardContent";
 import { connect } from "react-redux";
 import { loadCollections } from "../../redux/actions/collection_actions";
 import defaultImage from "../../assets/dummy/book.png";
+import PublishRoundedIcon from "@material-ui/icons/PublishRounded";
 
 // User View
 const useStyles = makeStyles((theme) => ({
@@ -30,6 +40,50 @@ const useStyles = makeStyles((theme) => ({
     width: "13rem",
     margin: "2rem",
   },
+  uploadButton: {
+    width: "35rem",
+    transition: "all 0.3s",
+    "&:hover": {
+      background:
+        theme.palette.type === "dark"
+          ? theme.palette.common.orange
+          : theme.palette.common.blue,
+    },
+  },
+  fileInput: {
+    "&::-ms-browse": {
+      background: "black",
+      color: "red",
+      padding: "1em",
+    },
+  },
+  textField: {
+    width: "35rem",
+    "& .MuiFormLabel-root": {
+      fontSize: "1rem",
+    },
+    "& .MuiFormLabel-root.Mui-focused": {
+      color: theme.palette.type === "dark" ? "white" : undefined,
+    },
+    "& .MuiFilledInput-root": {
+      backgroundColor:
+        theme.palette.type === "dark" ? undefined : "rgba(30, 144, 255, 0.2)",
+    },
+  },
+  createButton: {
+    color: "white",
+    opacity: 1,
+    background: theme.palette.common.blue,
+    transition: "all 0.3s",
+    "&:hover": {
+      opacity: 0.8,
+      background: theme.palette.common.blue,
+    },
+  },
+  cancelButton: {
+    color: theme.palette.common.red,
+    borderColor: theme.palette.common.red,
+  },
 }));
 
 function Dashboard(props) {
@@ -37,9 +91,16 @@ function Dashboard(props) {
   const theme = useTheme();
   const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
 
+  const fileInpuRef = useRef(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
-  const [newCollection, setNewCollection] = useState(null);
+
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [is_archived, setIsArchived] = useState(false);
+  const [imageUrl, setImageUrl] = useState(defaultImage);
+  const [imageFile, setImageFile] = useState(null);
+  const [isNewCollection, setIsNewCollection] = useState(true);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -56,17 +117,11 @@ function Dashboard(props) {
   const collectionDialog = (collection) => {
     // initialize state variables
     if (collection !== null) {
-      setNewCollection({
-        ...collection,
-        image: collection.image ? collection.image : defaultImage,
-      });
-    } else {
-      setNewCollection({
-        name: "",
-        description: "",
-        isArchived: false,
-        image: defaultImage,
-      });
+      setName(collection.name);
+      setDescription(collection.description);
+      setIsArchived(collection.isArchived);
+      setImageUrl(collection.image ? collection.image : defaultImage);
+      setIsNewCollection(false);
     }
 
     setOpenDialog(true);
@@ -86,18 +141,99 @@ function Dashboard(props) {
       />
       <DashboardContent open={mobileOpen} collectionDialog={collectionDialog} />
       <Dialog open={openDialog} onClose={handleDialogCLose} fullWidth>
-        <DialogContent>
-          <Grid item>
-            <Typography variant="h3" align="left">
-              {newCollection && newCollection.name === ""
-                ? "Create a New Collection"
-                : "Update Collection Information"}
-            </Typography>
-          </Grid>
-          <Grid container direction="column" alignItems="center">
-            <Button variant="contained">
-              <Input type="file" />
-            </Button>
+        <DialogTitle>
+          <Typography variant="h4" align="left">
+            {isNewCollection
+              ? "Create a New Collection"
+              : "Update Collection Information"}
+          </Typography>
+        </DialogTitle>
+        <DialogContent dividers>
+          <Grid container direction="column" alignItems="center" spacing={3}>
+            <Grid item>
+              <TextField
+                label="Name"
+                variant="filled"
+                value={name}
+                fullWidth
+                className={classes.textField}
+                onChange={(e) => setName(e.currentTarget.value)}
+              />
+            </Grid>
+            <Grid item>
+              <TextField
+                label="Description"
+                variant="filled"
+                value={description}
+                fullWidth
+                className={classes.textField}
+                onChange={(e) => setDescription(e.currentTarget.value)}
+                multiline
+              />
+            </Grid>
+            <Grid item>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={is_archived}
+                    color="secondary"
+                    onChange={() => setIsArchived(!is_archived)}
+                  />
+                }
+                label="Archive Collection"
+                labelPlacement="start"
+              />
+            </Grid>
+            <Grid item>
+              <img
+                src={imageUrl}
+                alt="cover image"
+                style={{
+                  width: "35rem",
+                  objectFit: "cover",
+                  height: "15rem",
+                  borderRadius: 10,
+                }}
+              />
+            </Grid>
+            <Grid item>
+              <input
+                type="file"
+                style={{ display: "none" }}
+                ref={fileInpuRef}
+                accept="image/*"
+                onChange={(e) => {
+                  setImageUrl(URL.createObjectURL(e.target.files[0]));
+                  console.log(e.target.files[0]);
+                }}
+              />
+              <Button
+                type="file"
+                variant="outlined"
+                onClick={() => fileInpuRef.current.click()}
+                className={classes.uploadButton}
+              >
+                <PublishRoundedIcon style={{ fontSize: "2rem" }} />
+              </Button>
+            </Grid>
+            <Grid
+              item
+              container
+              justify="center"
+              spacing={4}
+              style={{ width: "35rem" }}
+            >
+              <Grid item>
+                <Button variant="contained" className={classes.createButton}>
+                  Create
+                </Button>
+              </Grid>
+              <Grid item>
+                <Button variant="outlined" className={classes.cancelButton}>
+                  Cancel
+                </Button>
+              </Grid>
+            </Grid>
           </Grid>
         </DialogContent>
       </Dialog>

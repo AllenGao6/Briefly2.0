@@ -81,7 +81,7 @@ const theme = createMuiTheme({
     },
     h4: {
       fontFamily: "Roboto",
-      fontSize: "1.75rem",
+      fontSize: "1.55rem",
       fontWeight: 500,
       color: "black",
     },
@@ -110,7 +110,7 @@ const theme = createMuiTheme({
     },
     body1: {
       fontFamily: "Roboto",
-      fontSize: "1.25rem",
+      fontSize: "1rem",
       fontWeight: 300,
       lineHeight: "1.6rem",
       color: briefGrey,
@@ -122,9 +122,7 @@ const theme = createMuiTheme({
       color: briefGrey,
     },
     caption: {
-      fontFamily: "Roboto",
-      fontSize: "1.6rem",
-      color: briefSilver,
+      fontSize: "1rem",
     },
   },
   overrides: {

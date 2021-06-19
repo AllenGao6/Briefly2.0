@@ -20,7 +20,7 @@ import MoreVertIcon from "@material-ui/icons/MoreVert";
 const useStyles = makeStyles((theme) => ({
   root: {
     width: 360,
-    height: 320,
+    height: 305,
     background: theme.palette.common.icon,
   },
   cardText: {
@@ -78,7 +78,7 @@ export default function CollectionCard({ collection, collectionDialog }) {
 
   return (
     <Card className={classes.root} elevation={6}>
-      <CardActionArea style={{ height: 272 }}>
+      <CardActionArea style={{ height: 270 }}>
         <CardMedia
           component="img"
           alt="An image"
@@ -87,7 +87,7 @@ export default function CollectionCard({ collection, collectionDialog }) {
           title="Contemplative Reptile"
         />
         <CardContent
-          style={{ paddingBottom: 0, paddingRight: "0.5rem", height: 120 }}
+          style={{ paddingBottom: 0, paddingRight: "0.5rem", height: 130 }}
         >
           <Typography gutterBottom variant="h4" className={classes.cardText}>
             {collection.name}
@@ -97,7 +97,7 @@ export default function CollectionCard({ collection, collectionDialog }) {
           </Typography>
         </CardContent>
       </CardActionArea>
-      <CardActions>
+      <CardActions style={{ paddingTop: 0, paddingBottom: 0 }}>
         <Grid container justify="flex-end">
           <Grid item>
             <IconButton

@@ -90,6 +90,7 @@ def logout_view(request):
 @api_view(['POST','GET'])
 @permission_classes([AllowAny])
 def login_view(request, backend):
+    print(request.user)
     print("here")
     if request.user.is_authenticated:
         print("have already logined ")
