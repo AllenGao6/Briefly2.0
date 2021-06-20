@@ -1,7 +1,6 @@
 import axios from "axios";
 import * as type from "./action_types";
-import { BASE_URL } from "../constant";
-import Cookies from "js-cookie";
+import { BASE_URL, csrftoken } from "../constant";
 
 const GET_ALL_COLLECTIONS_URL = BASE_URL + "api/collection/";
 const CREATE_COLLECTION_URL = BASE_URL + "api/collection/";
@@ -40,8 +39,7 @@ export const loadCollections = () => (dispatch) => {
     });
 };
 
-export const createCollection = (formData, callback) => (dispatch) => {
-  const csrftoken = Cookies.get("csrftoken");
+export const createCollection = (formData) => (dispatch) => {
   dispatch({
     type: type.CREATING_COLLECTION,
   });
@@ -57,12 +55,37 @@ export const createCollection = (formData, callback) => (dispatch) => {
         type: type.CREATE_COLLECTION_SUCCESS,
         collection: res.data,
       });
-      callback();
     })
     .catch((err) => {
       console.log(err);
       dispatch({
         type: type.CREATE_COLLECTION_FAILURE,
+      });
+    });
+};
+
+export const updateCollection = (formData, id) => (dispatch) => {
+  dispatch({
+    type: type.CREATING_COLLECTION,
+  });
+
+  return axios
+    .patch(`${CREATE_COLLECTION_URL}${id}/`, formData, {
+      headers: {
+        "content-type": "multipart/form-data",
+        "X-CSRFToken": csrftoken,
+      },
+    })
+    .then((res) => {
+      dispatch({
+        type: type.UPDATE_COLLECTION_SUCCESS,
+        collection: res.data,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      dispatch({
+        type: type.UPDATE_COLLECTION_FAILURE,
       });
     });
 };

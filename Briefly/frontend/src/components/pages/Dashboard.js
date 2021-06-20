@@ -22,6 +22,7 @@ import { connect } from "react-redux";
 import {
   loadCollections,
   createCollection,
+  updateCollection,
 } from "../../redux/actions/collection_actions";
 import defaultImage from "../../assets/dummy/book.png";
 import PublishRoundedIcon from "@material-ui/icons/PublishRounded";
@@ -98,6 +99,7 @@ function Dashboard(props) {
   const [imageUrl, setImageUrl] = useState(defaultImage);
   const [imageFile, setImageFile] = useState(null);
   const [isNewCollection, setIsNewCollection] = useState(true);
+  const [id, setId] = useState(0);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -109,6 +111,7 @@ function Dashboard(props) {
 
   const handleDialogCLose = () => {
     setOpenDialog(false);
+    clearDialogStates();
   };
 
   const collectionDialog = (collection) => {
@@ -116,9 +119,10 @@ function Dashboard(props) {
     if (collection !== null) {
       setName(collection.name);
       setDescription(collection.description);
-      setIsArchived(collection.isArchived);
+      setIsArchived(collection.is_archived);
       setImageUrl(collection.image ? collection.image : defaultImage);
       setIsNewCollection(false);
+      setId(collection.id);
     }
 
     setOpenDialog(true);
@@ -131,18 +135,31 @@ function Dashboard(props) {
     setImageUrl(defaultImage);
     setImageFile(null);
     setIsNewCollection(true);
+    setId(0);
   };
 
-  const handleCreateCollection = async () => {
-    const formData = new FormData();
-    if (imageFile !== null) {
-      formData.append("image", imageFile, imageFile.name);
+  const handleChangeCollection = async () => {
+    if (isNewCollection) {
+      const formData = new FormData();
+      if (imageFile !== null) {
+        formData.append("image", imageFile, imageFile.name);
+      }
+      formData.append("name", name);
+      formData.append("description", description);
+      formData.append("is_archived", is_archived);
+      formData.append("owner", props.user.pk);
+      await props.createCollection(formData);
+    } else {
+      const formData = new FormData();
+      if (imageFile !== null) {
+        formData.append("image", imageFile, imageFile.name);
+      }
+      formData.append("name", name);
+      formData.append("description", description);
+      formData.append("is_archived", is_archived);
+      formData.append("owner", props.user.pk);
+      await props.updateCollection(formData, id);
     }
-    formData.append("name", name);
-    formData.append("description", description);
-    formData.append("is_archived", is_archived);
-    formData.append("owner", props.user.pk);
-    await props.createCollection(formData, clearDialogStates);
 
     handleDialogCLose();
   };
@@ -253,10 +270,10 @@ function Dashboard(props) {
                 <Button
                   variant="contained"
                   className={classes.createButton}
-                  onClick={() => handleCreateCollection()}
+                  onClick={() => handleChangeCollection()}
                   disabled={props.isCreating}
                 >
-                  Create
+                  {isNewCollection ? "Create" : "Update"}
                 </Button>
               </Grid>
               <Grid item>
@@ -298,6 +315,7 @@ function mapStateToProps(state) {
 const mapDispatchToProps = {
   loadCollections,
   createCollection,
+  updateCollection,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);

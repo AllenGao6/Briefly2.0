@@ -67,7 +67,13 @@ export default function CollectionCard({ collection, collectionDialog }) {
       <MenuItem onClick={handleClose} className={classes.button}>
         Explore
       </MenuItem>
-      <MenuItem onClick={handleClose} className={classes.button}>
+      <MenuItem
+        onClick={() => {
+          handleClose();
+          collectionDialog(collection);
+        }}
+        className={classes.button}
+      >
         Edit
       </MenuItem>
       <MenuItem onClick={handleClose} className={classes.button}>

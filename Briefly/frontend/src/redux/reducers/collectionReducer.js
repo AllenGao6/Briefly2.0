@@ -34,6 +34,16 @@ export default function collectionReducer(state = initialState, action) {
         collections: newCollections,
         isCreating: false,
       };
+    case type.UPDATE_COLLECTION_SUCCESS:
+      toast.success("😎 Your collection has been updated!");
+      const updatedCollections = [...state.collections].map((collection) =>
+        collection.id === action.collection.id ? action.collection : collection
+      );
+      return {
+        ...state,
+        collections: updatedCollections,
+        isCreating: false,
+      };
     case type.CREATE_COLLECTION_FAILURE:
       toast.error("Fail to create collection.");
       return {
@@ -45,6 +55,12 @@ export default function collectionReducer(state = initialState, action) {
       return {
         ...state,
         isLoading: false,
+      };
+    case type.UPDATE_COLLECTION_FAILURE:
+      toast.error("Fail to update collection.");
+      return {
+        ...state,
+        isCreating: false,
       };
     default:
       return state;
