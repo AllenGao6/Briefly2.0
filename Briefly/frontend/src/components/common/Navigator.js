@@ -7,6 +7,7 @@ import {
   Typography,
   Grid,
   Icon,
+  Button,
 } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
 import Divider from "@material-ui/core/Divider";
@@ -27,7 +28,7 @@ import SettingsIcon from "@material-ui/icons/Settings";
 import PhonelinkSetupIcon from "@material-ui/icons/PhonelinkSetup";
 import { makeStyles } from "@material-ui/styles";
 import IconTextButton from "./IconTextButton";
-import AddCircleIcon from "@material-ui/icons/AddCircle";
+import AddCircleIcon from "@material-ui/icons/AddCircleOutlineOutlined";
 
 const categories = [
   {
@@ -92,6 +93,19 @@ const useStyles = makeStyles((theme) => ({
   noBorder: {
     borderRight: `1px solid ${theme.palette.common.silver}`,
   },
+  addCollection: {
+    borderRadius: 50,
+    textTransform: "none",
+    width: "12rem",
+    paddingTop: "1rem",
+    paddingBottom: "1rem",
+    background:
+      "linear-gradient(75deg, rgba(237,20,20,1) 0%, rgba(30,144,255,1) 92%)",
+    transition: "all 0.3s",
+    "&:hover": {
+      opacity: 0.9,
+    },
+  },
 }));
 
 export default function Navigator(props) {
@@ -131,13 +145,25 @@ export default function Navigator(props) {
             Home
           </Typography>
         </ListItem>
-        <ListItem className={clsx(classes.item, classes.itemCategory)}>
-          <IconTextButton
-            icon={<AddCircleIcon />}
-            label="Add Collection"
-            backgroundColor="white"
-            onClick={() => console.log("Clicked")}
-          />
+        <ListItem>
+          <Grid
+            className={classes.addCollection}
+            onClick={() => props.collectionDialog(null)}
+            container
+            alignItems="center"
+            justify="center"
+            spacing={4}
+            component={Button}
+          >
+            <Grid item>
+              <AddCircleIcon style={{ fontSize: "2rem", color: "white" }} />
+            </Grid>
+            <Grid item style={{ marginTop: 3, marginLeft: "1rem" }}>
+              <Typography variant="h4" style={{ color: "white" }}>
+                Create
+              </Typography>
+            </Grid>
+          </Grid>
         </ListItem>
         {categories.map(({ id, children }) => (
           <React.Fragment key={id}>
