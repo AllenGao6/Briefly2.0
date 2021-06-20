@@ -8,7 +8,7 @@ import random, string
 #Collection model
 def upload_image_name(instance, filename):
     collection_dir = "Collection"+str(instance.id)
-    url_path = ['video', collection_dir, filename]
+    url_path = [collection_dir,'coverImage', filename]
     print('/'.join(url_path))
     return '/'.join(url_path)
 
@@ -35,7 +35,7 @@ def validate_video(video):
 def upload_video_name(instance, filename):
     collection_dir = "Collection"+str(instance.collection.id)
     video_id = str(instance.id)
-    url_path = ['video', collection_dir, video_id, filename]
+    url_path = [collection_dir, 'video', video_id, filename]
     return '/'.join(url_path)
 
 class Video(models.Model):

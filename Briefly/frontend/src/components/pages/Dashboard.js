@@ -249,7 +249,13 @@ function Dashboard(props) {
                 </Button>
               </Grid>
               <Grid item>
-                <Button variant="outlined" className={classes.cancelButton}>
+                <Button 
+                  variant="outlined" 
+                  className={classes.cancelButton} 
+                  onClick={() =>{
+                    handleDialogCLose();
+                  }}
+                >
                   Cancel
                 </Button>
               </Grid>
