@@ -135,3 +135,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
         if serializer.context['request'].FILES.get('image'):
             original_collection.image.delete(save=False)
         return super().perform_update(serializer)
+    
+    def perform_destroy(self, instance):
+        instance.image.delete(save=False)
+        return super().perform_destroy(instance)
