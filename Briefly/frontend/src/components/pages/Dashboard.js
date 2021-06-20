@@ -124,6 +124,15 @@ function Dashboard(props) {
     setOpenDialog(true);
   };
 
+  const clearDialogStates = () => {
+    setName("");
+    setDescription("");
+    setIsArchived(false);
+    setImageUrl(defaultImage);
+    setImageFile(null);
+    setIsNewCollection(true);
+  };
+
   const handleCreateCollection = async () => {
     const formData = new FormData();
     if (imageFile !== null) {
@@ -133,7 +142,7 @@ function Dashboard(props) {
     formData.append("description", description);
     formData.append("is_archived", is_archived);
     formData.append("owner", props.user.pk);
-    await props.createCollection(formData);
+    await props.createCollection(formData, clearDialogStates);
 
     handleDialogCLose();
   };

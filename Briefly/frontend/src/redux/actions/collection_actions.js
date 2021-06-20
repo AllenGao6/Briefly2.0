@@ -40,7 +40,7 @@ export const loadCollections = () => (dispatch) => {
     });
 };
 
-export const createCollection = (formData) => (dispatch) => {
+export const createCollection = (formData, callback) => (dispatch) => {
   const csrftoken = Cookies.get("csrftoken");
   dispatch({
     type: type.CREATING_COLLECTION,
@@ -57,6 +57,7 @@ export const createCollection = (formData) => (dispatch) => {
         type: type.CREATE_COLLECTION_SUCCESS,
         collection: res.data,
       });
+      callback();
     })
     .catch((err) => {
       console.log(err);
