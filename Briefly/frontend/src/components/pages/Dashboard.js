@@ -10,16 +10,10 @@ import {
   Grid,
   Typography,
   Button,
-  Input,
-  InputBase,
   FormControlLabel,
-  InputLabel,
-  IconButton,
-  FormControl,
-  OutlinedInput,
   TextField,
   Switch,
-  withStyles,
+  LinearProgress,
 } from "@material-ui/core";
 import DashboardBar from "../common/DashboardBar";
 import Navigator from "../common/Navigator";
@@ -130,14 +124,18 @@ function Dashboard(props) {
     setOpenDialog(true);
   };
 
-  const handleCreateCollection = () => {
+  const handleCreateCollection = async () => {
     const formData = new FormData();
-    formData.append("image", imageFile, imageFile.name);
+    if (imageFile !== null) {
+      formData.append("image", imageFile, imageFile.name);
+    }
     formData.append("name", name);
     formData.append("description", description);
     formData.append("is_archived", is_archived);
     formData.append("owner", props.user.pk);
-    props.createCollection(formData);
+    await props.createCollection(formData);
+
+    handleDialogCLose();
   };
 
   return (
@@ -171,6 +169,7 @@ function Dashboard(props) {
                 fullWidth
                 className={classes.textField}
                 onChange={(e) => setName(e.currentTarget.value)}
+                disabled={props.isCreating}
               />
             </Grid>
             <Grid item>
@@ -182,6 +181,7 @@ function Dashboard(props) {
                 className={classes.textField}
                 onChange={(e) => setDescription(e.currentTarget.value)}
                 multiline
+                disabled={props.isCreating}
               />
             </Grid>
             <Grid item>
@@ -189,7 +189,10 @@ function Dashboard(props) {
                 control={
                   <Switch
                     checked={is_archived}
-                    color="secondary"
+                    disabled={props.isCreating}
+                    color={
+                      theme.palette.type === "dark" ? "secondary" : "primary"
+                    }
                     onChange={() => setIsArchived(!is_archived)}
                   />
                 }
@@ -225,6 +228,7 @@ function Dashboard(props) {
                 variant="outlined"
                 onClick={() => fileInpuRef.current.click()}
                 className={classes.uploadButton}
+                disabled={props.isCreating}
               >
                 <PublishRoundedIcon style={{ fontSize: "2rem" }} />
               </Button>
@@ -240,25 +244,32 @@ function Dashboard(props) {
                 <Button
                   variant="contained"
                   className={classes.createButton}
-                  onClick={() => {
-                    handleCreateCollection();
-                    handleDialogCLose();
-                  }}
+                  onClick={() => handleCreateCollection()}
+                  disabled={props.isCreating}
                 >
                   Create
                 </Button>
               </Grid>
               <Grid item>
-                <Button 
-                  variant="outlined" 
-                  className={classes.cancelButton} 
-                  onClick={() =>{
-                    handleDialogCLose();
-                  }}
+                <Button
+                  variant="outlined"
+                  className={classes.cancelButton}
+                  onClick={handleDialogCLose}
+                  disabled={props.isCreating}
                 >
                   Cancel
                 </Button>
               </Grid>
+            </Grid>
+            <Grid item>
+              <LinearProgress
+                color={theme.palette.type === "dark" ? "secondary" : "primary"}
+                style={{
+                  width: "35rem",
+                  color: "black",
+                  display: props.isCreating ? undefined : "none",
+                }}
+              />
             </Grid>
           </Grid>
         </DialogContent>
@@ -270,7 +281,7 @@ function Dashboard(props) {
 function mapStateToProps(state) {
   return {
     collections: state.collectionReducer.collections,
-    isLoading: state.collectionReducer.isLoading,
+    isCreating: state.collectionReducer.isCreating,
     user: state.authReducer.user,
   };
 }

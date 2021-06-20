@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 const initialState = {
   collections: [],
   isLoading: false,
+  isCreating: false,
 };
 
 export default function collectionReducer(state = initialState, action) {
@@ -23,7 +24,7 @@ export default function collectionReducer(state = initialState, action) {
     case type.CREATING_COLLECTION:
       return {
         ...state,
-        isLoading: true,
+        isCreating: true,
       };
     case type.CREATE_COLLECTION_SUCCESS:
       toast.success("😎 Your collection has been created!");
@@ -31,16 +32,16 @@ export default function collectionReducer(state = initialState, action) {
       return {
         ...state,
         collections: newCollections,
-        isLoading: false,
+        isCreating: false,
       };
     case type.CREATE_COLLECTION_FAILURE:
-      toast.failure("Fail to create collection.");
+      toast.error("Fail to create collection.");
       return {
         ...state,
-        isLoading: false,
+        isCreating: false,
       };
     case type.LOAD_COLLECTIONS_FAILURE:
-      toast.failure("Fail to load collections.");
+      toast.error("Fail to load collections.");
       return {
         ...state,
         isLoading: false,

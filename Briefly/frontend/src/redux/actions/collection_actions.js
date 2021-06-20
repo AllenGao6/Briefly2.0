@@ -6,6 +6,19 @@ import Cookies from "js-cookie";
 const GET_ALL_COLLECTIONS_URL = BASE_URL + "api/collection/";
 const CREATE_COLLECTION_URL = BASE_URL + "api/collection/";
 
+const progressUpdate =
+  (dispatch) =>
+  ({ loaded, total }) => {
+    let percent = Math.floor((loaded * 100) / total);
+    console.log(`${loaded}KB of ${total} KB | ${percent}%`);
+    if (percent < 100) {
+      dispatch({
+        type: type.UPDATE_PERCENTAGE,
+        percentage: percent,
+      });
+    }
+  };
+
 // load all collections owned by the signed-in user
 export const loadCollections = () => (dispatch) => {
   dispatch({
