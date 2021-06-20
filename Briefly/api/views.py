@@ -52,7 +52,13 @@ class VideoViewSet(viewsets.ModelViewSet):
         instance.video.delete(save=False)
         return super().perform_destroy(instance)
         
-      
+    def perform_update(self, serializer):
+        original_video = self.get_object()
+        if serializer.context['request'].FILES.get('video'):
+            original_video.video.delete(save=False)
+        return super().perform_update(serializer)
+        
+        
     #override create
     '''def create(self, request, *args, **kwargs):
         print(self.kwargs['collection_pk'])
@@ -124,3 +130,8 @@ class CollectionViewSet(viewsets.ModelViewSet):
         instance.image.delete(save=False)
         serializer.save()  #update from serializer, worked
 
+    def perform_update(self, serializer):
+        original_collection = self.get_object()
+        if serializer.context['request'].FILES.get('image'):
+            original_collection.image.delete(save=False)
+        return super().perform_update(serializer)
