@@ -16,6 +16,9 @@ django-storages = "*"
 drf-nested-routers = "*"
 boto3 = "*"
 pillow = "*"
+wordcloud = "*"
+numpy = "*"
+matplotlib = "*"
 
 [dev-packages]
 
