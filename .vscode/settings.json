@@ -1,4 +1,5 @@
 {
     "git.ignoreLimitWarning": true,
-    "jupyter.jupyterServerType": "local"
+    "jupyter.jupyterServerType": "local",
+    "python.pythonPath": "C:\\Users\\q8151\\.virtualenvs\\briefly2.0-n0mKlcSN\\Scripts\\python.exe"
 }

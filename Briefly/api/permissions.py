@@ -11,3 +11,9 @@ class VideoUserPermission(permissions.BasePermission):
     
     def has_object_permission(self, request, view, obj):
         return obj.collection.owner == request.user
+    
+class AudioUserPermission(permissions.BasePermission):
+    message = "The Audio is avaliable for the owner only."
+    
+    def has_object_permission(self, request, view, obj):
+        return obj.collection.owner == request.user

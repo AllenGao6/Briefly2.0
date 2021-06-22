@@ -2,8 +2,6 @@ from django.urls import path, include
 from .views import upload_video
 from .routers import router, collection_router
 from django.conf.urls import url
-from .views import VideoViewSet
-
 
 urlpatterns = [
      path('upload-video/', upload_video, name='upload_video'),
