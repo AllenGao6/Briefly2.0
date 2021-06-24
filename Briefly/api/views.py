@@ -1,9 +1,8 @@
 from django.db.models.expressions import Col
-from django.db.models.fields import NullBooleanField
-from .models import Collection, Video
+from .models import Collection, Video, Audio
 from django.shortcuts import render
 from rest_framework import serializers, viewsets
-from .serializers import VideoSerializer, CollectionSerializer
+from .serializers import AudioSerializer, VideoSerializer, CollectionSerializer
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
@@ -13,7 +12,7 @@ from rest_framework.authentication import SessionAuthentication, TokenAuthentica
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from Briefly import settings
 import boto3
-from .permissions import CollectionUserPermission,VideoUserPermission
+from .permissions import CollectionUserPermission,VideoUserPermission, AudioUserPermission
 from django.db.models import Q
 from django.core.mail import send_mail
 
@@ -50,12 +49,16 @@ class VideoViewSet(viewsets.ModelViewSet):
     
     def perform_destroy(self, instance):
         instance.video.delete(save=False)
+        if instance.audioText:
+            instance.audioText.delete(save=False)
         return super().perform_destroy(instance)
         
     def perform_update(self, serializer):
         original_video = self.get_object()
         if serializer.context['request'].FILES.get('video'):
             original_video.video.delete(save=False)
+        if serializer.context['request'].FILES.get('audioText'):
+            original_video.audioText.delete(save=False)
         return super().perform_update(serializer)
         
         
@@ -139,3 +142,32 @@ class CollectionViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         instance.image.delete(save=False)
         return super().perform_destroy(instance)
+    
+    
+class AudioViewSet(viewsets.ModelViewSet):
+    serializer_class = AudioSerializer
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
+    permission_classes = [AudioUserPermission]
+    def get_queryset(self, *args, **kwargs):
+        user = self.request.user
+        
+        return Audio.objects.filter(Q(collection=self.kwargs['collection_pk']) & Q(collection__owner=user))
+
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        instance.audio.delete(save=False)
+        serializer.save()  #update from serializer, worked
+        
+    def perform_destroy(self, instance):
+        instance.audio.delete(save=False)
+        if instance.audioText:
+            instance.audioText.delete(save=False)
+        return super().perform_destroy(instance)
+        
+    def perform_update(self, serializer):
+        original_audio = self.get_object()
+        if serializer.context['request'].FILES.get('audio'):
+            original_audio.audio.delete(save=False)
+        if serializer.context['request'].FILES.get('audioText'):
+            original_audio.audioText.delete(save=False)
+        return super().perform_update(serializer)

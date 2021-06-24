@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Video, Collection# Audio
+from .models import Video, Collection, Audio
 
 class VideoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -15,4 +15,10 @@ class AudioSerializer(serializers.ModelSerializer):
 class CollectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Collection
+        fields = "__all__"
+        
+        
+class AudioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Audio
         fields = "__all__"

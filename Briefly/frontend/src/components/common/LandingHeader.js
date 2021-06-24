@@ -57,9 +57,6 @@ const useStyles = makeStyles((theme) => ({
     minWidth: 10,
     marginLeft: 60,
   },
-  tabFont: {
-    ...theme.typography.tab,
-  },
   specialText: {
     color: theme.palette.common.blue,
     fontWeight: 800,
