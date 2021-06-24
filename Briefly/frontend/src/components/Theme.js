@@ -37,9 +37,9 @@ const theme = createMuiTheme({
   typography: {
     // define universial styles for headings and body font styles
     tab: {
-      fontFamily: "Raleway",
+      fontFamily: "Ubuntu",
       textTransform: "none",
-      fontWeight: 700,
+      fontWeight: 500,
       fontSize: "1.25rem",
       "&:hover": {
         color: "white",
