@@ -36,14 +36,17 @@ class VideoViewSet(viewsets.ModelViewSet):
         user = self.request.user
         fileSize = int(ceil(serializer.context['request'].FILES['video'].size))
         if fileSize + user.userprofile.total_limit >= settings.MAX_SIZE_PER_USER:
-            raise ValidationError(f"You have reached the limit {settings.MAX_SIZE_PER_USER//1024} mb by {user.userprofile.total_limit//1024//1024} mb")
-        user.userprofile.total_limit += fileSize
-        user.userprofile.save()
-        print(f"creating: limit: {user.userprofile.total_limit} of {settings.MAX_SIZE_PER_USER}")
+            raise ValidationError(f"You have reached the limit {user.userprofile.total_limit//1024//1024} mb of {settings.MAX_SIZE_PER_USER//1024//1024} mb")
+        print(f"creating before: limit: {user.userprofile.total_limit} of {settings.MAX_SIZE_PER_USER}")
+        
         
         instance = serializer.save()
         instance.video.delete(save=False)
         serializer.save()  #update from serializer, worked
+        
+        user.userprofile.total_limit += fileSize
+        user.userprofile.save()
+        print(f"creating after: limit: {user.userprofile.total_limit} of {settings.MAX_SIZE_PER_USER}")
         
         '''another way: update from instance itself, also worked but lengthy'''
         # update from instance itself
@@ -63,14 +66,15 @@ class VideoViewSet(viewsets.ModelViewSet):
         #storage back
         user = self.request.user
         fileSize = instance.video.size
-        user.userprofile.total_limit -= fileSize
-        user.userprofile.save()
-        print(f"destroying: limit: {user.userprofile.total_limit} of {settings.MAX_SIZE_PER_USER}")
+        
         
         instance.video.delete(save=False)
         if instance.audioText:
             instance.audioText.delete(save=False)
-        
+        print(f"destroying before: limit: {user.userprofile.total_limit} of {settings.MAX_SIZE_PER_USER}")
+        user.userprofile.total_limit -= fileSize
+        user.userprofile.save()
+        print(f"destroying after: limit: {user.userprofile.total_limit} of {settings.MAX_SIZE_PER_USER}")
         return super().perform_destroy(instance)
         
     def perform_update(self, serializer):
@@ -84,15 +88,18 @@ class VideoViewSet(viewsets.ModelViewSet):
         
         if user.userprofile.total_limit+filesize_diff >= settings.MAX_SIZE_PER_USER:
             raise ValidationError(f"You have reached the limit {settings.MAX_SIZE_PER_USER//1024} mb by {user.userprofile.total_limit//1024//1024} mb")
-        user.userprofile.total_limit += filesize_diff
-        user.userprofile.save()
-        print(f"updating: limit: {user.userprofile.total_limit} of {settings.MAX_SIZE_PER_USER}")
+        
         
         if serializer.context['request'].FILES.get('video'):
             original_video.video.delete(save=False)
         if serializer.context['request'].FILES.get('audioText'):
             original_video.audioText.delete(save=False)
-        return super().perform_update(serializer)
+        print(f"updating before: limit: {user.userprofile.total_limit} of {settings.MAX_SIZE_PER_USER}")
+
+        self.perform_update(serializer)
+        user.userprofile.total_limit += filesize_diff
+        user.userprofile.save()
+        print(f"updating after: limit: {user.userprofile.total_limit} of {settings.MAX_SIZE_PER_USER}")
         
         
     #override create

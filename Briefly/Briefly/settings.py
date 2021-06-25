@@ -175,7 +175,7 @@ SOCIAL_AUTH_PIPELINE = (
 
 SITE_ID = 1
 
-#amazon s3 database
+# amazon s3 database
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 AWS_ACCESS_KEY_ID = 'AKIA4Q6A67QESQQAFLMF'
@@ -203,10 +203,10 @@ EMAIL_PORT = 25
 EMAIL_USE_TLS = True
 #EMAIL_HOST_USER = os.environ.get('EMAIL_USER')
 #EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_PASS")
-EMAIL_HOST_USER = "hugh_megumi@qq.com" 
+EMAIL_HOST_USER = "hugh_megumi@qq.com"
 EMAIL_HOST_PASSWORD = "tihoaydexrpvbgdj"
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
-#total maximum storage size for each user in byte
-MAX_SIZE_PER_USER = 1024*1024*30 #2*1024*1024*1024
+# total maximum storage size for each user in byte
+MAX_SIZE_PER_USER = 2*1024*1024*1024  # 1024*1024*30
