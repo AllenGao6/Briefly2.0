@@ -1,9 +1,8 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
-import random, string
-
-
+from django.core.validators import validate_image_file_extension, FileExtensionValidator
+from Briefly import settings
    
 #Collection model
 def upload_image_name(instance, filename):
@@ -12,6 +11,13 @@ def upload_image_name(instance, filename):
     print('/'.join(url_path))
     return '/'.join(url_path)
 
+def validate_image(image):
+    limit_mb = 10
+    file_size = image.size 
+    if file_size > limit_mb * 1024 * 1024:
+        raise ValidationError(f"maximum size is {limit_mb} mb")
+
+
 #collection model
 class Collection(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -19,10 +25,17 @@ class Collection(models.Model):
     description = models.CharField(max_length=1000, blank=True, default='')
     is_archived =  models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
-    image = models.ImageField(upload_to=upload_image_name,null=True,blank=True)
+    image = models.ImageField(upload_to=upload_image_name,validators=[validate_image,validate_image_file_extension],null=True,blank=True)
     def __str__(self):
         return f"Collection: {self.id}-{self.name}"
 
+    # # validation purpose
+    # def clean(self):
+    #     if not self.owner.userprofile.validate_total_limit():
+    #         raise ValidationError(f"You have reached the limit {settings.MAX_SIZE_PER_USER//1024} mb by {self.owner.userprofile.total_limit//1024//1024} mb")
+            
+        
+        
 def validate_video(video):
     limit_mb = 200
     file_size = video.size 
@@ -44,11 +57,14 @@ def upload_video_audioText_name(instance, filename):
     url_path = [collection_dir, 'video', video_id, "summarization.txt"]  # assume the format is in txt, change if need
     return '/'.join(url_path)
 
+
+allowed_extension = ['mp4', 'mov', 'wmv', 'avi', ' AVCHD', 'FLV', 'MKV', 'WEBM']
+
 class Video(models.Model):
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     is_archived = models.BooleanField(blank=True, default=False)
-    video = models.FileField(upload_to=upload_video_name, null=True, blank=True)
+    video = models.FileField(upload_to=upload_video_name, validators=[validate_video, FileExtensionValidator(allowed_extension)],null=True, blank=True)
     transcript = models.URLField(max_length=200, null=True, blank=True)
     summarization = models.JSONField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)

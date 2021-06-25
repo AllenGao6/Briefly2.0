@@ -206,3 +206,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "hugh_megumi@qq.com" 
 EMAIL_HOST_PASSWORD = "tihoaydexrpvbgdj"
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+
+#total maximum storage size for each user in byte
+MAX_SIZE_PER_USER = 1024*1024*30 #2*1024*1024*1024

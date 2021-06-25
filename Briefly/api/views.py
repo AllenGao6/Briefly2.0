@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db.models.expressions import Col
 from .models import Collection, Video, Audio
 from django.shortcuts import render
@@ -9,13 +10,13 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from Briefly import settings
 import boto3
 from .permissions import CollectionUserPermission,VideoUserPermission, AudioUserPermission
 from django.db.models import Q
 from django.core.mail import send_mail
-
+from math import ceil
 class VideoViewSet(viewsets.ModelViewSet):
 
     serializer_class = VideoSerializer
@@ -30,6 +31,16 @@ class VideoViewSet(viewsets.ModelViewSet):
     similar to post_save: call save twice to know the id of the video just created and save to the correct directory
     '''
     def perform_create(self, serializer):
+        
+        # storage check
+        user = self.request.user
+        fileSize = int(ceil(serializer.context['request'].FILES['video'].size))
+        if fileSize + user.userprofile.total_limit >= settings.MAX_SIZE_PER_USER:
+            raise ValidationError(f"You have reached the limit {settings.MAX_SIZE_PER_USER//1024} mb by {user.userprofile.total_limit//1024//1024} mb")
+        user.userprofile.total_limit += fileSize
+        user.userprofile.save()
+        print(f"creating: limit: {user.userprofile.total_limit} of {settings.MAX_SIZE_PER_USER}")
+        
         instance = serializer.save()
         instance.video.delete(save=False)
         serializer.save()  #update from serializer, worked
@@ -48,13 +59,35 @@ class VideoViewSet(viewsets.ModelViewSet):
         #s3.Object(settings.AWS_STORAGE_BUCKET_NAME, url).delete()
     
     def perform_destroy(self, instance):
+        
+        #storage back
+        user = self.request.user
+        fileSize = instance.video.size
+        user.userprofile.total_limit -= fileSize
+        user.userprofile.save()
+        print(f"destroying: limit: {user.userprofile.total_limit} of {settings.MAX_SIZE_PER_USER}")
+        
         instance.video.delete(save=False)
         if instance.audioText:
             instance.audioText.delete(save=False)
+        
         return super().perform_destroy(instance)
         
     def perform_update(self, serializer):
+        
+        #storage update
         original_video = self.get_object()
+        user = self.request.user
+        original_fileSize = ceil(original_video.video.size)
+        new_fileSize = int(ceil(serializer.context['request'].FILES['video'].size))
+        filesize_diff = new_fileSize-original_fileSize
+        
+        if user.userprofile.total_limit+filesize_diff >= settings.MAX_SIZE_PER_USER:
+            raise ValidationError(f"You have reached the limit {settings.MAX_SIZE_PER_USER//1024} mb by {user.userprofile.total_limit//1024//1024} mb")
+        user.userprofile.total_limit += filesize_diff
+        user.userprofile.save()
+        print(f"updating: limit: {user.userprofile.total_limit} of {settings.MAX_SIZE_PER_USER}")
+        
         if serializer.context['request'].FILES.get('video'):
             original_video.video.delete(save=False)
         if serializer.context['request'].FILES.get('audioText'):
@@ -171,3 +204,17 @@ class AudioViewSet(viewsets.ModelViewSet):
         if serializer.context['request'].FILES.get('audioText'):
             original_audio.audioText.delete(save=False)
         return super().perform_update(serializer)
+    
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def search(request):
+    query = request.data.get("query", "")
+    user = request.user
+    if query:
+        collections = Collection.objects.filter(Q(owner=user) & (Q(name__icontains=query) | Q(description__icontains=query)))
+        serializer = CollectionSerializer(collections, many=True)
+        return Response(serializer.data)
+    else:
+        return Response({'collection':[]})
+    
