@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function CollectionGrid({ open, collections, collectionDialog }) {
+function CollectionGrid({ open, collections, collectionDialog, collectionDelete }) {
   const classes = useStyles();
   const theme = useTheme();
   const twoPerRow = useMediaQuery("(max-width:1155px)");
@@ -64,6 +64,7 @@ function CollectionGrid({ open, collections, collectionDialog }) {
       : fourPerRow
       ? 4
       : 5;
+
     const numRows = Math.ceil((collections.length + 1) / numItemsPerRow);
     const iterator = new Array(numRows)
       .fill(null)
@@ -116,6 +117,7 @@ function CollectionGrid({ open, collections, collectionDialog }) {
                 <CollectionCard
                   collection={collection}
                   collectionDialog={collectionDialog}
+                  collectionDelete={collectionDelete}
                 />
               ) : (
                 <div style={{ width: 360, height: 320 }}></div>

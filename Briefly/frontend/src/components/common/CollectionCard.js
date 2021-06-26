@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function CollectionCard({ collection, collectionDialog }) {
+export default function CollectionCard({ collection, collectionDialog, collectionDelete }) {
   const classes = useStyles();
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -76,7 +76,12 @@ export default function CollectionCard({ collection, collectionDialog }) {
       >
         Edit
       </MenuItem>
-      <MenuItem onClick={handleClose} className={classes.button}>
+      <MenuItem 
+        onClick={() => {
+          handleClose();
+          collectionDelete(collection);
+        }} 
+        className={classes.button}>
         Delete
       </MenuItem>
     </MenuList>
