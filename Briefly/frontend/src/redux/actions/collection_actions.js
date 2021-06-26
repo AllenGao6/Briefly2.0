@@ -39,6 +39,7 @@ export const loadCollections = () => (dispatch) => {
     });
 };
 
+// create a new collection by signed-in user
 export const createCollection = (formData) => (dispatch) => {
   dispatch({
     type: type.CREATING_COLLECTION,
@@ -64,6 +65,7 @@ export const createCollection = (formData) => (dispatch) => {
     });
 };
 
+//let signed in user update an existing collection
 export const updateCollection = (formData, id) => (dispatch) => {
   dispatch({
     type: type.CREATING_COLLECTION,
@@ -86,6 +88,33 @@ export const updateCollection = (formData, id) => (dispatch) => {
       console.log(err);
       dispatch({
         type: type.UPDATE_COLLECTION_FAILURE,
+      });
+    });
+};
+
+//let signed-in user delete an existing collection group
+export const deleteCollection = (id) => (dispatch) => {
+  dispatch({
+    type: type.DELETING_COLLECTION,
+  });
+
+  return axios
+    .delete(`${CREATE_COLLECTION_URL}${id}/`, {
+      headers: {
+        "content-type": "multipart/form-data",
+        "X-CSRFToken": csrftoken,
+      },
+    })
+    .then((res) => {
+      dispatch({
+        type: type.DELETE_COLLECTION_SUCCESS,
+        collection: res.data,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      dispatch({
+        type: type.DELETE_COLLECTION_FAILURE,
       });
     });
 };

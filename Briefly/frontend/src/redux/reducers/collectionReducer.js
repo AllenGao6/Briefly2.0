@@ -5,6 +5,7 @@ const initialState = {
   collections: [],
   isLoading: false,
   isCreating: false,
+  isDeleting: false,
 };
 
 export default function collectionReducer(state = initialState, action) {
@@ -61,6 +62,27 @@ export default function collectionReducer(state = initialState, action) {
       return {
         ...state,
         isCreating: false,
+      };
+    case type.DELETING_COLLECTION:
+      return {
+        ...state,
+        isDeleting: true,
+      };
+    case type.DELETE_COLLECTION_SUCCESS:
+      toast.success("😎 Your collection has been deleted!");
+      const updated_delete_Collections = [...state.collections].filter((collection) =>
+        collection.id !== action.collection.id
+      );
+      return {
+        ...state,
+        collections: updated_delete_Collections,
+        isDeleting: false,
+      };
+    case type.DELETE_COLLECTION_FAILURE:
+      toast.error("Fail to delete collection.");
+      return {
+        ...state,
+        isDeleting: false,
       };
     default:
       return state;

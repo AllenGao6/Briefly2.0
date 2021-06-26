@@ -23,6 +23,7 @@ import {
   loadCollections,
   createCollection,
   updateCollection,
+  deleteCollection
 } from "../../redux/actions/collection_actions";
 import defaultImage from "../../assets/dummy/book.png";
 import PublishRoundedIcon from "@material-ui/icons/PublishRounded";
@@ -128,6 +129,12 @@ function Dashboard(props) {
     setOpenDialog(true);
   };
 
+  const collectionDelete = async (collection) =>{
+    if(collection !== null){
+      await props.deleteCollection(collection.id);
+    }
+  }
+
   const clearDialogStates = () => {
     setName("");
     setDescription("");
@@ -176,7 +183,7 @@ function Dashboard(props) {
         open={mobileOpen}
         {...props}
       />
-      <DashboardContent open={mobileOpen} collectionDialog={collectionDialog} />
+      <DashboardContent open={mobileOpen} collectionDialog={collectionDialog} collectionDelete={collectionDelete}/>
       <Dialog open={openDialog} onClose={handleDialogCLose} fullWidth>
         <DialogTitle>
           <Typography variant="h4" align="left">
@@ -316,6 +323,7 @@ const mapDispatchToProps = {
   loadCollections,
   createCollection,
   updateCollection,
+  deleteCollection,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);
