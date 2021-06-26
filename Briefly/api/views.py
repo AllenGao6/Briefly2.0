@@ -4,7 +4,6 @@ from .models import Collection, Video, Audio
 from django.shortcuts import render
 from rest_framework import serializers, viewsets
 from .serializers import AudioSerializer, VideoSerializer, CollectionSerializer
-
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 from rest_framework.response import Response
@@ -34,19 +33,22 @@ class VideoViewSet(viewsets.ModelViewSet):
         
         # storage check
         user = self.request.user
-        fileSize = int(ceil(serializer.context['request'].FILES['video'].size))
-        if fileSize + user.userprofile.total_limit >= settings.MAX_SIZE_PER_USER:
-            raise ValidationError(f"You have reached the limit {user.userprofile.total_limit//1024//1024} mb of {settings.MAX_SIZE_PER_USER//1024//1024} mb")
-        print(f"creating before: limit: {user.userprofile.total_limit} of {settings.MAX_SIZE_PER_USER}")
+        fileSize = None
+        if serializer.context['request'].FILES.get('video'):
+            fileSize = int(ceil(serializer.context['request'].FILES['video'].size))
+            if fileSize + user.userprofile.total_limit >= settings.MAX_SIZE_PER_USER:
+                raise ValidationError(f"You have reached the limit {user.userprofile.total_limit//1024//1024} mb of {settings.MAX_SIZE_PER_USER//1024//1024} mb")
+            print(f"creating before: limit: {user.userprofile.total_limit} of {settings.MAX_SIZE_PER_USER}")
         
         
         instance = serializer.save()
         instance.video.delete(save=False)
         serializer.save()  #update from serializer, worked
         
-        user.userprofile.total_limit += fileSize
-        user.userprofile.save()
-        print(f"creating after: limit: {user.userprofile.total_limit} of {settings.MAX_SIZE_PER_USER}")
+        if fileSize:
+            user.userprofile.total_limit += fileSize
+            user.userprofile.save()
+            print(f"creating after: limit: {user.userprofile.total_limit} of {settings.MAX_SIZE_PER_USER}")
         
         '''another way: update from instance itself, also worked but lengthy'''
         # update from instance itself
@@ -65,18 +67,28 @@ class VideoViewSet(viewsets.ModelViewSet):
         
         #storage back
         user = self.request.user
-        fileSize = instance.video.size
-        
+        fileSize = None
+        if instance.video:
+            fileSize = instance.video.size
+        video_id = instance.pk
         
         instance.video.delete(save=False)
         if instance.audioText:
             instance.audioText.delete(save=False)
-        print(f"destroying before: limit: {user.userprofile.total_limit} of {settings.MAX_SIZE_PER_USER}")
-        user.userprofile.total_limit -= fileSize
-        user.userprofile.save()
-        print(f"destroying after: limit: {user.userprofile.total_limit} of {settings.MAX_SIZE_PER_USER}")
-        return super().perform_destroy(instance)
         
+        if fileSize:
+            print(f"destroying before: limit: {user.userprofile.total_limit} of {settings.MAX_SIZE_PER_USER}")
+            user.userprofile.total_limit -= fileSize
+            user.userprofile.save()
+            print(f"destroying after: limit: {user.userprofile.total_limit} of {settings.MAX_SIZE_PER_USER}")
+        return super().perform_destroy(instance)
+    
+    def destroy(self, request, *args, **kwargs):
+        id = self.get_object().pk
+        super().destroy(request,*args, **kwargs)
+        print(f"\nID{id}")
+        return Response({'video_id':id}, status=status.HTTP_202_ACCEPTED)
+      
     def perform_update(self, serializer):
         
         #storage update
@@ -181,8 +193,18 @@ class CollectionViewSet(viewsets.ModelViewSet):
     
     def perform_destroy(self, instance):
         instance.image.delete(save=False)
-        return super().perform_destroy(instance)
-    
+        super().perform_destroy(instance)
+
+    def destroy(self, request, *args, **kwargs):
+        id = self.get_object().pk
+        super().destroy(request,*args, **kwargs)
+        print(f"\nID{id}")
+        return Response({'collection_id':id}, status=status.HTTP_202_ACCEPTED)
+        
+        ''' Return all info of the deleted Collection '''
+        # serializer = self.get_serializer(self.get_object())
+        # super().destroy(request,*args, **kwargs)
+        # return Response(serializer.data, status=status.HTTP_200_OK)
     
 class AudioViewSet(viewsets.ModelViewSet):
     serializer_class = AudioSerializer
@@ -203,7 +225,13 @@ class AudioViewSet(viewsets.ModelViewSet):
         if instance.audioText:
             instance.audioText.delete(save=False)
         return super().perform_destroy(instance)
-        
+    
+    def destroy(self, request, *args, **kwargs):
+        id = self.get_object().pk
+        super().destroy(request,*args, **kwargs)
+        print(f"\nID{id}")
+        return Response({'audio_id':id}, status=status.HTTP_202_ACCEPTED)
+    
     def perform_update(self, serializer):
         original_audio = self.get_object()
         if serializer.context['request'].FILES.get('audio'):

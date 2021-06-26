@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.core.validators import validate_image_file_extension, FileExtensionValidator
 from Briefly import settings
+from django.http import JsonResponse
    
 #Collection model
 def upload_image_name(instance, filename):
@@ -33,9 +34,6 @@ class Collection(models.Model):
     # def clean(self):
     #     if not self.owner.userprofile.validate_total_limit():
     #         raise ValidationError(f"You have reached the limit {settings.MAX_SIZE_PER_USER//1024} mb by {self.owner.userprofile.total_limit//1024//1024} mb")
-            
-        
-        
 def validate_video(video):
     limit_mb = 200
     file_size = video.size 
