@@ -1,5 +1,5 @@
 from rest_framework import serializers
-
+from .models import UserProfile
 
 class SocialSerializer(serializers.Serializer):
     """
@@ -9,3 +9,9 @@ class SocialSerializer(serializers.Serializer):
         allow_blank=False,
         trim_whitespace=True,
     )
+
+class UserProfileSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserProfile
+        fields = "__all__"

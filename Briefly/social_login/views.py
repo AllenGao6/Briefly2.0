@@ -60,7 +60,7 @@ def exchange_token(request, backend):
             print(user)
             if user.is_active:
                 token, _ = Token.objects.get_or_create(user=user)
-                #Uerprofile is automaticlly created
+                # Uerprofile is automaticlly created
                 userProfile = UserProfile.objects.filter(user=user.id)[0]
                 userProfile.is_signed_in = True
                 userProfile.save()

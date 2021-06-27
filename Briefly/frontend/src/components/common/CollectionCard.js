@@ -136,7 +136,7 @@ export default function CollectionCard({
               <Grid item>
                 <Typography variant="body1" style={{ opacity: 0.6 }}>
                   {`Created At: ${collection.created.slice(0, 10)} by ${
-                    collection.owner
+                    collection.get_owner_name
                   }`}
                 </Typography>
               </Grid>
