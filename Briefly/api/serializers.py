@@ -15,8 +15,16 @@ class AudioSerializer(serializers.ModelSerializer):
 class CollectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Collection
-        fields = "__all__"
+        fields = ('owner',
+                'name',
+                'description',
+                'is_archived',
+                'created',
+                'image',
+                'get_owner_name',
+                )
         
+    
         
 class AudioSerializer(serializers.ModelSerializer):
     class Meta:

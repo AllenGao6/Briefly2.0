@@ -34,6 +34,10 @@ class Collection(models.Model):
     # def clean(self):
     #     if not self.owner.userprofile.validate_total_limit():
     #         raise ValidationError(f"You have reached the limit {settings.MAX_SIZE_PER_USER//1024} mb by {self.owner.userprofile.total_limit//1024//1024} mb")
+    
+    def get_owner_name(self):
+        return self.owner.username
+
 def validate_video(video):
     limit_mb = 200
     file_size = video.size 
@@ -67,7 +71,8 @@ class Video(models.Model):
     summarization = models.JSONField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     audioText = models.FileField(upload_to=upload_video_audioText_name, null=True, blank=True)
-    
+    #TODO
+    fileSize = models.IntegerField(null=True, blank=True)
     
     def __str__(self):
         return f"Video: {self.title}"
