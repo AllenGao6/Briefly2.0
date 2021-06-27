@@ -24,7 +24,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    maxWidth: 360,
+    width: 360,
     height: 264,
     background: theme.palette.common.icon,
   },

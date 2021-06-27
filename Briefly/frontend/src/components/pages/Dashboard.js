@@ -23,7 +23,7 @@ import {
   loadCollections,
   createCollection,
   updateCollection,
-  deleteCollection
+  deleteCollection,
 } from "../../redux/actions/collection_actions";
 import defaultImage from "../../assets/dummy/book.png";
 import PublishRoundedIcon from "@material-ui/icons/PublishRounded";
@@ -40,7 +40,6 @@ const useStyles = makeStyles((theme) => ({
     margin: "2rem",
   },
   uploadButton: {
-    width: "35rem",
     transition: "all 0.3s",
     "&:hover": {
       background:
@@ -57,7 +56,6 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   textField: {
-    width: "35rem",
     "& .MuiFormLabel-root": {
       fontSize: "1rem",
     },
@@ -102,6 +100,8 @@ function Dashboard(props) {
   const [isNewCollection, setIsNewCollection] = useState(true);
   const [id, setId] = useState(0);
 
+  const inputWidth = matchesXS ? "20rem" : "35rem";
+
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
@@ -117,6 +117,7 @@ function Dashboard(props) {
 
   const collectionDialog = (collection) => {
     // initialize state variables
+    console.log(collection);
     if (collection !== null) {
       setName(collection.name);
       setDescription(collection.description);
@@ -124,16 +125,17 @@ function Dashboard(props) {
       setImageUrl(collection.image ? collection.image : defaultImage);
       setIsNewCollection(false);
       setId(collection.id);
+      console.log(id);
     }
 
     setOpenDialog(true);
   };
 
-  const collectionDelete = async (collection) =>{
-    if(collection !== null){
+  const collectionDelete = async (collection) => {
+    if (collection !== null) {
       await props.deleteCollection(collection.id);
     }
-  }
+  };
 
   const clearDialogStates = () => {
     setName("");
@@ -183,10 +185,19 @@ function Dashboard(props) {
         open={mobileOpen}
         {...props}
       />
-      <DashboardContent open={mobileOpen} collectionDialog={collectionDialog} collectionDelete={collectionDelete}/>
-      <Dialog open={openDialog} onClose={handleDialogCLose} fullWidth>
+      <DashboardContent
+        open={mobileOpen}
+        collectionDialog={collectionDialog}
+        collectionDelete={collectionDelete}
+      />
+      <Dialog
+        open={openDialog}
+        onClose={handleDialogCLose}
+        fullWidth
+        fullScreen={matchesXS}
+      >
         <DialogTitle>
-          <Typography variant="h4" align="left">
+          <Typography variant="h4" align={matchesXS ? "center" : "left"}>
             {isNewCollection
               ? "Create a New Collection"
               : "Update Collection Information"}
@@ -203,6 +214,7 @@ function Dashboard(props) {
                 className={classes.textField}
                 onChange={(e) => setName(e.currentTarget.value)}
                 disabled={props.isCreating}
+                style={{ width: inputWidth }}
               />
             </Grid>
             <Grid item>
@@ -215,6 +227,7 @@ function Dashboard(props) {
                 onChange={(e) => setDescription(e.currentTarget.value)}
                 multiline
                 disabled={props.isCreating}
+                style={{ width: inputWidth }}
               />
             </Grid>
             <Grid item>
@@ -238,9 +251,9 @@ function Dashboard(props) {
                 src={imageUrl}
                 alt="cover image"
                 style={{
-                  width: "35rem",
+                  width: inputWidth,
                   objectFit: "cover",
-                  height: "15rem",
+                  height: matchesXS ? "10rem" : "15rem",
                   borderRadius: 10,
                 }}
               />
@@ -262,6 +275,7 @@ function Dashboard(props) {
                 onClick={() => fileInpuRef.current.click()}
                 className={classes.uploadButton}
                 disabled={props.isCreating}
+                style={{ width: inputWidth }}
               >
                 <PublishRoundedIcon style={{ fontSize: "2rem" }} />
               </Button>
@@ -271,7 +285,7 @@ function Dashboard(props) {
               container
               justify="center"
               spacing={4}
-              style={{ width: "35rem" }}
+              style={{ width: inputWidth }}
             >
               <Grid item>
                 <Button
@@ -298,7 +312,7 @@ function Dashboard(props) {
               <LinearProgress
                 color={theme.palette.type === "dark" ? "secondary" : "primary"}
                 style={{
-                  width: "35rem",
+                  width: inputWidth,
                   color: "black",
                   display: props.isCreating ? undefined : "none",
                 }}

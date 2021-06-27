@@ -70,7 +70,7 @@ export const updateCollection = (formData, id) => (dispatch) => {
   dispatch({
     type: type.CREATING_COLLECTION,
   });
-
+  console.log("id: " + id);
   return axios
     .patch(`${CREATE_COLLECTION_URL}${id}/`, formData, {
       headers: {
