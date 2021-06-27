@@ -36,7 +36,7 @@ class Collection(models.Model):
     #         raise ValidationError(f"You have reached the limit {settings.MAX_SIZE_PER_USER//1024} mb by {self.owner.userprofile.total_limit//1024//1024} mb")
     
     def get_owner_name(self):
-        return User.objects.get(username=self.owner.username).first_name
+        return self.owner.first_name
 
 def validate_video(video):
     limit_mb = 200

@@ -115,7 +115,7 @@ export default function CollectionCard({
           title="Contemplative Reptile"
         />
         <CardContent style={{ paddingBottom: 5 }}>
-          <Grid container>
+          <Grid container direction="column">
             <Grid item>
               <Typography
                 gutterBottom
@@ -125,8 +125,8 @@ export default function CollectionCard({
                 {collection.name}
               </Typography>
             </Grid>
-            <Grid item container justify="space-between">
-              <Grid item>
+            <Grid item container justify="space-between" alignItems="center">
+              <Grid item style={{ flexGrow: 3 }}>
                 {collection.is_archived ? (
                   <StarFilled style={{ color: "#f9ca24" }} />
                 ) : (
@@ -134,10 +134,17 @@ export default function CollectionCard({
                 )}
               </Grid>
               <Grid item>
-                <Typography variant="body1" style={{ opacity: 0.6 }}>
-                  {`Created At: ${collection.created.slice(0, 10)} by ${
-                    collection.get_owner_name
-                  }`}
+                <Typography variant="body1" style={{ opacity: 0.6 }} nowrap>
+                  {`Created At: ${collection.created.slice(0, 10)} by `}
+                </Typography>
+              </Grid>
+              <Grid item style={{ paddingLeft: "0.3rem" }}>
+                <Typography
+                  variant="body1"
+                  style={{ fontStyle: "italic" }}
+                  nowrap
+                >
+                  {collection.get_owner_name}
                 </Typography>
               </Grid>
             </Grid>
