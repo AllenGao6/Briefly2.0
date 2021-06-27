@@ -70,12 +70,12 @@ export default function collectionReducer(state = initialState, action) {
       };
     case type.DELETE_COLLECTION_SUCCESS:
       toast.success("😎 Your collection has been deleted!");
-      const updated_delete_Collections = [...state.collections].filter((collection) =>
-        collection.id !== action.collection.id
+      const deletedCollections = [...state.collections].filter(
+        (collection) => collection.id !== action.collection.collection_id
       );
       return {
         ...state,
-        collections: updated_delete_Collections,
+        collections: deletedCollections,
         isDeleting: false,
       };
     case type.DELETE_COLLECTION_FAILURE:

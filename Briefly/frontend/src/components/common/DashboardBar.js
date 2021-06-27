@@ -40,7 +40,8 @@ import { login, logout } from "../../redux/actions/auth_actions";
 
 const useStyles = makeStyles((theme) => ({
   appbar: {
-    background: theme.palette.primary.main,
+    background:
+      theme.palette.type == "dark" ? "#1e272e" : theme.palette.common.blue,
     transition: "background 0.4",
   },
   logo: {
@@ -114,7 +115,6 @@ const useStyles = makeStyles((theme) => ({
     background: theme.palette.primary.light,
     borderRadius: 15,
     elevation: 2,
-    transition: "all 0.3s",
     width: 250,
     "&:hover": {
       background: theme.palette.primary.dark,
@@ -122,11 +122,14 @@ const useStyles = makeStyles((theme) => ({
     "& .MuiOutlinedInput-notchedOutline": {
       border: "none",
     },
-    "& .MuiOutlinedInput-root.Mui-focused": {
-      background: theme.palette.primary.dark,
+    "& .MuiOutlinedInput-root": {
       transition: "width 0.3s",
-      borderRadius: 15,
-      width: 300,
+      "&.Mui-focused": {
+        background: theme.palette.primary.dark,
+        transition: "width 0.3s",
+        borderRadius: 15,
+        width: 300,
+      },
     },
   },
   searchInput: {
@@ -135,6 +138,12 @@ const useStyles = makeStyles((theme) => ({
   },
   appBarShift: {
     marginLeft: 240,
+    transition: theme.transitions.create(["margin", "width"], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  },
+  gridContainer: {
     transition: theme.transitions.create(["margin", "width"], {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
@@ -361,9 +370,9 @@ function DashboardBar({
               container
               justify="space-around"
               alignItems="center"
-              className={{
+              className={clsx(classes.gridContainer, {
                 [classes.appBarShift]: open && !matchesXS,
-              }}
+              })}
             >
               <Grid
                 item

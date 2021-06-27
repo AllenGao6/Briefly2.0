@@ -11,6 +11,7 @@ const briefGrey = "#2f3542";
 const briefWhite = "#f1f2f6";
 const briefPurple = "#8e44ad";
 const briefSilver = "#bdc3c7";
+const briefCloud = "#ecf0f1";
 
 const theme = createMuiTheme({
   palette: {
@@ -81,7 +82,7 @@ const theme = createMuiTheme({
     h4: {
       fontFamily: "Roboto",
       fontSize: "1.55rem",
-      fontWeight: 500,
+      fontWeight: 400,
       color: "white",
     },
     h5: {

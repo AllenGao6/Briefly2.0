@@ -14,17 +14,7 @@ import { connect } from "react-redux";
 const useStyles = makeStyles((theme) => ({
   gridsContainer: {
     width: "100%",
-    paddingTop: 100,
-    background:
-      theme.palette.type === "dark" ? theme.palette.primary.main : "inherit",
-  },
-  contentShift: {
-    marginLeft: 256,
-    width: `calc(100% - ${256}px)`,
-    transition: theme.transitions.create(["margin", "width"], {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
+    minHeight: "100vh",
   },
   rowContainer: {
     paddingLeft: 0,
@@ -35,7 +25,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function CollectionGrid({ open, collections, collectionDialog, collectionDelete }) {
+function CollectionGrid({
+  open,
+  collections,
+  collectionDialog,
+  collectionDelete,
+}) {
   const classes = useStyles();
   const theme = useTheme();
   const twoPerRow = useMediaQuery("(max-width:1155px)");
@@ -90,15 +85,8 @@ function CollectionGrid({ open, collections, collectionDialog, collectionDelete 
     <Grid
       container
       className={classes.gridsContainer}
-      justify="center"
       alignItems="center"
       direction="column"
-      className={clsx(
-        {
-          [classes.contentShift]: open && !matchesXS,
-        },
-        classes.gridsContainer
-      )}
     >
       {collectionIterator().map((row, i) => (
         <Grid
@@ -110,7 +98,11 @@ function CollectionGrid({ open, collections, collectionDialog, collectionDelete 
           className={classes.rowContainer}
         >
           {row.map((collection, j) => (
-            <Grid item key={`collection-card-${j}`}>
+            <Grid
+              item
+              key={`collection-card-${j}`}
+              style={{ flexWrap: "wrap" }}
+            >
               {collection === "Add More" ? (
                 <AddCollectionCard collectionDialog={collectionDialog} />
               ) : collection !== null ? (

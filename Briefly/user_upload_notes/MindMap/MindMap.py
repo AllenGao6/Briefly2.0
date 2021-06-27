@@ -28,7 +28,7 @@ class Graph:
             self.inverseGraDic = {}
         
     def allVertices(self):
-        #This part builds the vertex dicrionary
+        #This part builds the vertex list
         for key in self.gDictionary:
             if (key not in self.allVerticesList):
                 self.verticeLength += 1
@@ -52,20 +52,7 @@ class Graph:
             self.inverseGraDic[edge[1]].append((edge[0]))
         else:
             self.inverseGraDic[edge[1]] = [(edge[0])]
-        
-    #Input: a vertex
-    #Output: Return a dictionary. Keys are u (vertex connecting towards the input), and values are edge length between them. 
-    def find_U_E(self, v):
-        uDic = {}
-        
-        for key in self.gDictionary:
-            for vertex in self.gDictionary[key]:
-               if (vertex[0] == v):
-                   u = key
-                   edgeLen = vertex[1]
-                   uDic[u] = edgeLen
-        return uDic
-    
+            
     
     def inversGraph(self):
         p = {}
