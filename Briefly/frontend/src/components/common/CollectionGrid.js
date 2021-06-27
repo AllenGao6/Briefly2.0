@@ -17,6 +17,7 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: 100,
     background:
       theme.palette.type === "dark" ? theme.palette.primary.main : "inherit",
+    minHeight: "100vh",
   },
   contentShift: {
     marginLeft: 256,
@@ -35,7 +36,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function CollectionGrid({ open, collections, collectionDialog, collectionDelete }) {
+function CollectionGrid({
+  open,
+  collections,
+  collectionDialog,
+  collectionDelete,
+}) {
   const classes = useStyles();
   const theme = useTheme();
   const twoPerRow = useMediaQuery("(max-width:1155px)");
@@ -90,7 +96,6 @@ function CollectionGrid({ open, collections, collectionDialog, collectionDelete 
     <Grid
       container
       className={classes.gridsContainer}
-      justify="center"
       alignItems="center"
       direction="column"
       className={clsx(

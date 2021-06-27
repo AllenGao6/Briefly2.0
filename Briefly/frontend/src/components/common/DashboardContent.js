@@ -1,10 +1,36 @@
 import React from "react";
 import CollectionGrid from "./CollectionGrid";
+import { Grid, makeStyles, Divider } from "@material-ui/core";
 
-export default function DashboardContent({ open, collectionDialog, collectionDelete }) {
+const useStyles = makeStyles((theme) => ({
+  root: {
+    background: theme.palette.cloud,
+  },
+}));
+
+export default function DashboardContent({
+  open,
+  collectionDialog,
+  collectionDelete,
+}) {
+  const classes = useStyles();
+
   return (
-    <React.Fragment>
-      <CollectionGrid open={open} collectionDialog={collectionDialog} collectionDelete={collectionDelete}/>
-    </React.Fragment>
+    <Grid
+      container
+      className={classes.root}
+      direction="column"
+      justify="flex-start"
+    >
+      <Grid item></Grid>
+      <Grid item></Grid>
+      <Grid item>
+        <CollectionGrid
+          open={open}
+          collectionDialog={collectionDialog}
+          collectionDelete={collectionDelete}
+        />
+      </Grid>
+    </Grid>
   );
 }

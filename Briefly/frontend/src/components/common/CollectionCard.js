@@ -16,11 +16,13 @@ import {
 import defaultImage from "../../assets/dummy/book.png";
 import MenuPopper from "./MenuPopper";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
+import StarOutlined from "@material-ui/icons/StarOutlineRounded";
+import StarFilled from "@material-ui/icons/StarRounded";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     width: 360,
-    height: 305,
+    height: 264,
     background: theme.palette.common.icon,
   },
   cardText: {
@@ -39,7 +41,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function CollectionCard({ collection, collectionDialog, collectionDelete }) {
+export default function CollectionCard({
+  collection,
+  collectionDialog,
+  collectionDelete,
+}) {
   const classes = useStyles();
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -76,12 +82,13 @@ export default function CollectionCard({ collection, collectionDialog, collectio
       >
         Edit
       </MenuItem>
-      <MenuItem 
+      <MenuItem
         onClick={() => {
           handleClose();
           collectionDelete(collection);
-        }} 
-        className={classes.button}>
+        }}
+        className={classes.button}
+      >
         Delete
       </MenuItem>
     </MenuList>
@@ -89,7 +96,7 @@ export default function CollectionCard({ collection, collectionDialog, collectio
 
   return (
     <Card className={classes.root} elevation={6}>
-      <CardActionArea style={{ height: 270 }}>
+      <CardActionArea>
         <CardMedia
           component="img"
           alt="An image"
@@ -97,18 +104,30 @@ export default function CollectionCard({ collection, collectionDialog, collectio
           image={collection.image === null ? defaultImage : collection.image}
           title="Contemplative Reptile"
         />
-        <CardContent
-          style={{ paddingBottom: 0, paddingRight: "0.5rem", height: 130 }}
-        >
-          <Typography gutterBottom variant="h4" className={classes.cardText}>
-            {collection.name}
-          </Typography>
-          <Typography variant="body2" paragraph className={classes.cardText}>
-            {collection.description}
-          </Typography>
+        <CardContent style={{ paddingBottom: 5 }}>
+          <Grid container>
+            <Grid item>
+              <Typography
+                gutterBottom
+                variant="h4"
+                className={classes.cardText}
+              >
+                {collection.name}
+              </Typography>
+            </Grid>
+            <Grid item container justify="flex-end">
+              <Grid item>
+                <Typography variant="body1" style={{ opacity: 0.6 }}>
+                  {`Created At: ${collection.created.slice(0, 10)} by ${
+                    collection.owner
+                  }`}
+                </Typography>
+              </Grid>
+            </Grid>
+          </Grid>
         </CardContent>
       </CardActionArea>
-      <CardActions style={{ paddingTop: 0, paddingBottom: 0 }}>
+      <CardActions style={{ paddingTop: 0, paddingBottom: 5 }}>
         <Grid container justify="flex-end">
           <Grid item>
             <IconButton
