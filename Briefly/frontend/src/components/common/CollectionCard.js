@@ -12,16 +12,19 @@ import {
   MenuItem,
   Grid,
   useTheme,
+  Divider,
 } from "@material-ui/core";
 import defaultImage from "../../assets/dummy/book.png";
 import MenuPopper from "./MenuPopper";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import StarOutlined from "@material-ui/icons/StarOutlineRounded";
 import StarFilled from "@material-ui/icons/StarRounded";
+import EditIcon from "@material-ui/icons/Edit";
+import DeleteIcon from "@material-ui/icons/Delete";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: 360,
+    maxWidth: 360,
     height: 264,
     background: theme.palette.common.icon,
   },
@@ -69,17 +72,22 @@ export default function CollectionCard({
   };
 
   const CardSettings = (
-    <MenuList autoFocusItem={open} onKeyDown={handleListKeyDown}>
-      <MenuItem onClick={handleClose} className={classes.button}>
-        Explore
-      </MenuItem>
+    <MenuList
+      autoFocusItem={open}
+      onKeyDown={handleListKeyDown}
+      style={{
+        background: theme.palette.type === "dark" ? "#1e272e" : "white",
+      }}
+    >
       <MenuItem
         onClick={() => {
           handleClose();
           collectionDialog(collection);
         }}
         className={classes.button}
+        style={{ color: theme.palette.common.blue }}
       >
+        <EditIcon style={{ fontSize: "1rem", marginRight: "0.5rem" }} />
         Edit
       </MenuItem>
       <MenuItem
@@ -88,7 +96,9 @@ export default function CollectionCard({
           collectionDelete(collection);
         }}
         className={classes.button}
+        style={{ color: theme.palette.common.red }}
       >
+        <DeleteIcon style={{ fontSize: "1rem", marginRight: "0.5rem" }} />
         Delete
       </MenuItem>
     </MenuList>
@@ -115,7 +125,14 @@ export default function CollectionCard({
                 {collection.name}
               </Typography>
             </Grid>
-            <Grid item container justify="flex-end">
+            <Grid item container justify="space-between">
+              <Grid item>
+                {collection.is_archived ? (
+                  <StarFilled style={{ color: "#f9ca24" }} />
+                ) : (
+                  <StarOutlined />
+                )}
+              </Grid>
               <Grid item>
                 <Typography variant="body1" style={{ opacity: 0.6 }}>
                   {`Created At: ${collection.created.slice(0, 10)} by ${
