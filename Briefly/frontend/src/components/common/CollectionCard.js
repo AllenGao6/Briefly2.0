@@ -118,9 +118,8 @@ export default function CollectionCard({
           <Grid container direction="column">
             <Grid item>
               <Typography
-                gutterBottom
                 variant="h4"
-                className={classes.cardText}
+                className={classes.cardText} style={{overflow:'hidden'}}
               >
                 {collection.name}
               </Typography>
