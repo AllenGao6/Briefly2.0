@@ -57,6 +57,7 @@ function CustomPagination() {
 }
 
 export default function CollectionPage() {
+  const [width, setWidth] = useState(150);
   const rows = [
     {
       id: 1,
@@ -149,6 +150,7 @@ export default function CollectionPage() {
             color="primary"
             size="small"
             style={{ marginLeft: 16 }}
+            onClick={handleClick}
           >
             Open
           </Button>
@@ -156,6 +158,10 @@ export default function CollectionPage() {
       ),
     },
   ];
+
+  const handleClick = () => {
+    setWidth(width === 150 ? 50 : 150);
+  };
 
   function getFullName(params) {
     return `${params.getValue(params.id, "firstName") || ""} ${
@@ -168,25 +174,36 @@ export default function CollectionPage() {
     setEditRowsModel(params.model);
   }, []);
 
+  const [selectionModel, setSelectionModel] = useState([]);
+
   return (
-    <Grid container direction="column">
+    <Grid container direction="column" alignItems="center">
       <Grid item>
         <code>editRowsModel: {JSON.stringify(editRowsModel)}</code>
+        <code>selectRowsModel: {JSON.stringify(selectionModel)}</code>
       </Grid>
-      <Grid item container style={{ height: 1000, width: "100%" }}>
-        <DataGrid
-          checkboxSelection
-          columns={columns}
-          rows={rows}
-          disableColumnMenu
-          pageSize={5}
-          rowHeight={150}
-          components={{
-            Toolbar: GridToolbar,
-          }}
-          editRowsModel={editRowsModel}
-          onEditRowModelChange={handleEditRowModelChange}
-        />
+      <Grid item container style={{ width: "90vw" }}>
+        <div style={{ height: 400, width: "100%" }}>
+          <DataGrid
+            autoHeight
+            checkboxSelection
+            columns={columns}
+            rows={rows}
+            disableColumnMenu
+            pageSize={5}
+            rowHeight={width}
+            rowsPerPageOptions={[5, 10, 20]}
+            components={{
+              Toolbar: GridToolbar,
+            }}
+            editRowsModel={editRowsModel}
+            onEditRowModelChange={handleEditRowModelChange}
+            onSelectionModelChange={(newSelection) => {
+              setSelectionModel(newSelection.selectionModel);
+            }}
+            selectionModel={selectionModel}
+          />
+        </div>
       </Grid>
     </Grid>
   );
