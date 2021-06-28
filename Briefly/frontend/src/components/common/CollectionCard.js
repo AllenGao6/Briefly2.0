@@ -21,6 +21,8 @@ import StarOutlined from "@material-ui/icons/StarOutlineRounded";
 import StarFilled from "@material-ui/icons/StarRounded";
 import EditIcon from "@material-ui/icons/Edit";
 import DeleteIcon from "@material-ui/icons/Delete";
+import { connect } from "react-redux";
+import { selectCollection } from "../../redux/actions/collection_actions";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -44,10 +46,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function CollectionCard({
+function CollectionCard({
   collection,
   collectionDialog,
   collectionDelete,
+  history,
+  selectCollection,
 }) {
   const classes = useStyles();
   const theme = useTheme();
@@ -69,6 +73,11 @@ export default function CollectionCard({
   const handleOpenMenu = (e) => {
     setAnchorEl(e.currentTarget);
     setOpen(true);
+  };
+
+  const handleClick = () => {
+    selectCollection(collection);
+    history.push("/collection");
   };
 
   const CardSettings = (
@@ -106,7 +115,7 @@ export default function CollectionCard({
 
   return (
     <Card className={classes.root} elevation={6}>
-      <CardActionArea>
+      <CardActionArea onClick={handleClick}>
         <CardMedia
           component="img"
           alt="An image"
@@ -119,7 +128,8 @@ export default function CollectionCard({
             <Grid item>
               <Typography
                 variant="h4"
-                className={classes.cardText} style={{overflow:'hidden'}}
+                className={classes.cardText}
+                style={{ overflow: "hidden" }}
               >
                 {collection.name}
               </Typography>
@@ -133,16 +143,12 @@ export default function CollectionCard({
                 )}
               </Grid>
               <Grid item>
-                <Typography variant="body1" style={{ opacity: 0.6 }} nowrap>
+                <Typography variant="body1" style={{ opacity: 0.6 }}>
                   {`Created At: ${collection.created.slice(0, 10)} by `}
                 </Typography>
               </Grid>
               <Grid item style={{ paddingLeft: "0.3rem" }}>
-                <Typography
-                  variant="body1"
-                  style={{ fontStyle: "italic" }}
-                  nowrap
-                >
+                <Typography variant="body1" style={{ fontStyle: "italic" }}>
                   {collection.get_owner_name}
                 </Typography>
               </Grid>
@@ -182,3 +188,13 @@ export default function CollectionCard({
     </Card>
   );
 }
+
+function mapStateToProps(state) {
+  return {};
+}
+
+const mapDispatchToProps = {
+  selectCollection,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(CollectionCard);

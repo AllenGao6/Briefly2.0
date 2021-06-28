@@ -56,7 +56,15 @@ class App extends Component {
             <Route path="/profile" component={Profile} />
             <Route
               path="/dashboard"
-              render={(props) => <Dashboard {...props} {...stateProps} />}
+              render={(props) => (
+                <Dashboard {...props} {...stateProps} isDashboard={true} />
+              )}
+            />
+            <Route
+              path="/collection"
+              render={(props) => (
+                <Dashboard {...props} {...stateProps} isDashboard={false} />
+              )}
             />
             <Route path="/not-found" component={NotFound} />
             <Redirect to="/not-found" />

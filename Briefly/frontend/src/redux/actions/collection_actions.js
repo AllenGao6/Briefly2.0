@@ -118,3 +118,10 @@ export const deleteCollection = (id) => (dispatch) => {
       });
     });
 };
+
+export const selectCollection = (collection) => (dispatch) => {
+  dispatch({
+    type: type.SELECT_COLLECTION,
+    collection: collection,
+  });
+};

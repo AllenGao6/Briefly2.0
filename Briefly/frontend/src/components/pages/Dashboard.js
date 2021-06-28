@@ -190,6 +190,7 @@ function Dashboard(props) {
         collectionDialog={collectionDialog}
         collectionDelete={collectionDelete}
         history={props.history}
+        isDashboard={props.isDashboard}
       />
       <Dialog
         open={openDialog}

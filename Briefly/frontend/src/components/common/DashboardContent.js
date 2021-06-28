@@ -1,5 +1,6 @@
 import React from "react";
 import CollectionGrid from "./CollectionGrid";
+import CollectionTable from "./CollectionTable";
 import {
   Grid,
   makeStyles,
@@ -40,6 +41,7 @@ export default function DashboardContent({
   collectionDialog,
   collectionDelete,
   history,
+  isDashboard,
 }) {
   const theme = useTheme();
   const classes = useStyles();
@@ -55,16 +57,22 @@ export default function DashboardContent({
       justify="flex-start"
     >
       <Grid item style={{ paddingLeft: "2rem", paddingBottom: "0.7rem" }}>
-        <Typography variant="h3">Dashboard</Typography>
+        <Typography variant="h3">
+          {isDashboard ? "Dashboard" : "Media Collection"}
+        </Typography>
       </Grid>
       <Divider variant="middle" classes={{ root: classes.divider }} />
       <Grid item style={{ paddingTop: "2rem" }}>
-        <CollectionGrid
-          open={open}
-          collectionDialog={collectionDialog}
-          collectionDelete={collectionDelete}
-          history={history}
-        />
+        {isDashboard ? (
+          <CollectionGrid
+            open={open}
+            collectionDialog={collectionDialog}
+            collectionDelete={collectionDelete}
+            history={history}
+          />
+        ) : (
+          <CollectionTable />
+        )}
       </Grid>
     </Grid>
   );

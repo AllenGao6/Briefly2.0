@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 
 const initialState = {
   collections: [],
+  selectedCollection: null,
   isLoading: false,
   isCreating: false,
   isDeleting: false,
@@ -83,6 +84,12 @@ export default function collectionReducer(state = initialState, action) {
       return {
         ...state,
         isDeleting: false,
+      };
+    case type.SELECT_COLLECTION:
+      toast.success(`Select collection ${action.collection.name} success!`);
+      return {
+        ...state,
+        collection: action.collection,
       };
     default:
       return state;

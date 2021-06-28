@@ -6,5 +6,6 @@ urlpatterns = [
     path('not-found/', index),
     path('dashboard/', index),
     path('home/', index),
+    path('collection', index)
 ]
 
