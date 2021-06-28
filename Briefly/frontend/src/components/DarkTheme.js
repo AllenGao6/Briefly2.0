@@ -35,6 +35,23 @@ const theme = createMuiTheme({
     },
   },
   typography: {
+    grandCaption: {
+      fontFamily: "Ubuntu",
+      fontWeight: 600,
+      fontSize: "5rem",
+      color: briefOrange,
+    },
+    grandIntro: {
+      fontFamily: "Roboto",
+      fontWeight: 200,
+      fontSize: "1.6rem",
+      color: briefSilver,
+    },
+    secondaryCaption: {
+      fontFamily: "Odibee Sans",
+      fontSize: "2rem",
+      color: briefPurple,
+    },
     // define universial styles for headings and body font styles
     tab: {
       fontFamily: "Ubuntu",
