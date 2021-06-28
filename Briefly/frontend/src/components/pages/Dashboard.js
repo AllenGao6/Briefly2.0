@@ -189,6 +189,7 @@ function Dashboard(props) {
         open={mobileOpen}
         collectionDialog={collectionDialog}
         collectionDelete={collectionDelete}
+        history={props.history}
       />
       <Dialog
         open={openDialog}

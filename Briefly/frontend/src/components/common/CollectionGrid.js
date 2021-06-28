@@ -30,6 +30,7 @@ function CollectionGrid({
   collections,
   collectionDialog,
   collectionDelete,
+  history,
 }) {
   const classes = useStyles();
   const theme = useTheme();
@@ -110,6 +111,7 @@ function CollectionGrid({
                   collection={collection}
                   collectionDialog={collectionDialog}
                   collectionDelete={collectionDelete}
+                  history={history}
                 />
               ) : (
                 <div style={{ width: 360, height: 320 }}></div>

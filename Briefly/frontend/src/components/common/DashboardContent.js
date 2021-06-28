@@ -39,6 +39,7 @@ export default function DashboardContent({
   open,
   collectionDialog,
   collectionDelete,
+  history,
 }) {
   const theme = useTheme();
   const classes = useStyles();
@@ -62,6 +63,7 @@ export default function DashboardContent({
           open={open}
           collectionDialog={collectionDialog}
           collectionDelete={collectionDelete}
+          history={history}
         />
       </Grid>
     </Grid>
