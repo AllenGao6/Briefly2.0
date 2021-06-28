@@ -31,11 +31,16 @@ import {
   teamInfo,
   ratingComment,
   contactInfo,
+  icons2,
+  captions2,
+  descriptions2
 } from "./data.js";
 import GradeRoundedIcon from "@material-ui/icons/GradeRounded";
 import StarOutlineRoundedIcon from "@material-ui/icons/StarOutlineRounded";
 import StarRoundedIcon from "@material-ui/icons/StarRounded";
 import ArrowForwardIosRoundedIcon from "@material-ui/icons/ArrowForwardIosRounded";
+
+const border2 = [0,1,2,3,4,5,6,7,8]
 
 const useStyles = makeStyles((theme) => ({
   heroContainer: {
@@ -52,8 +57,8 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   sloganContainer: {
-    marginTop: "-4rem",
-    maxWidth: 700,
+    paddingLeft: "50px",
+    maxWidth: 800,
     [theme.breakpoints.down("md")]: {
       marginTop: "3rem",
       textAlign: "center",
@@ -70,22 +75,74 @@ const useStyles = makeStyles((theme) => ({
       marginBottom: "4rem",
     },
   },
+  grandCaption: {
+    ...theme.typography.grandCaption,
+    padding: 0,
+    minWidth: 0,
+    marginLeft: 0,
+  },
+  grandIntro: {
+    ...theme.typography.grandIntro
+  },
+  secondaryCaption: {
+    ...theme.typography.secondaryCaption
+
+  },
+  emphasizedBody1: {
+    ...theme.typography.emphasizedBody1,
+    fontFamily: "Ubuntu",
+    fontWeight: 400,
+    fontSize: "1.1rem",
+    color:"#2c3e50"
+  },
+  body1: {
+    ...theme.typography.body1,
+    fontFamily: "Ubuntu",
+    fontWeight: 400,
+    fontSize: "1.1rem",
+    color:"#7f8c8d"
+  },
+
+  backgroundContainer:{
+    backgroundColor:"#ecf0f1"
+  },
   featureContainer: {
     width: "100%",
+  },
+  introCardItem : {
+    maxWidth : "380px",
+    maxHeight : "350px",
+    margin : "10px",
+    color: "#ecf0f1",
+    backgroundColor : "#ecf0f1"
+  },
+  introContainer : {
+    width: "100%"
+  },
+  introCardContentContainer : { 
+    minHeight: 350, 
+    paddingLeft: 10, 
+    paddingRight: 10,
+    color: '#ecf0f1'
+  },
+  introCardContent : {
+    color: '#7f8c8d',
   },
   captionMargins: {
     marginTop: "100px",
     marginBottom: "50px",
+    fontSize: "60px",
+    color:"#2980b9"
   },
   teamContainer: {
     width: "80%",
   },
   teamMemberStrip: {
     marginBottom: "50px",
-    backgroundColor: theme.palette.common.cloud,
+    backgroundColor: theme.palette.common.silver,
   },
   teamMemberDescription: {
-    backgroundColor: theme.palette.common.cloud,
+    backgroundColor: theme.palette.common.silver,
   },
   avatarAndName: {
     margin: "5px",
@@ -106,8 +163,15 @@ export default function LandingPage(props) {
     }
   }, [theme]);
 
-  const MyCard = ({ icon, caption, description }) => (
-    <Card>
+  const MyCard = (props) => {
+    const [hovering, setHovering] = useState(false)
+    return(
+    <Paper
+      elevation={hovering ? 5 : 0}
+      onMouseOver={() => setHovering(true)}
+      onMouseLeave={() => setHovering(false)}
+      className={classes.introCardItem}
+    >
       <Grid container>
         <Grid item xs={1}></Grid>
 
@@ -115,79 +179,37 @@ export default function LandingPage(props) {
           item
           container
           direction="column"
-          justify="space-evenly"
-          style={{ minHeight: 350, paddingLeft: 10, paddingRight: 10 }}
+          justify="flex-start"
+          className={classes.introCardContentContainer}
         >
           <Grid item>
-            <Typography align="center">{icon}</Typography>
-          </Grid>
-          <Grid item>
-            <Typography
-              variant="h3"
+            <Typography 
               align="center"
-              style={{ fontSize: "150%" }}
+              style={{color:"#2c3e50", fontSize:70}}
             >
-              {caption}
+              {props.icon}
             </Typography>
           </Grid>
           <Grid item>
-            <Typography variant="h5">{description}</Typography>
+            <Typography
+              className={classes.secondaryCaption}
+              align="center"
+            >
+              {props.caption}
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Typography
+              className={hovering ? classes.emphasizedBody1 : classes.body1}
+              align="space-evenly"
+            >
+                {props.description}
+            </Typography>
           </Grid>
         </Grid>
       </Grid>
-    </Card>
-  );
-
-  const MatrixArea = (props) => {
-    const FormRow = ({ frame, icon, caption, description }) => (
-      <React.Fragment>
-        {frame.map((item, idx) => (
-          <Grid
-            item
-            xs={12}
-            md={6}
-            lg={4}
-            key={idx}
-            container
-            key={`${item}-${idx}`}
-          >
-            <Grid item xs={1}></Grid>
-            <Grid item>
-              <MyCard
-                icon={icon[idx]}
-                caption={caption[idx]}
-                description={description[idx]}
-              />
-            </Grid>
-          </Grid>
-        ))}
-      </React.Fragment>
-    );
-
-    return (
-      <div>
-        <Grid container spacing={3}>
-          {props.frame.map((item, idx) => (
-            <Grid
-              container
-              item
-              spacing={3}
-              key={idx}
-              align="center"
-              key={`${item}-${idx}`}
-            >
-              <FormRow
-                frame={item}
-                icon={icons[idx]}
-                caption={captions[idx]}
-                description={descriptions[idx]}
-              />
-            </Grid>
-          ))}
-        </Grid>
-      </div>
-    );
-  };
+    </Paper>
+  )};
 
   const PlayingVideo = () => (
     <ReactPlayer
@@ -335,10 +357,10 @@ export default function LandingPage(props) {
             className={classes.sloganContainer}
           >
             <Grid item>
-              <Typography variant="h1">Briefly</Typography>
+              <Typography className={classes.grandCaption}>Briefly</Typography>
             </Grid>
             <Grid item>
-              <Typography variant="body1" style={{ color: "white" }}>
+              <Typography className={classes.grandIntro}>
                 The ultimate AI-powered platform to review course material.
                 Everything you need, in one streamlined platform.
               </Typography>
@@ -362,144 +384,144 @@ export default function LandingPage(props) {
         </Grid>
       </Grid>
 
-      <Grid
-        justify="center"
-        alignItems="center"
-        container
-        direction="column"
-        id="introduction"
-      >
-        <Typography
-          className={classes.captionMargins}
-          variant="h2"
-          align="center"
-        >
-          What is Briefly
-        </Typography>
-
+      <Grid className={classes.backgroundContainer}>
         <Grid
-          container
-          className={classes.featureContainer}
+          justify="center"
           alignItems="center"
-          spacing={6}
+          container
+          direction="column"
+          id="new-intro"
         >
-          <Grid item xs={1}></Grid>
-
-          <Grid item xs={10}>
-            <MatrixArea frame={border} />
-          </Grid>
-
-          <Grid item xs={1}></Grid>
-        </Grid>
-      </Grid>
-
-      <Grid
-        justify="center"
-        alignItems="center"
-        container
-        direction="column"
-        id="demo"
-      >
-        <Typography
-          className={classes.captionMargins}
-          variant="h2"
-          align="center"
-        >
-          Briefly's Mission
-        </Typography>
-        <Grid container justify="center">
-          <Card>
-            <PlayingVideo />
-          </Card>
-        </Grid>
-      </Grid>
-
-      <Grid
-        justify="center"
-        alignItems="center"
-        container
-        direction="column"
-        id="team"
-      >
-        <Grid className={classes.teamContainer}>
           <Typography
             className={classes.captionMargins}
             variant="h2"
             align="center"
           >
-            Team
+            What is Briefly?
           </Typography>
-          <Grid container justify="center" direction="column">
-            {teamInfo.map((memberInfo, idx) => (
-              <MemberInfoStrip
-                key={`${memberInfo}-${idx}`}
-                reversed={idx % 2 === 1}
-                memberInfo={memberInfo}
-              />
-            ))}
+          <Grid
+            container
+            justify="space-evenly"
+            className={classes.introContainer}
+          >
+            {border2.map((item, idx) => 
+              <MyCard 
+                key={idx} 
+                icon={icons2[idx]}
+                caption={captions2[idx]}
+                description={descriptions2[idx]}/>
+            )}
           </Grid>
         </Grid>
-      </Grid>
 
-      <Grid
-        justify="center"
-        alignItems="center"
-        container
-        direction="column"
-        id="about-us"
-      >
-        <Typography
-          className={classes.captionMargins}
-          variant="h2"
-          align="center"
+        <Grid
+          justify="center"
+          alignItems="center"
+          container
+          direction="column"
+          id="demo"
         >
-          About Us
-        </Typography>
-      </Grid>
-
-      <Grid
-        justify="center"
-        alignItems="center"
-        container
-        direction="column"
-        id="about-us"
-        style={{ marginBottom: 200 }}
-      >
-        <Typography
-          className={classes.captionMargins}
-          variant="h2"
-          align="center"
-        >
-          Contact Us
-        </Typography>
-        <Grid container justify="center">
-          <Grid item style={{ width: "40%" }}>
-            <InfoSection data={contactInfo} />
-          </Grid>
-          <Grid
-            item
-            container
-            direction="column"
-            alignItems="center"
-            className={classes.contactArea}
-            style={{ maxWidth: "50%" }}
+          <Typography
+            className={classes.captionMargins}
+            variant="h2"
+            align="center"
           >
-            <StarRating />
-            <TextareaAutosize
-              aria-label="minimum height"
-              rowsMin={6}
-              style={{ width: "80%" }}
-              placeholder="Some Feedbacks ..."
-              colsmin={50}
-            />
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={() => alert("Thanks you! Your feedback is valuable.")}
-              style={{ margin: 20, textTransform: "none" }}
+            Briefly's Mission
+          </Typography>
+          <Grid container justify="center">
+            <Card>
+              <PlayingVideo />
+            </Card>
+          </Grid>
+        </Grid>
+
+        <Grid
+          justify="center"
+          alignItems="center"
+          container
+          direction="column"
+          id="team"
+        >
+          <Grid className={classes.teamContainer}>
+            <Typography
+              className={classes.captionMargins}
+              variant="h2"
+              align="center"
             >
-              <Typography variant="body2">Submit</Typography>
-            </Button>
+              Team
+            </Typography>
+            <Grid container justify="center" direction="column">
+              {teamInfo.map((memberInfo, idx) => (
+                <MemberInfoStrip
+                  key={`${memberInfo}-${idx}`}
+                  reversed={idx % 2 === 1}
+                  memberInfo={memberInfo}
+                />
+              ))}
+            </Grid>
+          </Grid>
+        </Grid>
+
+        <Grid
+          justify="center"
+          alignItems="center"
+          container
+          direction="column"
+          id="about-us"
+        >
+          <Typography
+            className={classes.captionMargins}
+            variant="h2"
+            align="center"
+          >
+            About Us
+          </Typography>
+        </Grid>
+
+        <Grid
+          justify="center"
+          alignItems="center"
+          container
+          direction="column"
+          id="about-us"
+          style={{ marginBottom: 200 }}
+        >
+          <Typography
+            className={classes.captionMargins}
+            variant="h2"
+            align="center"
+          >
+            Contact Us
+          </Typography>
+          <Grid container justify="center">
+            <Grid item style={{ width: "40%" }}>
+              <InfoSection data={contactInfo} />
+            </Grid>
+            <Grid
+              item
+              container
+              direction="column"
+              alignItems="center"
+              className={classes.contactArea}
+              style={{ maxWidth: "50%" }}
+            >
+              <StarRating />
+              <TextareaAutosize
+                aria-label="minimum height"
+                rowsMin={6}
+                style={{ width: "80%" }}
+                placeholder="Some Feedbacks ..."
+                colsmin={50}
+              />
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={() => alert("Thank you! Your feedback is valuable.")}
+                style={{ margin: 20, textTransform: "none" }}
+              >
+                <Typography variant="body2">Submit</Typography>
+              </Button>
+            </Grid>
           </Grid>
         </Grid>
       </Grid>

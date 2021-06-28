@@ -356,7 +356,11 @@ function LandingHeader({ history, user, accessToken, login, logout }) {
                 {tab.icon}
               </ListItemIcon>
               <ListItemText disableTypography>
+
+
                 <Typography variant="tab" className={classes.listItemText}>
+
+                  
                   {tab.name}
                 </Typography>
               </ListItemText>
