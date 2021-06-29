@@ -26,6 +26,7 @@ const theme = createMuiTheme({
       grey: briefGrey,
       darkWhite: briefWhite,
       icon: briefOrange,
+      cloud: briefCloud,
     },
     primary: {
       main: briefGrey,

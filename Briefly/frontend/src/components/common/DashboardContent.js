@@ -71,7 +71,7 @@ export default function DashboardContent({
             history={history}
           />
         ) : (
-          <CollectionTable />
+          <CollectionTable history={history} />
         )}
       </Grid>
     </Grid>

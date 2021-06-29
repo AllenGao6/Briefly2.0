@@ -8,6 +8,8 @@ import {
   useTheme,
   Paper,
 } from "@material-ui/core";
+import { darken, lighten } from "@material-ui/core/styles";
+
 import PostAddOutlinedIcon from "@material-ui/icons/PostAddOutlined";
 
 const useStyles = makeStyles((theme) => ({
@@ -15,19 +17,17 @@ const useStyles = makeStyles((theme) => ({
     width: 360,
     height: 264,
     transition: "all 0.3s",
-    opacity: 0.6,
-    background: theme.palette.type === "dark" ? "silver" : "white",
+    background:
+      theme.palette.type === "dark" ? theme.palette.common.grey : "white",
     "&:hover": {
-      opacity: 1,
       background:
         theme.palette.type === "dark"
-          ? theme.palette.common.grey
-          : theme.palette.common.cloud,
+          ? lighten(theme.palette.common.grey, 0.2)
+          : darken(theme.palette.common.cloud, 0.1),
     },
   },
   addIcon: {
     fontSize: "12rem",
-
     color: theme.palette.type === "dark" ? "white" : theme.palette.common.grey,
   },
 }));
