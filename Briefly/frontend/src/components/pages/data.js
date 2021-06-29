@@ -1,8 +1,6 @@
 import React from "react";
 // icons for card area
-import ListRoundedIcon from "@material-ui/icons/ListRounded";
 import OndemandVideoRoundedIcon from "@material-ui/icons/OndemandVideoRounded";
-import TimelineRoundedIcon from "@material-ui/icons/TimelineRounded";
 import CodeRoundedIcon from "@material-ui/icons/CodeRounded";
 import SettingsRoundedIcon from "@material-ui/icons/SettingsRounded";
 import AssessmentRoundedIcon from "@material-ui/icons/AssessmentRounded";
@@ -10,6 +8,18 @@ import HelpOutlineRoundedIcon from "@material-ui/icons/HelpOutlineRounded";
 import CardMembershipRoundedIcon from "@material-ui/icons/CardMembershipRounded";
 import ForumRoundedIcon from "@material-ui/icons/ForumRounded";
 //icon for 404 error
+//second tone icons
+import FormatListBulletedRoundedIcon from '@material-ui/icons/FormatListBulletedRounded';
+import FormatListNumberedRoundedIcon from '@material-ui/icons/FormatListNumberedRounded';
+import OndemandVideoTwoToneIcon from '@material-ui/icons/OndemandVideoTwoTone';
+import BlurOnRoundedIcon from '@material-ui/icons/BlurOnRounded';
+import BlurCircularTwoToneIcon from '@material-ui/icons/BlurCircularTwoTone';
+import DeveloperModeTwoToneIcon from '@material-ui/icons/DeveloperModeTwoTone';
+import SettingsTwoToneIcon from '@material-ui/icons/SettingsTwoTone';
+import AssessmentTwoToneIcon from '@material-ui/icons/AssessmentTwoTone';
+import HelpTwoToneIcon from '@material-ui/icons/HelpTwoTone';
+import CardMembershipTwoToneIcon from '@material-ui/icons/CardMembershipTwoTone';
+import ForumTwoToneIcon from '@material-ui/icons/ForumTwoTone';
 
 //heads
 import head1 from "../../assets/heads/head1.jpg";
@@ -20,7 +30,7 @@ import head5 from "../../assets/heads/head5.jpg";
 import { Typography } from "@material-ui/core";
 
 const dummyText =
-  "There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable. If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything embarrassing hidden in the middle of text. All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary, making this the first true generator on the Internet. It uses a dictionary of over 200 Latin words, combined with a handful of model sentence structures, to generate Lorem Ipsum which looks reasonable. The generated Lorem Ipsum is therefore always free from repetition, injected humour, or non-characteristic words etc.";
+  "There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable. If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything embarrassing hidden in the middle of text. All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary, making this the first true generator on the Internet. ";
 
 export const teamInfo = [
   {
@@ -82,16 +92,19 @@ export const contactInfo = [
   },
 ];
 
+const smallSize=70
+const largeSize=80
+
 export const icons2 = [
-  <ListRoundedIcon style={{ fontSize: 70 }} />,
-  <OndemandVideoRoundedIcon style={{ fontSize: 70 }} />,
-  <TimelineRoundedIcon style={{ fontSize: 70 }} />,
-  <CodeRoundedIcon style={{ fontSize: 70 }} />,
-  <SettingsRoundedIcon style={{ fontSize: 70 }} />,
-  <AssessmentRoundedIcon style={{ fontSize: 70 }} />,
-  <HelpOutlineRoundedIcon style={{ fontSize: 70 }} />,
-  <CardMembershipRoundedIcon style={{ fontSize: 70 }} />,
-  <ForumRoundedIcon style={{ fontSize: 70 }} />
+  [<FormatListBulletedRoundedIcon style={{fontSize:smallSize}}/>, <FormatListNumberedRoundedIcon style={{fontSize:largeSize}}/>],
+  [<OndemandVideoRoundedIcon style={{fontSize:smallSize}}/>, <OndemandVideoTwoToneIcon style={{fontSize:largeSize}}/>],
+  [<BlurOnRoundedIcon style={{fontSize:smallSize}}/>, <BlurCircularTwoToneIcon style={{fontSize:largeSize}}/>],
+  [<CodeRoundedIcon style={{fontSize:smallSize}}/>, <DeveloperModeTwoToneIcon style={{fontSize:largeSize}}/>],
+  [<SettingsRoundedIcon style={{fontSize:smallSize}}/>, <SettingsTwoToneIcon style={{fontSize:largeSize}}/>],
+  [<AssessmentRoundedIcon style={{fontSize:smallSize}}/>, <AssessmentTwoToneIcon style={{fontSize:largeSize}}/>],
+  [<HelpOutlineRoundedIcon style={{fontSize:smallSize}}/>, <HelpTwoToneIcon style={{fontSize:largeSize}}/>],
+  [<CardMembershipRoundedIcon style={{fontSize:smallSize}}/>, <CardMembershipTwoToneIcon style={{fontSize:largeSize}}/>],
+  [<ForumRoundedIcon style={{fontSize:smallSize}}/>, <ForumTwoToneIcon style={{fontSize:largeSize}}/>],
 ]
 
 export const captions2 = [

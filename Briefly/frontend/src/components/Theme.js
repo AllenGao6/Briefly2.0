@@ -50,7 +50,7 @@ const theme = createMuiTheme({
     },
     secondaryCaption: {
       fontFamily: "Odibee Sans",
-      fontSize: "2.2rem",
+      fontSize: "1.8rem",
       color: briefPurple,
     },
     emphasizedBody1: {

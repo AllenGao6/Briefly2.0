@@ -75,6 +75,11 @@ const useStyles = makeStyles((theme) => ({
       marginBottom: "4rem",
     },
   },
+
+
+
+
+  // font styles
   grandCaption: {
     ...theme.typography.grandCaption,
     padding: 0,
@@ -86,23 +91,24 @@ const useStyles = makeStyles((theme) => ({
   },
   secondaryCaption: {
     ...theme.typography.secondaryCaption
-
   },
   emphasizedBody1: {
     ...theme.typography.emphasizedBody1,
     fontFamily: "Ubuntu",
     fontWeight: 400,
-    fontSize: "1.1rem",
+    fontSize: "1.0rem",
     color:"#2c3e50"
   },
   body1: {
     ...theme.typography.body1,
     fontFamily: "Ubuntu",
     fontWeight: 400,
-    fontSize: "1.1rem",
+    fontSize: "1.0rem",
     color:"#7f8c8d"
   },
 
+
+  // components
   backgroundContainer:{
     backgroundColor:"#ecf0f1"
   },
@@ -112,7 +118,9 @@ const useStyles = makeStyles((theme) => ({
   introCardItem : {
     maxWidth : "380px",
     maxHeight : "350px",
-    margin : "10px",
+    marginTop : "10px",
+    marginBottom : "10px",
+    padding: "15px",
     color: "#ecf0f1",
     backgroundColor : "#ecf0f1"
   },
@@ -156,6 +164,7 @@ export default function LandingPage(props) {
   const classes = useStyles();
   const theme = useTheme();
   const matchesMD = useMediaQuery(theme.breakpoints.down("md"));
+  const [rated, setRated] = useState(false)
 
   useEffect(() => {
     if (theme.palette.type === "dark") {
@@ -182,12 +191,12 @@ export default function LandingPage(props) {
           justify="flex-start"
           className={classes.introCardContentContainer}
         >
-          <Grid item>
+          <Grid item style={{maxHeight:100}}>
             <Typography 
               align="center"
-              style={{color:"#2c3e50", fontSize:70}}
+              style={{color:"#2c3e50"}}
             >
-              {props.icon}
+              {hovering ? props.icon[1] : props.icon[0]}
             </Typography>
           </Grid>
           <Grid item>
@@ -254,8 +263,8 @@ export default function LandingPage(props) {
         style={{ width: "60%", padding: 40, borderRadius: "20px" }}
         className={classes.teamMemberStrip}
       >
-        <Typography variant="h3">{props.memberInfo.name}</Typography>
-        <Typography variant="h4">{props.memberInfo.description}</Typography>
+        <Typography className={classes.secondaryCaption} style={{fontSize:"3rem"}}>{props.memberInfo.name}</Typography>
+        <Typography className={classes.emphasizedBody1} style={{fontSize:"1.5rem"}}>{props.memberInfo.description}</Typography>
       </Grid>
     </Grid>
   );
@@ -278,6 +287,8 @@ export default function LandingPage(props) {
     }
   };
 
+  const setStateOutside = (prop) => {setRated(true); console.log(`clicked=${prop}`)};
+
   const StarRating = ({ totalStars = 5 }) => {
     const [rating, setRating] = useState(0);
     const [clicked, setClicked] = useState(false);
@@ -291,27 +302,24 @@ export default function LandingPage(props) {
               onSelect={() => {
                 setRating(idx + 1);
                 setClicked(true);
+                setRated(true);
               }}
             />
           ))}
         </Grid>
         <Typography>
           {clicked ? (
-            <Typography variant="body1" style={{ color: "#c0392b" }}>
+            <Typography className={classes.secondaryCaption} style={{ fontSize:"50px", color: "#c0392b" }}>
               {ratingComment[rating - 1]}
             </Typography>
           ) : (
-            <Typography variant="body1" style={{ color: "#7f8c8d" }}>
+            <Typography className={classes.secondaryCaption} style={{ fontSize:"50px", color: "#7f8c8d" }}>
               Click to rate the page.
             </Typography>
           )}
         </Typography>
       </>
     );
-  };
-
-  const RatingSection = (props) => {
-    return {};
   };
 
   const InfoStrip = (props) => (
@@ -322,9 +330,9 @@ export default function LandingPage(props) {
         style={{ backgroundColor: theme.palette.common.silver, maxWidth: 200 }}
       >
         <ArrowForwardIosRoundedIcon />
-        <Typography variant="body2">{props.data.type}</Typography>
+        <Typography className={classes.secondaryCaption} style={{color:"#2c3e50"}}>{props.data.type}</Typography>
       </Grid>
-      <Typography variant="body2" style={{ marginLeft: 40 }}>
+      <Typography className={classes.secondaryCaption} style={{marginLeft:40, color:"#2c3e50"}}>
         {props.data.info}
       </Typography>
     </Grid>
@@ -484,7 +492,6 @@ export default function LandingPage(props) {
           container
           direction="column"
           id="about-us"
-          style={{ marginBottom: 200 }}
         >
           <Typography
             className={classes.captionMargins}
@@ -493,7 +500,7 @@ export default function LandingPage(props) {
           >
             Contact Us
           </Typography>
-          <Grid container justify="center">
+          <Grid container justify="center" alignItems="baseline">
             <Grid item style={{ width: "40%" }}>
               <InfoSection data={contactInfo} />
             </Grid>
@@ -502,25 +509,37 @@ export default function LandingPage(props) {
               container
               direction="column"
               alignItems="center"
+              justify="flex-start"
               className={classes.contactArea}
-              style={{ maxWidth: "50%" }}
+              style={{ maxWidth: "50%"}}
             >
               <StarRating />
               <TextareaAutosize
                 aria-label="minimum height"
-                rowsMin={6}
+                rowsMin={5}
                 style={{ width: "80%" }}
                 placeholder="Some Feedbacks ..."
                 colsmin={50}
               />
-              <Button
-                variant="contained"
-                color="secondary"
-                onClick={() => alert("Thank you! Your feedback is valuable.")}
-                style={{ margin: 20, textTransform: "none" }}
-              >
-                <Typography variant="body2">Submit</Typography>
-              </Button>
+              {rated ? 
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={() => alert("Thank you! Your feedback is valuable.")}
+                  style={{ margin: 10, textTransform: "none"}}
+                >
+                  <Typography className={classes.secondaryCaption} style={{color:"#2c3e50"}}>Submit</Typography>
+                </Button>
+              :
+                <Button
+                  disabled
+                  variant="contained"
+                  color="secondary"
+                  style={{ margin: 10, textTransform: "none"}}
+                >
+                  <Typography className={classes.secondaryCaption} style={{color:"#2c3e50"}}>Submit</Typography>
+                </Button>
+              }
             </Grid>
           </Grid>
         </Grid>
