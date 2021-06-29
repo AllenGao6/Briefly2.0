@@ -33,14 +33,14 @@ import {
   contactInfo,
   icons2,
   captions2,
-  descriptions2
+  descriptions2,
 } from "./data.js";
 import GradeRoundedIcon from "@material-ui/icons/GradeRounded";
 import StarOutlineRoundedIcon from "@material-ui/icons/StarOutlineRounded";
 import StarRoundedIcon from "@material-ui/icons/StarRounded";
 import ArrowForwardIosRoundedIcon from "@material-ui/icons/ArrowForwardIosRounded";
 
-const border2 = [0,1,2,3,4,5,6,7,8]
+const border2 = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
 const useStyles = makeStyles((theme) => ({
   heroContainer: {
@@ -76,9 +76,6 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 
-
-
-
   // font styles
   grandCaption: {
     ...theme.typography.grandCaption,
@@ -87,60 +84,59 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: 0,
   },
   grandIntro: {
-    ...theme.typography.grandIntro
+    ...theme.typography.grandIntro,
   },
   secondaryCaption: {
-    ...theme.typography.secondaryCaption
+    ...theme.typography.secondaryCaption,
   },
   emphasizedBody1: {
     ...theme.typography.emphasizedBody1,
     fontFamily: "Ubuntu",
     fontWeight: 400,
     fontSize: "1.0rem",
-    color:"#2c3e50"
+    color: "#2c3e50",
   },
   body1: {
     ...theme.typography.body1,
     fontFamily: "Ubuntu",
     fontWeight: 400,
     fontSize: "1.0rem",
-    color:"#7f8c8d"
+    color: "#7f8c8d",
   },
 
-
   // components
-  backgroundContainer:{
-    backgroundColor:"#ecf0f1"
+  backgroundContainer: {
+    backgroundColor: "#ecf0f1",
   },
   featureContainer: {
     width: "100%",
   },
-  introCardItem : {
-    maxWidth : "380px",
-    maxHeight : "350px",
-    marginTop : "10px",
-    marginBottom : "10px",
+  introCardItem: {
+    maxWidth: "380px",
+    maxHeight: "350px",
+    marginTop: "10px",
+    marginBottom: "10px",
     padding: "15px",
     color: "#ecf0f1",
-    backgroundColor : "#ecf0f1"
+    backgroundColor: "#ecf0f1",
   },
-  introContainer : {
-    width: "100%"
+  introContainer: {
+    width: "100%",
   },
-  introCardContentContainer : { 
-    minHeight: 350, 
-    paddingLeft: 10, 
+  introCardContentContainer: {
+    minHeight: 350,
+    paddingLeft: 10,
     paddingRight: 10,
-    color: '#ecf0f1'
+    color: "#ecf0f1",
   },
-  introCardContent : {
-    color: '#7f8c8d',
+  introCardContent: {
+    color: "#7f8c8d",
   },
   captionMargins: {
     marginTop: "100px",
     marginBottom: "50px",
     fontSize: "60px",
-    color:"#2980b9"
+    color: "#2980b9",
   },
   teamContainer: {
     width: "80%",
@@ -164,7 +160,9 @@ export default function LandingPage(props) {
   const classes = useStyles();
   const theme = useTheme();
   const matchesMD = useMediaQuery(theme.breakpoints.down("md"));
-  const [rated, setRated] = useState(false)
+  const [rated, setRated] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [clicked, setClicked] = useState(false);
 
   useEffect(() => {
     if (theme.palette.type === "dark") {
@@ -173,52 +171,47 @@ export default function LandingPage(props) {
   }, [theme]);
 
   const MyCard = (props) => {
-    const [hovering, setHovering] = useState(false)
-    return(
-    <Paper
-      elevation={hovering ? 5 : 0}
-      onMouseOver={() => setHovering(true)}
-      onMouseLeave={() => setHovering(false)}
-      className={classes.introCardItem}
-    >
-      <Grid container>
-        <Grid item xs={1}></Grid>
+    const [hovering, setHovering] = useState(false);
+    return (
+      <Paper
+        elevation={hovering ? 5 : 0}
+        onMouseOver={() => setHovering(true)}
+        onMouseLeave={() => setHovering(false)}
+        className={classes.introCardItem}
+      >
+        <Grid container>
+          <Grid item xs={1}></Grid>
 
-        <Grid
-          item
-          container
-          direction="column"
-          justify="flex-start"
-          className={classes.introCardContentContainer}
-        >
-          <Grid item style={{maxHeight:100}}>
-            <Typography 
-              align="center"
-              style={{color:"#2c3e50"}}
-            >
-              {hovering ? props.icon[1] : props.icon[0]}
-            </Typography>
-          </Grid>
-          <Grid item>
-            <Typography
-              className={classes.secondaryCaption}
-              align="center"
-            >
-              {props.caption}
-            </Typography>
-          </Grid>
-          <Grid item>
-            <Typography
-              className={hovering ? classes.emphasizedBody1 : classes.body1}
-              align="space-evenly"
-            >
+          <Grid
+            item
+            container
+            direction="column"
+            justify="flex-start"
+            className={classes.introCardContentContainer}
+          >
+            <Grid item style={{ maxHeight: 100 }}>
+              <Typography align="center" style={{ color: "#2c3e50" }}>
+                {hovering ? props.icon[1] : props.icon[0]}
+              </Typography>
+            </Grid>
+            <Grid item>
+              <Typography className={classes.secondaryCaption} align="center">
+                {props.caption}
+              </Typography>
+            </Grid>
+            <Grid item>
+              <Typography
+                className={hovering ? classes.emphasizedBody1 : classes.body1}
+                align="space-evenly"
+              >
                 {props.description}
-            </Typography>
+              </Typography>
+            </Grid>
           </Grid>
         </Grid>
-      </Grid>
-    </Paper>
-  )};
+      </Paper>
+    );
+  };
 
   const PlayingVideo = () => (
     <ReactPlayer
@@ -263,8 +256,18 @@ export default function LandingPage(props) {
         style={{ width: "60%", padding: 40, borderRadius: "20px" }}
         className={classes.teamMemberStrip}
       >
-        <Typography className={classes.secondaryCaption} style={{fontSize:"3rem"}}>{props.memberInfo.name}</Typography>
-        <Typography className={classes.emphasizedBody1} style={{fontSize:"1.5rem"}}>{props.memberInfo.description}</Typography>
+        <Typography
+          className={classes.secondaryCaption}
+          style={{ fontSize: "3rem" }}
+        >
+          {props.memberInfo.name}
+        </Typography>
+        <Typography
+          className={classes.emphasizedBody1}
+          style={{ fontSize: "1.5rem" }}
+        >
+          {props.memberInfo.description}
+        </Typography>
       </Grid>
     </Grid>
   );
@@ -287,17 +290,18 @@ export default function LandingPage(props) {
     }
   };
 
-  const setStateOutside = (prop) => {setRated(true); console.log(`clicked=${prop}`)};
+  const setStateOutside = (prop) => {
+    setRated(true);
+    console.log(`clicked=${prop}`);
+  };
 
   const StarRating = ({ totalStars = 5 }) => {
-    const [rating, setRating] = useState(0);
-    const [clicked, setClicked] = useState(false);
     return (
       <>
         <Grid style={{ padding: 10 }}>
           {createArray(totalStars).map((star, idx) => (
             <MyStar
-              key={`${star}-${idx}`}
+              key={`mystar-${star}-${idx}`}
               selected={rating > idx}
               onSelect={() => {
                 setRating(idx + 1);
@@ -309,11 +313,17 @@ export default function LandingPage(props) {
         </Grid>
         <Typography>
           {clicked ? (
-            <Typography className={classes.secondaryCaption} style={{ fontSize:"50px", color: "#c0392b" }}>
+            <Typography
+              className={classes.secondaryCaption}
+              style={{ fontSize: "50px", color: "#c0392b" }}
+            >
               {ratingComment[rating - 1]}
             </Typography>
           ) : (
-            <Typography className={classes.secondaryCaption} style={{ fontSize:"50px", color: "#7f8c8d" }}>
+            <Typography
+              className={classes.secondaryCaption}
+              style={{ fontSize: "50px", color: "#7f8c8d" }}
+            >
               Click to rate the page.
             </Typography>
           )}
@@ -330,9 +340,17 @@ export default function LandingPage(props) {
         style={{ backgroundColor: theme.palette.common.silver, maxWidth: 200 }}
       >
         <ArrowForwardIosRoundedIcon />
-        <Typography className={classes.secondaryCaption} style={{color:"#2c3e50"}}>{props.data.type}</Typography>
+        <Typography
+          className={classes.secondaryCaption}
+          style={{ color: "#2c3e50" }}
+        >
+          {props.data.type}
+        </Typography>
       </Grid>
-      <Typography className={classes.secondaryCaption} style={{marginLeft:40, color:"#2c3e50"}}>
+      <Typography
+        className={classes.secondaryCaption}
+        style={{ marginLeft: 40, color: "#2c3e50" }}
+      >
         {props.data.info}
       </Typography>
     </Grid>
@@ -412,13 +430,14 @@ export default function LandingPage(props) {
             justify="space-evenly"
             className={classes.introContainer}
           >
-            {border2.map((item, idx) => 
-              <MyCard 
-                key={idx} 
+            {border2.map((item, idx) => (
+              <MyCard
+                key={idx}
                 icon={icons2[idx]}
                 caption={captions2[idx]}
-                description={descriptions2[idx]}/>
-            )}
+                description={descriptions2[idx]}
+              />
+            ))}
           </Grid>
         </Grid>
 
@@ -511,7 +530,7 @@ export default function LandingPage(props) {
               alignItems="center"
               justify="flex-start"
               className={classes.contactArea}
-              style={{ maxWidth: "50%"}}
+              style={{ maxWidth: "50%" }}
             >
               <StarRating />
               <TextareaAutosize
@@ -521,25 +540,21 @@ export default function LandingPage(props) {
                 placeholder="Some Feedbacks ..."
                 colsmin={50}
               />
-              {rated ? 
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  onClick={() => alert("Thank you! Your feedback is valuable.")}
-                  style={{ margin: 10, textTransform: "none"}}
+
+              <Button
+                disabled={!rated}
+                variant="contained"
+                color="secondary"
+                onClick={() => alert("Thank you! Your feedback is valuable.")}
+                style={{ margin: 10, textTransform: "none" }}
+              >
+                <Typography
+                  className={classes.secondaryCaption}
+                  style={{ color: "#2c3e50" }}
                 >
-                  <Typography className={classes.secondaryCaption} style={{color:"#2c3e50"}}>Submit</Typography>
-                </Button>
-              :
-                <Button
-                  disabled
-                  variant="contained"
-                  color="secondary"
-                  style={{ margin: 10, textTransform: "none"}}
-                >
-                  <Typography className={classes.secondaryCaption} style={{color:"#2c3e50"}}>Submit</Typography>
-                </Button>
-              }
+                  Submit
+                </Typography>
+              </Button>
             </Grid>
           </Grid>
         </Grid>
