@@ -29,14 +29,19 @@ import {
   DataGrid,
   GridToolbar,
   useGridSlotComponentProps,
+  GridToolbarContainer,
+  GridToolbarColumnsButton,
+  GridToolbarFilterButton,
+  GridToolbarExport,
+  GridToolbarDensitySelector,
 } from "@material-ui/data-grid";
 import { XGrid } from "@material-ui/x-grid";
 import { useDemoData } from "@material-ui/x-grid-data-generator";
 import Pagination from "@material-ui/lab/Pagination";
 import PaginationItem from "@material-ui/lab/PaginationItem";
 
-function createData(createdAt, title, archived, type, fileSize, status) {
-  return { createdAt, title, archived, type, fileSize, status };
+function createData(id, createdAt, title, archived, type, fileSize, status) {
+  return { id, title, archived, type, createdAt, fileSize, status };
 }
 
 function CustomPagination() {
@@ -56,92 +61,68 @@ function CustomPagination() {
   );
 }
 
+const useStyles = makeStyles({
+  dataGrid: {
+    borderRadius: 3,
+    border: 0,
+
+    height: 48,
+
+    boxShadow: "0 3px 5px 2px rgba(255, 105, 135, .3)",
+    width: "70vw",
+  },
+});
+
 export default function CollectionPage() {
-  const [width, setWidth] = useState(150);
-  const rows = [
-    {
-      id: 1,
-      lastName: "Snowwww",
-      firstName: "John",
-      date: new Date(1979, 0, 1),
-    },
-    {
-      id: 2,
-      lastName: "Lannister",
-      firstName: "Cersei",
-      date: new Date(1979, 0, 1),
-    },
-    {
-      id: 3,
-      lastName: "Lannister",
-      firstName: "Jaime",
-      date: new Date(1979, 0, 1),
-    },
-    {
-      id: 4,
-      lastName: "Stark",
-      firstName: "Aryaaaa",
-      date: new Date(1979, 0, 1),
-    },
-    {
-      id: 5,
-      lastName: "Targaryen",
-      firstName: "Daenerys",
-      date: new Date(1979, 0, 1),
-    },
-    {
-      id: 6,
-      lastName: "SnoAAAAAwwww",
-      firstName: "John",
-      date: new Date(1979, 0, 1),
-    },
-    {
-      id: 7,
-      lastName: "Lannister",
-      firstName: "Cersei",
-      date: new Date(1979, 0, 1),
-    },
-    {
-      id: 8,
-      lastName: "Lannister",
-      firstName: "Jaime",
-      date: new Date(1979, 0, 1),
-    },
-    {
-      id: 9,
-      lastName: "Stark",
-      firstName: "Aryaaaa",
-      date: new Date(1979, 0, 1),
-    },
-    {
-      id: 10,
-      lastName: "Targaryen",
-      firstName: "Daenerys",
-      date: new Date(1979, 0, 1),
-    },
-  ];
+  const theme = useTheme();
+  const classes = useStyles();
+
+  const rows = [];
+  for (let i = 1; i < 200; i++) {
+    rows.push(
+      createData(
+        i,
+        new Date(1999, 1, 1),
+        "QWERTYU ASDF ZXCVB AS AS",
+        true,
+        "video",
+        72381,
+        "complete"
+      )
+    );
+  }
 
   const columns = [
     {
-      field: "firstName",
-      headerName: "First name",
-      width: 200,
+      field: "title",
+      headerName: "Title",
+      flex: 2.5,
       align: "center",
       headerAlign: "center",
       editable: true,
     },
-    { field: "lastName", headerName: "Last name", width: 200 },
     {
-      field: "fullName",
-      headerName: "Full name",
-      width: 160,
-      valueGetter: getFullName,
-      sortComparator: (v1, v2) => v1.toString().localeCompare(v2.toString()),
+      field: "archived",
+      headerName: "Archived",
+      width: 150,
+      align: "center",
+      headerAlign: "center",
+      type: "boolean",
+      flex: 1,
     },
     {
-      field: "date",
-      headerName: "Year",
-      width: 150,
+      field: "type",
+      headerName: "Type",
+      align: "center",
+      headerAlign: "center",
+      flex: 1,
+    },
+    {
+      field: "createdAt",
+      headerName: "Created At",
+      align: "center",
+      headerAlign: "center",
+      flex: 1.7,
       renderCell: (params) => (
         <strong>
           {params.value.getFullYear()}
@@ -150,23 +131,72 @@ export default function CollectionPage() {
             color="primary"
             size="small"
             style={{ marginLeft: 16 }}
-            onClick={handleClick}
           >
             Open
           </Button>
         </strong>
       ),
     },
+    {
+      field: "fileSize",
+      headerName: "File Size",
+      align: "center",
+      headerAlign: "center",
+      flex: 1,
+      type: "number",
+      valueFormatter: (params) => {
+        const valueFormatted = Number(params.value).toLocaleString();
+        return `${valueFormatted} MB`;
+      },
+    },
+    {
+      field: "status",
+      headerName: "Status",
+      align: "center",
+      headerAlign: "center",
+      width: 180,
+    },
   ];
 
-  const handleClick = () => {
-    setWidth(width === 150 ? 50 : 150);
-  };
-
-  function getFullName(params) {
-    return `${params.getValue(params.id, "firstName") || ""} ${
-      params.getValue(params.id, "lastName") || ""
-    }`;
+  function CustomToolbar() {
+    return (
+      <GridToolbarContainer>
+        <Grid
+          container
+          justify="space-between"
+          style={{ padding: 10 }}
+          alignItems="center"
+        >
+          <Grid item>
+            <GridToolbarColumnsButton />
+            <GridToolbarFilterButton />
+          </Grid>
+          <Grid item>
+            <Button
+              variant="outlined"
+              style={{
+                color: theme.palette.common.blue,
+                borderColor: theme.palette.common.blue,
+                width: "5rem",
+                marginRight: "1rem",
+              }}
+            >
+              Open
+            </Button>
+            <Button
+              variant="outlined"
+              style={{
+                color: theme.palette.common.red,
+                borderColor: theme.palette.common.red,
+                width: "5rem",
+              }}
+            >
+              Delete
+            </Button>
+          </Grid>
+        </Grid>
+      </GridToolbarContainer>
+    );
   }
 
   const [editRowsModel, setEditRowsModel] = useState({});
@@ -182,28 +212,36 @@ export default function CollectionPage() {
         <code>editRowsModel: {JSON.stringify(editRowsModel)}</code>
         <code>selectRowsModel: {JSON.stringify(selectionModel)}</code>
       </Grid>
-      <Grid item container style={{ width: "90vw" }}>
-        <div style={{ height: 400, width: "100%" }}>
-          <DataGrid
-            autoHeight
-            checkboxSelection
-            columns={columns}
-            rows={rows}
-            disableColumnMenu
-            pageSize={5}
-            rowHeight={width}
-            rowsPerPageOptions={[5, 10, 20]}
-            components={{
-              Toolbar: GridToolbar,
-            }}
-            editRowsModel={editRowsModel}
-            onEditRowModelChange={handleEditRowModelChange}
-            onSelectionModelChange={(newSelection) => {
-              setSelectionModel(newSelection.selectionModel);
-            }}
-            selectionModel={selectionModel}
-          />
-        </div>
+      <Grid
+        item
+        container
+        style={{
+          width: "90vw",
+          paddingLeft: "2rem",
+          paddingRight: "2rem",
+          minWidth: 1024,
+        }}
+      >
+        <DataGrid
+          autoHeight
+          checkboxSelection
+          columns={columns}
+          rows={rows}
+          disableColumnMenu
+          rowPerPage={5}
+          rowsPerPageOptions={[5, 10, 20, 30, 40]}
+          components={{
+            Toolbar: CustomToolbar,
+          }}
+          rowHeight={100}
+          editRowsModel={editRowsModel}
+          onEditRowModelChange={handleEditRowModelChange}
+          onSelectionModelChange={(newSelection) => {
+            setSelectionModel(newSelection.selectionModel);
+          }}
+          selectionModel={selectionModel}
+          className={classes.dataGrid}
+        />
       </Grid>
     </Grid>
   );
