@@ -22,12 +22,11 @@ import CardMembershipTwoToneIcon from '@material-ui/icons/CardMembershipTwoTone'
 import ForumTwoToneIcon from '@material-ui/icons/ForumTwoTone';
 
 //heads
-import head1 from "../../assets/heads/head1.jpg";
-import head2 from "../../assets/heads/head2.jpg";
-import head3 from "../../assets/heads/head3.jpg";
-import head4 from "../../assets/heads/head4.jpg";
-import head5 from "../../assets/heads/head5.jpg";
-import { Typography } from "@material-ui/core";
+import head1 from "../../../assets/heads/head1.jpg";
+import head2 from "../../../assets/heads/head2.jpg";
+import head3 from "../../../assets/heads/head3.jpg";
+import head4 from "../../../assets/heads/head4.jpg";
+import head5 from "../../../assets/heads/head5.jpg";
 
 const dummyText =
   "There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable. If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything embarrassing hidden in the middle of text. All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary, making this the first true generator on the Internet. ";
