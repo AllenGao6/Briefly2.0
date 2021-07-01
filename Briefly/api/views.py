@@ -24,7 +24,7 @@ class VideoViewSet(viewsets.ModelViewSet):
     def get_queryset(self, *args, **kwargs):
         user = self.request.user
         
-        return Video.objects.filter(Q(collection=self.kwargs['collection_pk']) & Q(collection__owner=user))
+        return Video.objects.filter(Q(collection=self.kwargs['collection_pk']))
 
     '''
     similar to post_save: call save twice to know the id of the video just created and save to the correct directory
