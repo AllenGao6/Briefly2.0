@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db.models.expressions import Col
 from .models import Collection, Video, Audio
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework import serializers, viewsets
 from .serializers import AudioSerializer, VideoSerializer, CollectionSerializer
 from rest_framework.decorators import api_view, permission_classes
@@ -15,16 +15,17 @@ import boto3
 from .permissions import CollectionUserPermission,VideoUserPermission, AudioUserPermission
 from django.db.models import Q
 from django.core.mail import send_mail
-from math import ceil
+
+
 class VideoViewSet(viewsets.ModelViewSet):
 
     serializer_class = VideoSerializer
     authentication_classes = [SessionAuthentication, TokenAuthentication]
-    permission_classes = [VideoUserPermission]
+    permission_classes = [IsAuthenticated,VideoUserPermission]
     def get_queryset(self, *args, **kwargs):
         user = self.request.user
         
-        return Video.objects.filter(Q(collection=self.kwargs['collection_pk']))
+        return Video.objects.filter(Q(collection=self.kwargs['collection_pk']) & Q(collection__owner=user.pk))
 
     '''
     similar to post_save: call save twice to know the id of the video just created and save to the correct directory
@@ -99,7 +100,7 @@ class VideoViewSet(viewsets.ModelViewSet):
             print(f"updating before: remaining: {user.userprofile.remaining_size}")
             user.userprofile.remaining_size -= fileSize
             print(f"updating after: remaining: {user.userprofile.remaining_size}")
-        
+            user.userprofile.save()
         
     #override create
     '''def create(self, request, *args, **kwargs):
@@ -134,7 +135,7 @@ class VideoViewSet(viewsets.ModelViewSet):
     @action(methods=['get'],detail=True)
     def summary_begin(self, request, *args, **kwargs):
         user = request.user
-        video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user))
+        video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
         if video:
             video = video[0]
             
@@ -148,7 +149,22 @@ class VideoViewSet(viewsets.ModelViewSet):
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
     
-    
+    @action(methods=['DELETE'],detail=False, permission_classes=[IsAuthenticated])
+    def delete_list_videos(self, request, *args, **kwargs):
+        user = request.user
+        videos_to_delete = request.query_params.get('list_id', None)
+        if not videos_to_delete:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+        total_size = 0
+        for pk in videos_to_delete.split(','):
+            video = get_object_or_404(Video, pk=int(pk), collection__owner=user.pk)
+            total_size += video.fileSize
+            video.delete()
+            
+        user.userprofile.remaining_size += total_size
+        user.userprofile.save()
+        return Response({"list_id": videos_to_delete, 'total_size': total_size, 'remaining_size': user.userprofile.remaining_size})
     
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -159,13 +175,13 @@ def upload_video(request):
 class CollectionViewSet(viewsets.ModelViewSet):
     serializer_class = CollectionSerializer
     authentication_classes = [SessionAuthentication, TokenAuthentication]
-    permission_classes = [CollectionUserPermission]
+    permission_classes = [IsAuthenticated,CollectionUserPermission]
 
     def get_queryset(self,*args, **kwargs):
         #currently authenticated user
         user = self.request.user
         print(user)
-        return Collection.objects.filter(owner=user)
+        return Collection.objects.filter(owner=user.pk)
 
     def perform_create(self, serializer):
         instance = serializer.save()
@@ -196,11 +212,11 @@ class CollectionViewSet(viewsets.ModelViewSet):
 class AudioViewSet(viewsets.ModelViewSet):
     serializer_class = AudioSerializer
     authentication_classes = [SessionAuthentication, TokenAuthentication]
-    permission_classes = [AudioUserPermission]
+    permission_classes = [IsAuthenticated,AudioUserPermission]
     def get_queryset(self, *args, **kwargs):
         user = self.request.user
         
-        return Audio.objects.filter(Q(collection=self.kwargs['collection_pk']) & Q(collection__owner=user))
+        return Audio.objects.filter(Q(collection=self.kwargs['collection_pk']) & Q(collection__owner=user.pk))
 
 
         
@@ -237,7 +253,28 @@ class AudioViewSet(viewsets.ModelViewSet):
             print(f"updating before: remaining: {user.userprofile.remaining_size}")
             user.userprofile.remaining_size -= fileSize
             print(f"updating after: remaining: {user.userprofile.remaining_size}")
+            user.userprofile.save()
+    
+    @action(methods=['DELETE'],detail=False, permission_classes=[IsAuthenticated])
+    def delete_list_audios(self, request, *args, **kwargs):
+        user = request.user
+        audios_to_delete = request.query_params.get('list_id', None)
+        if not audios_to_delete:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+        total_size = 0
+        for pk in audios_to_delete.split(','):
+            video = get_object_or_404(Video, pk=int(pk), collection__owner=user.pk)
+            total_size += video.fileSize
+            video.delete()
             
+        user.userprofile.remaining_size += total_size
+        user.userprofile.save()
+        return Response({"list_id": audios_to_delete, 'total_size': total_size, 'remaining_size': user.userprofile.remaining_size})
+    
+    
+    
+    
     # def perform_update(self, serializer):
     #     original_audio = self.get_object()
     #     if serializer.context['request'].FILES.get('audio'):
@@ -253,13 +290,13 @@ def search(request):
     query = request.data.get("query", "")
     user = request.user
     if query:
-        collections = Collection.objects.filter(Q(owner=user) & (Q(name__icontains=query) | Q(description__icontains=query)))
+        collections = Collection.objects.filter(Q(owner=user.pk) & (Q(name__icontains=query) | Q(description__icontains=query)))
         serializer = CollectionSerializer(collections, many=True)
         return Response(serializer.data)
     else:
         return Response({'collection':[]})
     
-@api_view(['POST', 'GET', 'PUT'])
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_remaining(request):
     if request.method == 'GET':
