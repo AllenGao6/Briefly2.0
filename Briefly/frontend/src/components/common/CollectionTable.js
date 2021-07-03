@@ -117,6 +117,7 @@ function CollectionTable({
   history,
   videos,
   isLoading,
+  isCreating,
   loadVideosInCollection,
   createVideoInCollection,
   updateVideoInCollection,
@@ -545,6 +546,7 @@ function CollectionTable({
                 style={{
                   width: inputWidth,
                   color: "black",
+                  display: isCreating ? undefined : "none",
                 }}
               />
             </Grid>
@@ -559,6 +561,7 @@ function mapStateToProps(state) {
   return {
     isLoading: state.videoReducer.isLoading,
     videos: state.videoReducer.videos,
+    isCreating: state.videoReducer.isCreating,
   };
 }
 
