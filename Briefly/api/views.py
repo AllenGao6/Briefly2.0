@@ -149,16 +149,16 @@ class VideoViewSet(viewsets.ModelViewSet):
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
     
-    @action(methods=['DELETE'],detail=False, permission_classes=[IsAuthenticated])
+    @action(methods=['POST'],detail=False, permission_classes=[IsAuthenticated])
     def delete_list_videos(self, request, *args, **kwargs):
         user = request.user
-        videos_to_delete = request.query_params.get('list_id', None)
+        videos_to_delete = request.data.get('list_id', None)
         if not videos_to_delete:
             return Response(status=status.HTTP_404_NOT_FOUND)
         
         total_size = 0
-        for pk in videos_to_delete.split(','):
-            video = get_object_or_404(Video, pk=int(pk), collection__owner=user.pk)
+        for pk in videos_to_delete:
+            video = get_object_or_404(Video, pk=pk, collection__owner=user.pk)
             total_size += video.fileSize
             video.delete()
             
@@ -255,16 +255,16 @@ class AudioViewSet(viewsets.ModelViewSet):
             print(f"updating after: remaining: {user.userprofile.remaining_size}")
             user.userprofile.save()
     
-    @action(methods=['DELETE'],detail=False, permission_classes=[IsAuthenticated])
+    @action(methods=['POST'],detail=False, permission_classes=[IsAuthenticated])
     def delete_list_audios(self, request, *args, **kwargs):
         user = request.user
-        audios_to_delete = request.query_params.get('list_id', None)
+        audios_to_delete = request.data.get('list_id', None)
         if not audios_to_delete:
             return Response(status=status.HTTP_404_NOT_FOUND)
         
         total_size = 0
-        for pk in audios_to_delete.split(','):
-            video = get_object_or_404(Video, pk=int(pk), collection__owner=user.pk)
+        for pk in audios_to_delete:
+            video = get_object_or_404(Video, pk=pk, collection__owner=user.pk)
             total_size += video.fileSize
             video.delete()
             
