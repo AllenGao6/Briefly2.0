@@ -5,6 +5,7 @@ const initialState = {
   videos: [],
   isLoading: false,
   isCreating: false,
+  isDeleting: false,
 };
 
 export default function videoReducer(state = initialState, action) {
@@ -53,6 +54,26 @@ export default function videoReducer(state = initialState, action) {
       return {
         ...state,
         isCreating: false,
+      };
+    case type.DELETING_VIDEOS:
+      return {
+        ...state,
+        isDeleting: true,
+      };
+    case type.DELETE_VIDEO_SUCCESS:
+      const { list_id, total_size, remaining_size } = action.data;
+      console.log(list_id);
+      return {
+        ...state,
+        videos: [...state.videos].filter(
+          (video) => list_id.filter((id) => id === video.id).length === 0
+        ),
+        isDeleting: false,
+      };
+    case type.DELETE_VIDEO_FAILURE:
+      return {
+        ...state,
+        isDeleting: false,
       };
     default:
       return state;

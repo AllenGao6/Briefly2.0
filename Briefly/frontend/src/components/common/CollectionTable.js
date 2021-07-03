@@ -27,6 +27,7 @@ import {
   loadVideosInCollection,
   createVideoInCollection,
   updateVideoInCollection,
+  deleteVideos,
 } from "../../redux/actions/video_actions";
 
 const useStyles = makeStyles((theme) => {
@@ -121,6 +122,7 @@ function CollectionTable({
   loadVideosInCollection,
   createVideoInCollection,
   updateVideoInCollection,
+  deleteVideos,
   mediaType,
   match,
 }) {
@@ -164,6 +166,17 @@ function CollectionTable({
     switch (mediaType) {
       case "video":
         updateVideoInCollection(id, media, mediaId);
+      case "audio":
+      case "text":
+      default:
+        break;
+    }
+  };
+
+  const deleteMediaInCollection = (id, list_id) => {
+    switch (mediaType) {
+      case "video":
+        deleteVideos(id, list_id);
       case "audio":
       case "text":
       default:
@@ -346,11 +359,7 @@ function CollectionTable({
   };
 
   const handleDelete = () => {
-    setRows(
-      rows.filter(
-        (row) => selectionModel.find((id) => row.id === id) === undefined
-      )
-    );
+    deleteMediaInCollection(match.params.id, selectionModel);
     setSelectionModel([]);
   };
 
@@ -569,6 +578,7 @@ const mapDispatchToProps = {
   loadVideosInCollection,
   createVideoInCollection,
   updateVideoInCollection,
+  deleteVideos,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CollectionTable);

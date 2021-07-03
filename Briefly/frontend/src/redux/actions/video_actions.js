@@ -57,8 +57,6 @@ export const updateVideoInCollection = (id, video, videoId) => (dispatch) => {
       }
     )
     .then((res) => {
-      console.log("success");
-      console.log(res.data);
       dispatch({
         type: type.UPDATE_VIDEO_SUCCESS,
         video: res.data,
@@ -67,6 +65,33 @@ export const updateVideoInCollection = (id, video, videoId) => (dispatch) => {
     .catch((err) => {
       dispatch({
         type: type.UPDATE_VIDEO_FAILURE,
+      });
+      console.log(err);
+    });
+};
+
+export const deleteVideos = (id, list_id) => (dispatch) => {
+  dispatch({ type: type.DELETING_VIDEOS });
+  return axios
+    .post(
+      `${COLLECTIONS_BASE_URL}${id}/video/delete_list_videos/`,
+      { list_id: list_id },
+      {
+        headers: {
+          "content-type": "application/json",
+          "X-CSRFToken": csrftoken,
+        },
+      }
+    )
+    .then((res) => {
+      dispatch({
+        type: type.DELETE_VIDEO_SUCCESS,
+        data: res.data,
+      });
+    })
+    .catch((err) => {
+      dispatch({
+        type: type.DELETE_VIDEO_FAILURE,
       });
       console.log(err);
     });
