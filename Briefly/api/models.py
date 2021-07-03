@@ -70,7 +70,7 @@ class Video(models.Model):
     created = models.DateField(auto_now_add=True)
     audioText = models.FileField(upload_to=upload_video_audioText_name, null=True, blank=True)
     #TODO
-    fileSize = models.IntegerField(null=True, blank=True)
+    fileSize = models.IntegerField(default=0)
     
     def __str__(self):
         return f"Video: {self.title}"
@@ -98,7 +98,7 @@ class Audio(models.Model):
     summarization = models.JSONField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     audioText = models.FileField(upload_to=upload_video_audioText_name, null=True, blank=True)
-    fileSize = models.IntegerField(null=True, blank=True)
+    fileSize = models.IntegerField(default=0)
     def __str__(self):
         return f"Audio: {self.title}"
 

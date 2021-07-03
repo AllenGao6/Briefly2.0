@@ -16,46 +16,18 @@ import {
   LinearProgress,
 } from "@material-ui/core";
 import { darken, lighten } from "@material-ui/core/styles";
-import DashboardBar from "../common/DashboardBar";
-import Navigator from "../common/Navigator";
-import DashboardContent from "../common/DashboardContent";
-import { connect } from "react-redux";
-import {
-  loadCollections,
-  createCollection,
-  updateCollection,
-  deleteCollection,
-} from "../../redux/actions/collection_actions";
 import {
   DataGrid,
   GridToolbarContainer,
   GridToolbarColumnsButton,
   GridToolbarFilterButton,
 } from "@material-ui/data-grid";
-import AddIcon from "@material-ui/icons/Add";
-import { set } from "js-cookie";
-
-function createData(id, createdAt, title, archived, type, fileSize, status) {
-  return { id, title, archived, type, createdAt, fileSize, status };
-}
-
-function createDemoRows() {
-  const rows = [];
-  for (let i = 1; i < 200; i++) {
-    rows.push(
-      createData(
-        i,
-        new Date(1999, 1, 1),
-        "QWERTYU ASDF ZXCVB AS AS",
-        true,
-        "video",
-        72381,
-        "complete"
-      )
-    );
-  }
-  return rows;
-}
+import { connect } from "react-redux";
+import {
+  loadVideosInCollection,
+  createVideoInCollection,
+  updateVideoInCollection,
+} from "../../redux/actions/video_actions";
 
 const useStyles = makeStyles((theme) => {
   const getBackgroundColor = () =>
@@ -132,24 +104,75 @@ const useStyles = makeStyles((theme) => {
       color: theme.palette.common.red,
       borderColor: theme.palette.common.red,
     },
+    updateMedia: {
+      color: theme.palette.common.blue,
+      borderColor: theme.palette.common.blue,
+      width: "5rem",
+      marginRight: "1rem",
+    },
   };
 });
 
-export default function CollectionPage({ history }) {
+function CollectionTable({
+  history,
+  videos,
+  isLoading,
+  loadVideosInCollection,
+  createVideoInCollection,
+  updateVideoInCollection,
+  mediaType,
+  match,
+}) {
   const theme = useTheme();
   const classes = useStyles();
 
-  const [rows, setRows] = useState(createDemoRows());
   const [selectionModel, setSelectionModel] = useState([]);
   const [pageSize, setPageSize] = useState(25);
   const [openDialog, setOpenDialog] = useState(false);
-  const [title, setTitle] = useState(null);
+  const [title, setTitle] = useState("");
   const [archived, setArchived] = useState(false);
   const [action, setAction] = useState(null);
 
   const matches = useMediaQuery("(max-width:1086px)");
   const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
   const inputWidth = matchesXS ? "20rem" : "35rem";
+
+  const loadMediaInCollection = (id) => {
+    switch (mediaType) {
+      case "video":
+        loadVideosInCollection(id);
+      case "audio":
+      case "text":
+      default:
+        break;
+    }
+  };
+
+  const createMediaInCollection = (id, media) => {
+    switch (mediaType) {
+      case "video":
+        createVideoInCollection(id, media);
+      case "audio":
+      case "text":
+      default:
+        break;
+    }
+  };
+
+  const updateMediaInCollection = (id, media, mediaId) => {
+    switch (mediaType) {
+      case "video":
+        updateVideoInCollection(id, media, mediaId);
+      case "audio":
+      case "text":
+      default:
+        break;
+    }
+  };
+
+  useEffect(() => {
+    loadMediaInCollection(match.params.id);
+  }, []);
 
   const fixedColumns = [
     {
@@ -169,7 +192,7 @@ export default function CollectionPage({ history }) {
       ),
     },
     {
-      field: "archived",
+      field: "is_archived",
       headerName: "Archived",
       width: 125,
       align: "center",
@@ -182,25 +205,16 @@ export default function CollectionPage({ history }) {
       align: "center",
       headerAlign: "center",
       width: 120,
+      renderCell: () => <Typography variant="body1">{mediaType}</Typography>,
     },
     {
-      field: "createdAt",
+      field: "created",
       headerName: "Created At",
       align: "center",
       headerAlign: "center",
       width: 200,
       renderCell: (params) => (
-        <strong>
-          {params.value.getFullYear()}
-          <Button
-            variant="contained"
-            color="primary"
-            size="small"
-            style={{ marginLeft: 16 }}
-          >
-            Open
-          </Button>
-        </strong>
+        <Typography variant="body1">{params.value}</Typography>
       ),
     },
     {
@@ -216,11 +230,17 @@ export default function CollectionPage({ history }) {
       },
     },
     {
-      field: "status",
+      field: "is_summarized",
       headerName: "Status",
       align: "center",
       headerAlign: "center",
       width: 180,
+      renderCell: (params) =>
+        params.value ? (
+          <Typography variant="body1">Completed</Typography>
+        ) : (
+          <Typography variant="body1">Processing</Typography>
+        ),
     },
   ];
 
@@ -242,7 +262,7 @@ export default function CollectionPage({ history }) {
       ),
     },
     {
-      field: "archived",
+      field: "is_archived",
       headerName: "Archived",
       width: 150,
       align: "center",
@@ -256,25 +276,16 @@ export default function CollectionPage({ history }) {
       align: "center",
       headerAlign: "center",
       flex: 1,
+      renderCell: () => <Typography variant="body1">{mediaType}</Typography>,
     },
     {
-      field: "createdAt",
+      field: "created",
       headerName: "Created At",
       align: "center",
       headerAlign: "center",
       flex: 1.7,
       renderCell: (params) => (
-        <strong>
-          {params.value.getFullYear()}
-          <Button
-            variant="contained"
-            color="primary"
-            size="small"
-            style={{ marginLeft: 16 }}
-          >
-            Open
-          </Button>
-        </strong>
+        <Typography variant="body1">{params.value}</Typography>
       ),
     },
     {
@@ -290,11 +301,17 @@ export default function CollectionPage({ history }) {
       },
     },
     {
-      field: "status",
+      field: "is_summarized",
       headerName: "Status",
       align: "center",
       headerAlign: "center",
       width: 180,
+      renderCell: (params) =>
+        params.value ? (
+          <Typography variant="body1">Completed</Typography>
+        ) : (
+          <Typography variant="body1">Processing</Typography>
+        ),
     },
   ];
 
@@ -307,6 +324,26 @@ export default function CollectionPage({ history }) {
     history.push("/dashboard");
   };
 
+  const handleUpdate = () => {
+    if (action == "Update") {
+      const media = {
+        title: title,
+        is_archived: archived,
+      };
+      console.log("here");
+      updateMediaInCollection(match.params.id, media, selectionModel[0]);
+      setSelectionModel([]);
+    } else {
+      // create media
+      const media = {
+        title: title,
+        is_archived: archived,
+        collection: match.params.id,
+      };
+      createMediaInCollection(match.params.id, media);
+    }
+  };
+
   const handleDelete = () => {
     setRows(
       rows.filter(
@@ -316,13 +353,20 @@ export default function CollectionPage({ history }) {
     setSelectionModel([]);
   };
 
-  const handleUpdate = () => {
-    setAction("Update");
+  const handleOpenDialog = (action) => {
+    setAction(action);
+    if (action == "Update") {
+      const video = videos.filter((video) => video.id === selectionModel[0])[0];
+      setTitle(video.title);
+      setArchived(video.is_archived);
+    }
     setOpenDialog(true);
   };
 
   const handleDialogClose = () => {
     setOpenDialog(false);
+    setTitle("");
+    setArchived(false);
   };
 
   function CustomToolbar() {
@@ -356,6 +400,7 @@ export default function CollectionPage({ history }) {
                   width: "5rem",
                   marginRight: "1rem",
                 }}
+                onClick={() => handleOpenDialog("Create")}
               >
                 Create
               </Button>
@@ -363,13 +408,8 @@ export default function CollectionPage({ history }) {
             <Grid item>
               <Button
                 variant="outlined"
-                style={{
-                  color: theme.palette.common.blue,
-                  borderColor: theme.palette.common.blue,
-                  width: "5rem",
-                  marginRight: "1rem",
-                }}
-                onClick={handleUpdate}
+                className={classes.updateMedia}
+                onClick={() => handleOpenDialog("Update")}
                 disabled={selectionModel.length !== 1}
               >
                 Update
@@ -396,13 +436,11 @@ export default function CollectionPage({ history }) {
 
   return (
     <Grid container direction="column" alignItems="center">
-      <Grid item>
-        <code>selectRowsModel: {JSON.stringify(selectionModel)}</code>
-      </Grid>
       <Grid
         item
         container
         style={{
+          maxWidth: 1600,
           width: "100%",
           paddingLeft: "2rem",
           paddingRight: "2rem",
@@ -414,7 +452,7 @@ export default function CollectionPage({ history }) {
           autoHeight
           checkboxSelection
           columns={matches ? fixedColumns : flexColumns}
-          rows={rows.map((row, i) => ({ ...row, evenRow: i % 2 !== 0 }))}
+          rows={videos.map((row, i) => ({ ...row, evenRow: i % 2 !== 0 }))}
           pageSize={pageSize}
           onPageSizeChange={handlePageSizeChange}
           rowsPerPageOptions={[5, 10, 25, 50, 100]}
@@ -480,7 +518,14 @@ export default function CollectionPage({ history }) {
               style={{ width: inputWidth }}
             >
               <Grid item>
-                <Button variant="contained" className={classes.createButton}>
+                <Button
+                  variant="contained"
+                  className={classes.createButton}
+                  onClick={() => {
+                    handleUpdate();
+                    handleDialogClose();
+                  }}
+                >
                   {action}
                 </Button>
               </Grid>
@@ -509,3 +554,18 @@ export default function CollectionPage({ history }) {
     </Grid>
   );
 }
+
+function mapStateToProps(state) {
+  return {
+    isLoading: state.videoReducer.isLoading,
+    videos: state.videoReducer.videos,
+  };
+}
+
+const mapDispatchToProps = {
+  loadVideosInCollection,
+  createVideoInCollection,
+  updateVideoInCollection,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(CollectionTable);

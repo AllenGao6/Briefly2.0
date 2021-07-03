@@ -42,6 +42,8 @@ export default function DashboardContent({
   collectionDelete,
   history,
   isDashboard,
+  mediaType,
+  match,
 }) {
   const theme = useTheme();
   const classes = useStyles();
@@ -55,6 +57,7 @@ export default function DashboardContent({
       })}
       direction="column"
       justify="flex-start"
+      style={{ minHeight: "100vh" }}
     >
       <Grid item style={{ paddingLeft: "2rem", paddingBottom: "0.7rem" }}>
         <Typography variant="h3">
@@ -71,7 +74,11 @@ export default function DashboardContent({
             history={history}
           />
         ) : (
-          <CollectionTable history={history} />
+          <CollectionTable
+            history={history}
+            mediaType={mediaType}
+            match={match}
+          />
         )}
       </Grid>
     </Grid>
