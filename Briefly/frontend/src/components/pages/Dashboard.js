@@ -64,7 +64,7 @@ const useStyles = makeStyles((theme) => ({
     },
     "& .MuiFilledInput-root": {
       backgroundColor:
-        theme.palette.type === "dark" ? undefined : "rgba(30, 144, 255, 0.2)",
+        theme.palette.type === "dark" ? undefined : "rgba(30, 144, 255, 0.08)",
     },
   },
   createButton: {

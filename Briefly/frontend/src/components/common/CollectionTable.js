@@ -32,6 +32,8 @@ import {
   GridToolbarColumnsButton,
   GridToolbarFilterButton,
 } from "@material-ui/data-grid";
+import AddIcon from "@material-ui/icons/Add";
+import { set } from "js-cookie";
 
 function createData(id, createdAt, title, archived, type, fileSize, status) {
   return { id, title, archived, type, createdAt, fileSize, status };
@@ -96,6 +98,40 @@ const useStyles = makeStyles((theme) => {
           ? theme.palette.common.orange
           : theme.palette.common.blue,
     },
+    button: {
+      ...theme.typography.roundedButton,
+      background: theme.palette.secondary.main,
+      width: "13rem",
+      margin: "2rem",
+    },
+    textField: {
+      "& .MuiFormLabel-root": {
+        fontSize: "1rem",
+      },
+      "& .MuiFormLabel-root.Mui-focused": {
+        color: theme.palette.type === "dark" ? "white" : undefined,
+      },
+      "& .MuiFilledInput-root": {
+        backgroundColor:
+          theme.palette.type === "dark"
+            ? undefined
+            : "rgba(30, 144, 255, 0.08)",
+      },
+    },
+    createButton: {
+      color: "white",
+      opacity: 1,
+      background: theme.palette.common.blue,
+      transition: "all 0.3s",
+      "&:hover": {
+        opacity: 0.8,
+        background: theme.palette.common.blue,
+      },
+    },
+    cancelButton: {
+      color: theme.palette.common.red,
+      borderColor: theme.palette.common.red,
+    },
   };
 });
 
@@ -104,11 +140,16 @@ export default function CollectionPage({ history }) {
   const classes = useStyles();
 
   const [rows, setRows] = useState(createDemoRows());
-  const [editRowsModel, setEditRowsModel] = useState({});
   const [selectionModel, setSelectionModel] = useState([]);
   const [pageSize, setPageSize] = useState(25);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [title, setTitle] = useState(null);
+  const [archived, setArchived] = useState(false);
+  const [action, setAction] = useState(null);
+
   const matches = useMediaQuery("(max-width:1086px)");
   const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
+  const inputWidth = matchesXS ? "20rem" : "35rem";
 
   const fixedColumns = [
     {
@@ -117,7 +158,6 @@ export default function CollectionPage({ history }) {
       width: 230,
       align: "center",
       headerAlign: "center",
-      editable: true,
       renderCell: (params) => (
         <Typography
           variant="body1"
@@ -191,7 +231,6 @@ export default function CollectionPage({ history }) {
       flex: 2.5,
       align: "center",
       headerAlign: "center",
-      editable: true,
       renderCell: (params) => (
         <Typography
           variant="body1"
@@ -259,10 +298,6 @@ export default function CollectionPage({ history }) {
     },
   ];
 
-  const handleEditRowModelChange = useCallback((params) => {
-    setEditRowsModel(params.model);
-  }, []);
-
   const handlePageSizeChange = (params) => {
     setPageSize(params.pageSize);
   };
@@ -270,6 +305,24 @@ export default function CollectionPage({ history }) {
   const handleTitleClick = (id) => {
     console.log(id);
     history.push("/dashboard");
+  };
+
+  const handleDelete = () => {
+    setRows(
+      rows.filter(
+        (row) => selectionModel.find((id) => row.id === id) === undefined
+      )
+    );
+    setSelectionModel([]);
+  };
+
+  const handleUpdate = () => {
+    setAction("Update");
+    setOpenDialog(true);
+  };
+
+  const handleDialogClose = () => {
+    setOpenDialog(false);
   };
 
   function CustomToolbar() {
@@ -286,28 +339,55 @@ export default function CollectionPage({ history }) {
             <GridToolbarColumnsButton className={classes.toolbar} />
             <GridToolbarFilterButton className={classes.toolbar} />
           </Grid>
-          <Grid item>
-            <Button
-              variant="outlined"
-              style={{
-                color: theme.palette.common.blue,
-                borderColor: theme.palette.common.blue,
-                width: "5rem",
-                marginRight: "1rem",
-              }}
-            >
-              Open
-            </Button>
-            <Button
-              variant="outlined"
-              style={{
-                color: theme.palette.common.red,
-                borderColor: theme.palette.common.red,
-                width: "5rem",
-              }}
-            >
-              Delete
-            </Button>
+          <Grid
+            item
+            container
+            style={{ width: "20rem" }}
+            direction="row"
+            justify={matchesXS ? "center" : "flex-end"}
+            alignItems="center"
+          >
+            <Grid item>
+              <Button
+                variant="contained"
+                style={{
+                  color: "white",
+                  background: theme.palette.common.blue,
+                  width: "5rem",
+                  marginRight: "1rem",
+                }}
+              >
+                Create
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                variant="outlined"
+                style={{
+                  color: theme.palette.common.blue,
+                  borderColor: theme.palette.common.blue,
+                  width: "5rem",
+                  marginRight: "1rem",
+                }}
+                onClick={handleUpdate}
+                disabled={selectionModel.length !== 1}
+              >
+                Update
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                variant="outlined"
+                style={{
+                  color: theme.palette.common.red,
+                  borderColor: theme.palette.common.red,
+                  width: "5rem",
+                }}
+                onClick={handleDelete}
+              >
+                Delete
+              </Button>
+            </Grid>
           </Grid>
         </Grid>
       </GridToolbarContainer>
@@ -317,7 +397,6 @@ export default function CollectionPage({ history }) {
   return (
     <Grid container direction="column" alignItems="center">
       <Grid item>
-        <code>editRowsModel: {JSON.stringify(editRowsModel)}</code>
         <code>selectRowsModel: {JSON.stringify(selectionModel)}</code>
       </Grid>
       <Grid
@@ -340,8 +419,6 @@ export default function CollectionPage({ history }) {
           onPageSizeChange={handlePageSizeChange}
           rowsPerPageOptions={[5, 10, 25, 50, 100]}
           rowHeight={90}
-          editRowsModel={editRowsModel}
-          onEditRowModelChange={handleEditRowModelChange}
           selectionModel={selectionModel}
           onSelectionModelChange={(newSelection) => {
             setSelectionModel(newSelection.selectionModel);
@@ -356,6 +433,79 @@ export default function CollectionPage({ history }) {
           }}
         />
       </Grid>
+      <Dialog
+        open={openDialog}
+        onClose={handleDialogClose}
+        fullWidth
+        fullScreen={matchesXS}
+      >
+        <DialogTitle>
+          <Typography variant="h4" align={matchesXS ? "center" : "left"}>
+            {action}
+          </Typography>
+        </DialogTitle>
+        <DialogContent dividers>
+          <Grid container direction="column" alignItems="center" spacing={3}>
+            <Grid item>
+              <TextField
+                label="Title"
+                variant="filled"
+                value={title}
+                fullWidth
+                className={classes.textField}
+                onChange={(e) => setTitle(e.currentTarget.value)}
+                style={{ width: inputWidth }}
+              />
+            </Grid>
+            <Grid item>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={archived}
+                    color={
+                      theme.palette.type === "dark" ? "secondary" : "primary"
+                    }
+                    onChange={() => setArchived(!archived)}
+                  />
+                }
+                label="Archived"
+                labelPlacement="start"
+              />
+            </Grid>
+            <Grid
+              item
+              container
+              justify="center"
+              spacing={4}
+              style={{ width: inputWidth }}
+            >
+              <Grid item>
+                <Button variant="contained" className={classes.createButton}>
+                  {action}
+                </Button>
+              </Grid>
+              <Grid item>
+                <Button
+                  variant="outlined"
+                  className={classes.cancelButton}
+                  onClick={handleDialogClose}
+                >
+                  Cancel
+                </Button>
+              </Grid>
+            </Grid>
+            <Grid item>
+              <LinearProgress
+                color={theme.palette.type === "dark" ? "secondary" : "primary"}
+                style={{
+                  width: inputWidth,
+                  color: "black",
+                }}
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+      </Dialog>
     </Grid>
   );
 }
