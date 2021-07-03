@@ -76,8 +76,7 @@ function CollectionCard({
   };
 
   const handleClick = () => {
-    selectCollection(collection);
-    history.push("/collection");
+    history.push(`/dashboard/${collection.id}/video`);
   };
 
   const CardSettings = (

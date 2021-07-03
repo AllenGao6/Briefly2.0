@@ -56,14 +56,42 @@ class App extends Component {
             <Route path="/profile" component={Profile} />
             <Route
               path="/dashboard"
+              exact
               render={(props) => (
                 <Dashboard {...props} {...stateProps} isDashboard={true} />
               )}
             />
             <Route
-              path="/collection"
+              path="/dashboard/:id/video"
               render={(props) => (
-                <Dashboard {...props} {...stateProps} isDashboard={false} />
+                <Dashboard
+                  {...props}
+                  {...stateProps}
+                  isDashboard={false}
+                  mediaType={"video"}
+                />
+              )}
+            />
+            <Route
+              path="/dashboard/:id/audio"
+              render={(props) => (
+                <Dashboard
+                  {...props}
+                  {...stateProps}
+                  isDashboard={false}
+                  mediaType={"audio"}
+                />
+              )}
+            />
+            <Route
+              path="/dashboard/:id/text"
+              render={(props) => (
+                <Dashboard
+                  {...props}
+                  {...stateProps}
+                  isDashboard={false}
+                  mediaType={"text"}
+                />
               )}
             />
             <Route path="/not-found" component={NotFound} />

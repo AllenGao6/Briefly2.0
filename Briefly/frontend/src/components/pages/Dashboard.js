@@ -64,7 +64,7 @@ const useStyles = makeStyles((theme) => ({
     },
     "& .MuiFilledInput-root": {
       backgroundColor:
-        theme.palette.type === "dark" ? undefined : "rgba(30, 144, 255, 0.2)",
+        theme.palette.type === "dark" ? undefined : "rgba(30, 144, 255, 0.08)",
     },
   },
   createButton: {
@@ -107,8 +107,10 @@ function Dashboard(props) {
   };
 
   useEffect(() => {
-    props.loadCollections();
-  }, []);
+    if (props.user) {
+      props.loadCollections();
+    }
+  }, [props.user]);
 
   const handleDialogCLose = () => {
     setOpenDialog(false);
@@ -191,6 +193,8 @@ function Dashboard(props) {
         collectionDelete={collectionDelete}
         history={props.history}
         isDashboard={props.isDashboard}
+        mediaType={props.mediaType}
+        match={props.match}
       />
       <Dialog
         open={openDialog}

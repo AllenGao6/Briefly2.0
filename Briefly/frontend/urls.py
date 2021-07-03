@@ -6,6 +6,8 @@ urlpatterns = [
     path('not-found/', index),
     path('dashboard/', index),
     path('home/', index),
-    path('collection', index)
+    re_path(r'dashboard/[0-9]*/[video|audio|text]', index),
+
+
 ]
 
