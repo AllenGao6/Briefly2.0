@@ -47,29 +47,27 @@ def validate_video(video):
 
 
 #video model
-def upload_video_name(instance, filename):
-    collection_dir = "Collection"+str(instance.collection.id)
-    video_id = str(instance.id)
-    url_path = [collection_dir, 'video', video_id, filename]
-    return '/'.join(url_path)
+# def upload_video_name(instance, filename):
+#     collection_dir = "Collection"+str(instance.collection.id)
+#     video_id = str(instance.id)
+#     url_path = [collection_dir, 'video', video_id, filename]
+#     return '/'.join(url_path)
 
 def upload_video_audioText_name(instance, filename):
     collection_dir = "Collection"+str(instance.collection.id)
     video_id = str(instance.id)
-    url_path = [collection_dir, 'video', video_id, "summarization.txt"]  # assume the format is in txt, change if need
+    url_path = [collection_dir, 'video', video_id, "audioText.txt"]  # assume the format is in txt, change if need
     return '/'.join(url_path)
-
-
-allowed_extension = ['mp4', 'mov', 'wmv', 'avi', ' AVCHD', 'FLV', 'MKV', 'WEBM']
 
 class Video(models.Model):
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     is_archived = models.BooleanField(blank=True, default=False)
-    video = models.FileField(upload_to=upload_video_name, validators=[validate_video, FileExtensionValidator(allowed_extension)],null=True, blank=True)
+    is_summarized = models.BooleanField(blank=True, default=False)
+    video = models.URLField(max_length=255,null=True, blank=True)
     transcript = models.URLField(max_length=200, null=True, blank=True)
     summarization = models.JSONField(null=True, blank=True)
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateField(auto_now_add=True)
     audioText = models.FileField(upload_to=upload_video_audioText_name, null=True, blank=True)
     #TODO
     fileSize = models.IntegerField(null=True, blank=True)
@@ -78,28 +76,29 @@ class Video(models.Model):
         return f"Video: {self.title}"
     
 #audio model
-def upload_audio_name(instance, filename):
-    collection_dir = "Collection"+str(instance.collection.id)
-    video_id = str(instance.id)
-    url_path = [collection_dir, 'audio', video_id, filename]
-    return '/'.join(url_path)
+# def upload_audio_name(instance, filename):
+#     collection_dir = "Collection"+str(instance.collection.id)
+#     video_id = str(instance.id)
+#     url_path = [collection_dir, 'audio', video_id, filename]
+#     return '/'.join(url_path)
 
 def upload_audio_audioText_name(instance, filename):
     collection_dir = "Collection"+str(instance.collection.id)
     audio_id = str(instance.id)
-    url_path = [collection_dir, 'audio', audio_id, "summarization.txt"]  # assume the format is in txt, change if need
+    url_path = [collection_dir, 'audio', audio_id, "audioText.txt"]  # assume the format is in txt, change if need
     return '/'.join(url_path)
 
 class Audio(models.Model):
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     is_archived = models.BooleanField(blank=True, default=False)
-    audio = models.FileField(upload_to=upload_audio_name)
+    is_summarized = models.BooleanField(blank=True, default=False)
+    audio = models.URLField(max_length=255, null=True, blank=True)
     transcript = models.URLField(max_length=200, null=True, blank=True)
     summarization = models.JSONField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     audioText = models.FileField(upload_to=upload_video_audioText_name, null=True, blank=True)
-    
+    fileSize = models.IntegerField(null=True, blank=True)
     def __str__(self):
         return f"Audio: {self.title}"
 

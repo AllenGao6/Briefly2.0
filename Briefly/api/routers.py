@@ -9,3 +9,4 @@ collection_router = routers.NestedSimpleRouter(router,r'collection',lookup='coll
 collection_router.register(r'video', VideoViewSet, basename='collection-videos')
 collection_router.register(r'audio', AudioViewSet, basename='collection-audios')
 #router.register('collection/<collection_pk>/video', VideoViewSet, basename='video')
+
