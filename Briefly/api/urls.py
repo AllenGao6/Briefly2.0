@@ -1,11 +1,12 @@
 from django.urls import path, include
-from .views import upload_video, search
+from .views import upload_video, search, get_remaining
 from .routers import router, collection_router
 from django.conf.urls import url
 
 urlpatterns = [
      path('upload-video/', upload_video, name='upload_video'),
      path('search/', search),
+     path('get-remaining/', get_remaining),
      path('', include(router.urls)),
      path('', include(collection_router.urls)),
      

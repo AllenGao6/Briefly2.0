@@ -14,20 +14,21 @@ class UserProfile(models.Model):
     education = models.CharField(max_length=50,default="Not provided")
     location = models.CharField(max_length=50,default="Not provided")
     profession = models.CharField(max_length=50,default="Not provided")
-    total_limit = models.IntegerField(default=0)
+    remaining_size = models.IntegerField(default=2*1024*1024)
     def __str__(self):
         return self.user.username
     
 
         
-    def validate_total_limit(self):
-        limit_mb = 2048
-        if self.total_limit >= limit_mb *1024*1024:
-            return False
-        return True
+    # def validate_total_limit(self):
+    #     limit_mb = 2048
+    #     if self.total_limit >= limit_mb *1024*1024:
+    #         return False
+    #     return True
     
-    def get_max_limit(self):
-        return 
+    # def get_max_limit(self):
+    #     return 
+    
 @receiver(post_save, sender=User)
 def update_user_profile(sender, instance, created, **kwargs):
     if created:

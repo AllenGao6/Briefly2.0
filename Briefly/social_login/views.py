@@ -65,7 +65,7 @@ def exchange_token(request, backend):
                 userProfile.is_signed_in = True
                 userProfile.save()
 
-                return Response({'token': token.key, 'firstname': user.first_name, 'lastname': user.last_name, 'email': user.email})
+                return Response({'token': token.key, 'firstname': user.first_name, 'lastname': user.last_name, 'email': user.email, 'remaining_size': user.userprofile.remaining_size})
             else:
                 return Response(
                     {'errors': {nfe: 'This user account is inactive'}},
