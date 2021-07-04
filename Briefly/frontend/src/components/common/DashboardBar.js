@@ -17,8 +17,11 @@ import {
   TextField,
   InputAdornment,
   Avatar,
+  InputBase,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
+import { darken, lighten } from "@material-ui/core/styles";
+
 import AccountBoxOutlinedIcon from "@material-ui/icons/AccountBoxOutlined";
 import HomeOutlinedIcon from "@material-ui/icons/HomeOutlined";
 import ExitToAppOutlinedIcon from "@material-ui/icons/ExitToAppOutlined";
@@ -41,7 +44,9 @@ import { login, logout } from "../../redux/actions/auth_actions";
 const useStyles = makeStyles((theme) => ({
   appbar: {
     background:
-      theme.palette.type == "dark" ? "#1e272e" : theme.palette.common.blue,
+      theme.palette.type == "dark"
+        ? "#1e272e"
+        : "linear-gradient(to right, #1e90ff, #4381ff, #6a6fff, #9055fc, #b327ed)",
     transition: "background 0.4",
   },
   logo: {
@@ -112,29 +117,17 @@ const useStyles = makeStyles((theme) => ({
     marginRight: "0.8rem",
   },
   search: {
-    background: theme.palette.primary.light,
-    borderRadius: 15,
-    elevation: 2,
-    width: 250,
-    "&:hover": {
-      background: theme.palette.primary.dark,
-    },
-    "& .MuiOutlinedInput-notchedOutline": {
-      border: "none",
-    },
-    "& .MuiOutlinedInput-root": {
-      transition: "width 0.3s",
-      "&.Mui-focused": {
-        background: theme.palette.primary.dark,
-        transition: "width 0.3s",
-        borderRadius: 15,
-        width: 300,
-      },
-    },
-  },
-  searchInput: {
+    background: lighten("#2481F4", 0.2),
+    borderRadius: 22,
+    height: "2.8rem",
+    padding: "1rem",
     color: "white",
     fontSize: "1.25rem",
+    transition: "all 0.2s",
+    "&.Mui-focused": {
+      width: 300,
+      background: lighten("#2481F4", 0.3),
+    },
   },
   appBarShift: {
     marginLeft: 240,
@@ -178,6 +171,7 @@ function DashboardBar({
   const classes = useStyles();
   const theme = useTheme();
   const matchesMD = useMediaQuery(theme.breakpoints.down("md"));
+  const matches = useMediaQuery("(max-width:600px)");
   const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
 
   const matchesDark = theme.palette.type === "dark";
@@ -410,7 +404,7 @@ function DashboardBar({
                 <Hidden xsDown>
                   {!open ? (
                     <Grid item style={{ marginLeft: "1rem" }}>
-                      <TextField
+                      <InputBase
                         placeholder="Search..."
                         id="search"
                         variant="outlined"
@@ -418,18 +412,16 @@ function DashboardBar({
                         fullWidth
                         size="small"
                         classes={{ root: classes.search }}
-                        InputProps={{
-                          className: classes.searchInput,
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <SearchOutlinedIcon
-                                style={{ fontSize: "1.5rem" }}
-                              />
-                            </InputAdornment>
-                          ),
-                        }}
+                        className={classes.searchInput}
+                        startAdornment={
+                          <InputAdornment position="start">
+                            <SearchOutlinedIcon
+                              style={{ fontSize: "1.5rem" }}
+                            />
+                          </InputAdornment>
+                        }
                         onChange={(event) => setSearch(event.target.value)}
-                      ></TextField>
+                      ></InputBase>
                     </Grid>
                   ) : (
                     <div></div>
@@ -446,9 +438,9 @@ function DashboardBar({
                   marginRight: "1.5rem",
                   width: 100,
                   flexGrow: !open
-                    ? matchesXS
-                      ? 1.2
-                      : 0.55
+                    ? matches
+                      ? 0.4
+                      : 0.4
                     : matchesXS
                     ? 1.2
                     : 1.2,

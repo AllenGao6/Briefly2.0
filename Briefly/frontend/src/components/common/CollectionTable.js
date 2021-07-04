@@ -29,6 +29,7 @@ import {
   updateVideoInCollection,
   deleteVideos,
 } from "../../redux/actions/video_actions";
+import ReactPlayer from "react-player";
 
 const useStyles = makeStyles((theme) => {
   const getBackgroundColor = () =>
@@ -481,6 +482,7 @@ function CollectionTable({
           }}
         />
       </Grid>
+
       <Dialog
         open={openDialog}
         onClose={handleDialogClose}

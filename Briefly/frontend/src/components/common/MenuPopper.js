@@ -14,7 +14,7 @@ import { makeStyles } from "@material-ui/styles";
 const useStyles = makeStyles((theme) => ({
   popper: {
     borderRadius: 10,
-    background: theme.palette.common.cloud,
+    background: "white",
   },
 }));
 
