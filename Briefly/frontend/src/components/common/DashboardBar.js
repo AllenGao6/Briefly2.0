@@ -117,7 +117,10 @@ const useStyles = makeStyles((theme) => ({
     marginRight: "0.8rem",
   },
   search: {
-    background: lighten("#2481F4", 0.2),
+    background:
+      theme.palette.type === "dark"
+        ? theme.palette.primary.main
+        : lighten("#2481F4", 0.2),
     borderRadius: 22,
     height: "2.8rem",
     padding: "1rem",
@@ -126,7 +129,10 @@ const useStyles = makeStyles((theme) => ({
     transition: "all 0.2s",
     "&.Mui-focused": {
       width: 300,
-      background: lighten("#2481F4", 0.3),
+      background:
+        theme.palette.type === "dark"
+          ? lighten(theme.palette.primary.main, 0.2)
+          : lighten("#2481F4", 0.3),
     },
   },
   appBarShift: {
