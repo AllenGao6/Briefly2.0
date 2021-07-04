@@ -5,6 +5,24 @@ import { BASE_URL } from "../constant";
 const LOGIN_URL = BASE_URL + "auth/google-oauth2/";
 const LOGOUT_URL = BASE_URL + "logout/";
 
+export const tokenConfig = (getState, type) => {
+  // Get token
+  const token = getState().authReducer.accessToken;
+
+  // Headers
+  const config = {
+    headers: {
+      "Content-Type": type,
+    },
+  };
+
+  if (token) {
+    config.headers["Authorization"] = `Token ${token}`;
+  }
+
+  return config;
+};
+
 export const login = (response, callback) => (dispatch) => {
   return axios
     .get(LOGIN_URL)

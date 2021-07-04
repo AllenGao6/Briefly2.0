@@ -1,6 +1,7 @@
 import axios from "axios";
 import * as type from "./action_types";
 import { BASE_URL } from "../constant";
+import Cookies from "js-cookie";
 
 const COLLECTIONS_BASE_URL = BASE_URL + "api/collection/";
 
