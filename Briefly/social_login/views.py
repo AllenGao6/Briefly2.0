@@ -17,7 +17,9 @@ from social_django.utils import psa
 from .models import UserProfile
 from .serializers import SocialSerializer
 from django.contrib.auth import login, logout
+from django.middleware.csrf import rotate_token
 
+@ensure_csrf_cookie
 @api_view(http_method_names=['POST'])
 @permission_classes([AllowAny])
 @psa()
@@ -58,6 +60,7 @@ def exchange_token(request, backend):
             login(request, user)
             print("if user:")
             print(user)
+            rotate_token(request)
             if user.is_active:
                 token, _ = Token.objects.get_or_create(user=user)
                 # Uerprofile is automaticlly created
@@ -65,7 +68,7 @@ def exchange_token(request, backend):
                 userProfile.is_signed_in = True
                 userProfile.save()
 
-                return Response({'token': token.key, 'firstname': user.first_name, 'lastname': user.last_name, 'email': user.email, 'remaining_size': user.userprofile.remaining_size})
+                return Response({'token': token.key, 'firstname': user.first_name, 'lastname': user.last_name, 'email': user.email, 'remaining_size': user.userprofile.remaining_size, 'pk': request.user.pk})
             else:
                 return Response(
                     {'errors': {nfe: 'This user account is inactive'}},

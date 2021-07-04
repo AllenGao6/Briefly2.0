@@ -1,6 +1,6 @@
 import axios from "axios";
 import * as type from "./action_types";
-import { BASE_URL, csrftoken } from "../constant";
+import { BASE_URL } from "../constant";
 
 const COLLECTIONS_BASE_URL = BASE_URL + "api/collection/";
 
@@ -27,7 +27,7 @@ export const createVideoInCollection = (id, video) => (dispatch) => {
     .post(`${COLLECTIONS_BASE_URL}${id}/video/`, JSON.stringify(video), {
       headers: {
         "content-type": "application/json",
-        "X-CSRFToken": csrftoken,
+        "X-CSRFToken": Cookies.get("csrftoken"),
       },
     })
     .then((res) => {
@@ -52,7 +52,7 @@ export const updateVideoInCollection = (id, video, videoId) => (dispatch) => {
       {
         headers: {
           "content-type": "application/json",
-          "X-CSRFToken": csrftoken,
+          "X-CSRFToken": Cookies.get("csrftoken"),
         },
       }
     )
@@ -79,7 +79,7 @@ export const deleteVideos = (id, list_id) => (dispatch) => {
       {
         headers: {
           "content-type": "application/json",
-          "X-CSRFToken": csrftoken,
+          "X-CSRFToken": Cookies.get("csrftoken"),
         },
       }
     )

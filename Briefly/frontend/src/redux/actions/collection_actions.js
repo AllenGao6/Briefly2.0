@@ -1,7 +1,7 @@
 import axios from "axios";
 import * as type from "./action_types";
-import { BASE_URL, csrftoken } from "../constant";
-
+import { BASE_URL } from "../constant";
+import Cookies from "js-cookie";
 const GET_ALL_COLLECTIONS_URL = BASE_URL + "api/collection/";
 const CREATE_COLLECTION_URL = BASE_URL + "api/collection/";
 
@@ -48,7 +48,7 @@ export const createCollection = (formData) => (dispatch) => {
     .post(CREATE_COLLECTION_URL, formData, {
       headers: {
         "content-type": "multipart/form-data",
-        "X-CSRFToken": csrftoken,
+        "X-CSRFToken": Cookies.get("csrftoken"),
       },
     })
     .then((res) => {
@@ -75,7 +75,7 @@ export const updateCollection = (formData, id) => (dispatch) => {
     .patch(`${CREATE_COLLECTION_URL}${id}/`, formData, {
       headers: {
         "content-type": "multipart/form-data",
-        "X-CSRFToken": csrftoken,
+        "X-CSRFToken": Cookies.get("csrftoken"),
       },
     })
     .then((res) => {
@@ -102,7 +102,7 @@ export const deleteCollection = (id) => (dispatch) => {
     .delete(`${CREATE_COLLECTION_URL}${id}/`, {
       headers: {
         "content-type": "multipart/form-data",
-        "X-CSRFToken": csrftoken,
+        "X-CSRFToken": Cookies.get("csrftoken"),
       },
     })
     .then((res) => {
