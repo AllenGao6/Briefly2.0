@@ -1,7 +1,7 @@
 import {makeStyles} from "@material-ui/styles";
-import React from "react";
 import {Paper, Grid, Typography, CardMedia,} from "@material-ui/core";
 import {teamInfo} from "./data.js";
+import React from 'react';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -92,6 +92,7 @@ export const TeamSection = () => {
             container
             direction="column"
             id="team"
+           
         >
             <Grid className={classes.teamContainer}>
                 <Typography

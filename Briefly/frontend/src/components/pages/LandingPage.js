@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 import { WelcomeSection } from "./landing_page_properties/LandingPageWelcome";
 import { IntroSection } from "./landing_page_properties/LandingPageIntro";
@@ -6,6 +6,7 @@ import { MissionSection } from "./landing_page_properties/LandingPageMission";
 import { TeamSection } from "./landing_page_properties/LandingPageTeam"
 import { AboutSection } from "./landing_page_properties/LandingPageAbout"
 import { ContactSection } from "./landing_page_properties/LandingPageContact"
+import { PageFooter } from "./landing_page_properties/LandingPageFooter";
 
 import { Grid,} from "@material-ui/core";
 import LandingHeader from "../common/LandingHeader";
@@ -24,6 +25,12 @@ export const useStyles = makeStyles((theme) => ({
 export default function LandingPage(props) {
   const classes = useStyles();
   const theme = useTheme();
+  const pageReference = useRef([]);
+
+  const scrollIntoView = (id) => {
+    pageReference.current[id].scrollIntoView({block: 'center', inline: 'center', behavior: 'smooth'});
+  }
+  const components = [<IntroSection />,  <MissionSection/>, <TeamSection/>,<AboutSection />,<ContactSection />]
   useEffect(() => {
     if (theme.palette.type === "dark") {
       props.switchTheme();
@@ -33,16 +40,19 @@ export default function LandingPage(props) {
   return (
     <React.Fragment>
 
-      <LandingHeader {...props} />
+      <LandingHeader {...props} scrollIntoView={scrollIntoView}/>
       <WelcomeSection />
 
       <Grid className={classes.backgroundContainer}>
 
-        <IntroSection />
-        <MissionSection />
-        <TeamSection />
-        <AboutSection />
-        <ContactSection />
+        {components.map((component, value) =>(
+          <div key={value} ref={(element) => {pageReference.current[value] = element;}}>
+            {component}
+          </div>
+          
+        ))}
+        
+        <PageFooter />
 
       </Grid>
 

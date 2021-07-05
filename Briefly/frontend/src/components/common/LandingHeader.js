@@ -138,7 +138,7 @@ function ElevationScroll(props) {
   });
 }
 
-function LandingHeader({ history, user, accessToken, login, logout }) {
+function LandingHeader({ history, user, accessToken, login, logout, scrollIntoView }) {
   // styling utilities
   const classes = useStyles();
   const theme = useTheme();
@@ -154,7 +154,7 @@ function LandingHeader({ history, user, accessToken, login, logout }) {
 
   // json array of objects used for mapping
   const tabs = [
-    { name: "Introduction", link: "/", icon: <IntroIcon /> },
+    { name: "Introduction", link: "/", icon: <IntroIcon />},
     { name: "Demo", link: "/", icon: <DemoIcon /> },
     { name: "Team", link: "/", icon: <TeamIcon /> },
     { name: "About Us", link: "/", icon: <AboutIcon /> },
@@ -347,7 +347,7 @@ function LandingHeader({ history, user, accessToken, login, logout }) {
           {tabs.map((tab, i) => (
             <ListItem
               key={`ListItem-${tab.name}${i}`}
-              onClick={() => setOpenSideNavbar(false)}
+              onClick={() => { setOpenSideNavbar(false); scrollIntoView(i);}}
               divider
               button
               style={{ height: "5rem" }}
@@ -413,7 +413,8 @@ function LandingHeader({ history, user, accessToken, login, logout }) {
                             key={`Tab-${tab.name}-${i}`}
                             component={Link}
                             className={classes.tab}
-                            to={tab.link}
+                            onClick={() => scrollIntoView(i)}
+                            to='/'
                             label={tab.name}
                             disableRipple
                           ></Tab>
