@@ -71,7 +71,8 @@ class VideoViewSet(viewsets.ModelViewSet):
         fileSize = instance.fileSize
         
         if instance.video:
-            instance.video.delete(save=False)
+            s3_client = boto3.resource('s3')
+            response = s3_client.delete_object(Bucket='briefly41',Key=instance.video)
         if instance.audioText:
             instance.audioText.delete(save=False)
 
@@ -224,7 +225,8 @@ class AudioViewSet(viewsets.ModelViewSet):
         fileSize = instance.fileSize
         user = self.request.user
         if instance.audio:
-            instance.audio.delete(save=False)
+            s3_client = boto3.resource('s3')
+            response = s3_client.delete_object(Bucket='briefly41',Key=instance.audio)
         if instance.audioText:
             instance.audioText.delete(save=False)
         if fileSize:    
