@@ -15,7 +15,7 @@ import boto3
 from .permissions import CollectionUserPermission,VideoUserPermission, AudioUserPermission
 from django.db.models import Q
 from django.core.mail import send_mail
-
+from . import speech_to_text
 
 class VideoViewSet(viewsets.ModelViewSet):
 
@@ -72,7 +72,8 @@ class VideoViewSet(viewsets.ModelViewSet):
         
         if instance.video:
             s3_client = boto3.resource('s3')
-            response = s3_client.delete_object(Bucket='briefly41',Key=instance.video)
+            response = s3_client.delete_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME,Key=instance.video)
+            print("if delete video: ", response)
         if instance.audioText:
             instance.audioText.delete(save=False)
 
@@ -117,21 +118,24 @@ class VideoViewSet(viewsets.ModelViewSet):
     #     return Response(serializer.data)
     
     '''
-    Description: when summary is ready, this should be called to send email
+    Description: when summary is ready, this will be automatically called to send notification email to user's email
     '''
     def summary_ready(self, video):
+        email_title = 'You Summarization Is Ready at Briefly-AI'
+        email_body = f"Hi {video.collection.owner.first_name},\n\n	Your {video.__class__.__name__}: {video.title} in {video.collection} is successfully summarized by our powerful Briefly-AI!\n	Please go to www.Briefly-AI.com and start your journey!\n\n	Briefly-AI team"
+        
         mail = send_mail(
-            'You Summarization Is Ready at Briefly-AI',
-            f'Hi {video.collection.owner},\n      your video: {video.title} in {video.collection} is ready!\n      please go to Briefly-AI.com to check out!',
-            'hugh_megumi@qq.com',
+            email_title,
+            email_body,
+            settings.EMAIL_HOST_USER,
             [str(video.collection.owner.email)],
             fail_silently=False
         )
         return mail
     
     '''
-    Description: call this url to begin summarization
-    URL: summary_begin (always the method name)
+    Call this url to begin summarization
+    URL: api/<int: collection_id>/video/<int: video_id>/summary_begin/
     '''
     @action(methods=['get'],detail=True)
     def summary_begin(self, request, *args, **kwargs):
@@ -143,6 +147,8 @@ class VideoViewSet(viewsets.ModelViewSet):
             if not video.summarization:
                 try:
                     # code to perform summarization process
+                    
+                    
                     self.summary_ready(video)
                     return Response("Success!")
                 except:
@@ -150,6 +156,10 @@ class VideoViewSet(viewsets.ModelViewSet):
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
     
+    '''
+    Call this endpoint to delete a list of videos under one collection
+    URL: api/<int: collection_id>/video/delete_list_videos/
+    '''
     @action(methods=['POST'],detail=False, permission_classes=[IsAuthenticated])
     def delete_list_videos(self, request, *args, **kwargs):
         user = request.user
@@ -226,7 +236,8 @@ class AudioViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if instance.audio:
             s3_client = boto3.resource('s3')
-            response = s3_client.delete_object(Bucket='briefly41',Key=instance.audio)
+            response = s3_client.delete_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME,Key=instance.audio)
+            print("if delete audio: ", response)
         if instance.audioText:
             instance.audioText.delete(save=False)
         if fileSize:    

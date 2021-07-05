@@ -19,6 +19,7 @@ pillow = "*"
 wordcloud = "*"
 numpy = "*"
 matplotlib = "*"
+sumy = "*"
 
 [dev-packages]
 

@@ -28,7 +28,7 @@ class Collection(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to=upload_image_name,validators=[validate_image,validate_image_file_extension],null=True,blank=True)
     def __str__(self):
-        return f"Collection: {self.id}-{self.name}"
+        return f"Collection: {self.name}"
 
     # # validation purpose
     # def clean(self):
