@@ -44,7 +44,7 @@ const useStyles = makeStyles((theme) => ({
     top: 69,
     background:
       theme.palette.type === "dark" ? theme.palette.primary.main : "white",
-    zIndex: 1302,
+    zIndex: 1,
   },
 }));
 
@@ -130,7 +130,7 @@ export default function DashboardContent({
       </Grid>
 
       {/* <Divider variant="middle" classes={{ root: classes.divider }} /> */}
-      <Grid item style={{ paddingTop: trigger ? "5rem" : "2rem" }}>
+      <Grid item style={{ paddingTop: trigger ? "5rem" : "2rem", zIndex: 0 }}>
         {isDashboard ? (
           <CollectionGrid
             open={open}
