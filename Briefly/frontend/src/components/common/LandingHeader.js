@@ -347,7 +347,7 @@ function LandingHeader({ history, user, accessToken, login, logout, scrollIntoVi
           {tabs.map((tab, i) => (
             <ListItem
               key={`ListItem-${tab.name}${i}`}
-              onClick={() => { setOpenSideNavbar(false); scrollIntoView(i);}}
+              onClick={() => { scrollIntoView(i);}}
               divider
               button
               style={{ height: "5rem" }}
@@ -392,6 +392,7 @@ function LandingHeader({ history, user, accessToken, login, logout, scrollIntoVi
                       className={classes.logoContainer}
                       component={Link}
                       to="/"
+                      onClick={()=>scrollIntoView(5)}
                     >
                       <img
                         src={logo}

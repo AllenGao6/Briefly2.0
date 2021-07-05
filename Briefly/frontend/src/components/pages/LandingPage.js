@@ -28,7 +28,7 @@ export default function LandingPage(props) {
   const pageReference = useRef([]);
 
   const scrollIntoView = (id) => {
-    pageReference.current[id].scrollIntoView({block: 'center', inline: 'center', behavior: 'smooth'});
+    pageReference.current[id].scrollIntoView({behavior: 'smooth'});
   }
   const components = [<IntroSection />,  <MissionSection/>, <TeamSection/>,<AboutSection />,<ContactSection />]
   useEffect(() => {
@@ -41,7 +41,9 @@ export default function LandingPage(props) {
     <React.Fragment>
 
       <LandingHeader {...props} scrollIntoView={scrollIntoView}/>
-      <WelcomeSection />
+      <div key={5} ref={(element) => {pageReference.current[5] = element;}}>
+        <WelcomeSection />
+      </div>
 
       <Grid className={classes.backgroundContainer}>
 
