@@ -47,16 +47,15 @@ const useStyles = makeStyles((theme) => {
       borderRadius: 3,
       border: 0,
       height: 48,
-      boxShadow: "0px 5px 7px 5px rgba(165,165,165,0.68)",
-      "& .collection-table-evenRow": {
-        transition: "background-color 0.3s",
+      transition: "background-color 0.3s",
+
+      boxShadow: "0px 5px 7px 5px rgba(165,165,165,0.5)",
+
+      "& .MuiDataGrid-row:nth-child(even)": {
         backgroundColor: getBackgroundColor(),
         "&:hover": {
           backgroundColor: getHoverBackgroundColor(),
         },
-      },
-      "& .collection-table-oddRow": {
-        transition: "background-color 0.3s",
       },
     },
     title: {
@@ -488,6 +487,7 @@ function CollectionTable({
         onClose={handleDialogClose}
         fullWidth
         fullScreen={matchesXS}
+        style={{ zIndex: 1303 }}
       >
         <DialogTitle>
           <Typography variant="h4" align={matchesXS ? "center" : "left"}>

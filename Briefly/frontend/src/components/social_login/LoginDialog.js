@@ -4,7 +4,7 @@ import { Typography, Grid, Dialog, DialogContent } from "@material-ui/core";
 
 export default function LoginDialog({ open, onClose, onSuccess, onFailure }) {
   return (
-    <Dialog style={{ zIndex: 1302 }} open={open} onClose={onClose}>
+    <Dialog style={{ zIndex: 1303 }} open={open} onClose={onClose}>
       <DialogContent style={{ padding: 20 }}>
         <Grid container direction="column">
           <Grid item style={{ marginBottom: "2.5rem" }}>

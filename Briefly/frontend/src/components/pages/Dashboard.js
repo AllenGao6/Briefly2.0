@@ -201,6 +201,7 @@ function Dashboard(props) {
         onClose={handleDialogCLose}
         fullWidth
         fullScreen={matchesXS}
+        style={{ zIndex: 1303 }}
       >
         <DialogTitle>
           <Typography variant="h4" align={matchesXS ? "center" : "left"}>

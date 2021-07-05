@@ -36,7 +36,7 @@ export default function MenuPopper({
       transition
       placement={placement}
       disablePortal
-      style={{ zIndex: 99999 }}
+      style={{ zIndex: 1400 }}
     >
       {({ TransitionProps, placement }) => (
         <Grow
@@ -45,11 +45,7 @@ export default function MenuPopper({
             transformOrigin: "top center",
           }}
         >
-          <Paper
-            elevation={10}
-            classes={{ root: classes.popper }}
-            style={style}
-          >
+          <Paper elevation={10} classes={{ root: classes.popper }}>
             <ClickAwayListener onClickAway={onClose}>
               {component}
             </ClickAwayListener>
