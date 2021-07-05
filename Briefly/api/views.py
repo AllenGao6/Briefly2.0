@@ -15,7 +15,7 @@ import boto3
 from .permissions import CollectionUserPermission,VideoUserPermission, AudioUserPermission
 from django.db.models import Q
 from django.core.mail import send_mail
-from . import speech_to_text
+#from . import speech_to_text
 
 class VideoViewSet(viewsets.ModelViewSet):
 
