@@ -64,6 +64,7 @@ export default function DashboardContent({
   isDashboard,
   mediaType,
   match,
+  search,
 }) {
   const theme = useTheme();
   const classes = useStyles();
@@ -215,6 +216,8 @@ export default function DashboardContent({
             history={history}
             mediaType={mediaType}
             match={match}
+            selectArchived={value === 1}
+            search={search}
           />
         )}
       </Grid>

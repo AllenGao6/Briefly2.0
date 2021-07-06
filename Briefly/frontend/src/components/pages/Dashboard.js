@@ -99,6 +99,7 @@ function Dashboard(props) {
   const [imageFile, setImageFile] = useState(null);
   const [isNewCollection, setIsNewCollection] = useState(true);
   const [id, setId] = useState(0);
+  const [search, setSearch] = useState("");
 
   const inputWidth = matchesXS ? "20rem" : "35rem";
 
@@ -186,6 +187,8 @@ function Dashboard(props) {
         handleDrawerToggle={handleDrawerToggle}
         open={mobileOpen}
         {...props}
+        search={search}
+        setSearch={setSearch}
       />
       <DashboardContent
         open={mobileOpen}
@@ -195,7 +198,10 @@ function Dashboard(props) {
         isDashboard={props.isDashboard}
         mediaType={props.mediaType}
         match={props.match}
-        collections={props.collections}
+        collections={props.collections.filter((item) =>
+          item.name.toLowerCase().includes(search.toLowerCase())
+        )}
+        search={search}
       />
       <Dialog
         open={openDialog}

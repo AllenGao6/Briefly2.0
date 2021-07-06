@@ -172,6 +172,8 @@ function DashboardBar({
   switchTheme,
   handleDrawerToggle,
   open,
+  search,
+  setSearch,
 }) {
   // styling utilities
   const classes = useStyles();
@@ -186,7 +188,6 @@ function DashboardBar({
   const [anchorEl, setAnchorEl] = useState(null);
   const [openMenu, setOpenMenu] = useState(false);
   const [openLoginDialog, setOpenLoginDiaog] = useState(false);
-  const [search, setSearch] = useState("");
 
   // json array of objects used for mapping
   const accountMenus = [

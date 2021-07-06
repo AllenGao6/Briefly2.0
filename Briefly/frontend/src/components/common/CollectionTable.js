@@ -127,6 +127,8 @@ function CollectionTable({
   deleteVideos,
   mediaType,
   match,
+  selectArchived,
+  search,
 }) {
   const theme = useTheme();
   const classes = useStyles();
@@ -197,6 +199,19 @@ function CollectionTable({
       default:
         break;
     }
+  };
+
+  const filterMediaByArchive = () => {
+    const media = getMediaInCollection();
+    if (selectArchived) return media.filter((item) => item.is_archived);
+    return media;
+  };
+
+  const filterMediaBySearch = () => {
+    const media = filterMediaByArchive();
+    return media.filter((item) =>
+      item.title.toLowerCase().includes(search.toLowerCase())
+    );
   };
 
   useEffect(() => {
@@ -477,7 +492,7 @@ function CollectionTable({
           autoHeight
           checkboxSelection
           columns={matches ? fixedColumns : flexColumns}
-          rows={getMediaInCollection()}
+          rows={filterMediaBySearch()}
           pageSize={pageSize}
           onPageSizeChange={handlePageSizeChange}
           rowsPerPageOptions={[5, 10, 25, 50, 100]}
