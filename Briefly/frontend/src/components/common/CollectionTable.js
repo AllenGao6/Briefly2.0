@@ -117,6 +117,8 @@ const useStyles = makeStyles((theme) => {
 function CollectionTable({
   history,
   videos,
+  audios,
+  text,
   isLoading,
   isCreating,
   loadVideosInCollection,
@@ -179,6 +181,19 @@ function CollectionTable({
         deleteVideos(id, list_id);
       case "audio":
       case "text":
+      default:
+        break;
+    }
+  };
+
+  const getMediaInCollection = () => {
+    switch (mediaType) {
+      case "video":
+        return videos;
+      case "audio":
+        return videos;
+      case "text":
+        return videos;
       default:
         break;
     }
@@ -450,10 +465,10 @@ function CollectionTable({
         item
         container
         style={{
-          maxWidth: 1600,
+          maxWidth: 1400,
           width: "100%",
-          paddingLeft: "2rem",
-          paddingRight: "2rem",
+          paddingLeft: matchesXS ? undefined : "2rem",
+          paddingRight: matchesXS ? undefined : "2rem",
         }}
       >
         <DataGrid
@@ -462,7 +477,7 @@ function CollectionTable({
           autoHeight
           checkboxSelection
           columns={matches ? fixedColumns : flexColumns}
-          rows={videos.map((row, i) => ({ ...row, evenRow: i % 2 !== 0 }))}
+          rows={getMediaInCollection()}
           pageSize={pageSize}
           onPageSizeChange={handlePageSizeChange}
           rowsPerPageOptions={[5, 10, 25, 50, 100]}
@@ -471,11 +486,6 @@ function CollectionTable({
           onSelectionModelChange={(newSelection) => {
             setSelectionModel(newSelection.selectionModel);
           }}
-          getRowClassName={(params) =>
-            `collection-table-${
-              params.getValue(params.id, "evenRow") ? "evenRow" : "oddRow"
-            }`
-          }
           components={{
             Toolbar: CustomToolbar,
           }}

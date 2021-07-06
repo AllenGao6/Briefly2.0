@@ -195,6 +195,7 @@ function Dashboard(props) {
         isDashboard={props.isDashboard}
         mediaType={props.mediaType}
         match={props.match}
+        collections={props.collections}
       />
       <Dialog
         open={openDialog}

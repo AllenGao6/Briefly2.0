@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import CollectionGrid from "./CollectionGrid";
 import CollectionTable from "./CollectionTable";
 import {
@@ -10,20 +10,18 @@ import {
   useTheme,
   Tabs,
   Tab,
-  AppBar,
-  Toolbar,
+  Hidden,
   useScrollTrigger,
 } from "@material-ui/core";
 import clsx from "clsx";
-import App from "../App";
+import { darken, lighten } from "@material-ui/core/styles";
+import collectionImage from "../../assets/hero/statistics.svg";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     paddingTop: 69,
     background:
-      theme.palette.type === "dark"
-        ? theme.palette.primary.main
-        : theme.palette.cloud,
+      theme.palette.type === "dark" ? theme.palette.primary.main : "white",
     transition: theme.transitions.create(["margin", "width"], {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
@@ -43,8 +41,17 @@ const useStyles = makeStyles((theme) => ({
   tabs: {
     top: 69,
     background:
-      theme.palette.type === "dark" ? theme.palette.primary.main : "white",
+      theme.palette.type === "dark"
+        ? darken(theme.palette.primary.main, 0.2)
+        : theme.palette.common.cloud,
     zIndex: 1,
+  },
+  heroText: {
+    color: "white",
+  },
+  heroIcon: {
+    height: 250,
+    width: 250,
   },
 }));
 
@@ -52,38 +59,105 @@ export default function DashboardContent({
   open,
   collectionDialog,
   collectionDelete,
+  collections,
   history,
   isDashboard,
   mediaType,
   match,
 }) {
-  const descriptionHeight = 160;
   const theme = useTheme();
   const classes = useStyles();
-  const [value, setValue] = React.useState(0);
+  const matchesDark = theme.palette.type === "dark";
+  const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
+  const collection = collections.filter(
+    (collection) => collection.id == match.params.id
+  )[0];
+
+  const [value, setValue] = useState(0);
+  const descriptionHeight = matchesXS ? 400 : 300;
   const trigger = useScrollTrigger({
     target: window ? window : undefined,
     disableHysteresis: true,
     threshold: descriptionHeight,
   });
 
-  const matchesDark = theme.palette.type === "dark";
-  const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
-
-  const handleChange = (event, newValue) => {
+  const handleChange = (e, newValue) => {
     setValue(newValue);
   };
 
-  const handleChangeIndex = (index) => {
-    setValue(index);
+  const filterCollectionByArchive = () => {
+    if (value === 1) return collections.filter((item) => item.is_archived);
+    return collections;
   };
 
-  function a11yProps(index) {
-    return {
-      id: `full-width-tab-${index}`,
-      "aria-controls": `full-width-tabpanel-${index}`,
-    };
-  }
+  const CollectionHero = () => (
+    <Grid
+      container
+      alignItems="center"
+      style={{
+        background: darken(theme.palette.common.grey, 0.4),
+        height: descriptionHeight,
+        paddingLeft: "2rem",
+        paddingRight: "2rem",
+      }}
+    >
+      <Grid
+        item
+        container
+        direction="column"
+        justify="center"
+        alignItems={matchesXS ? "center" : "flex-start"}
+        xs
+      >
+        <Grid item style={{ paddingBottom: "0.5rem" }}>
+          <Typography
+            variant="h2"
+            style={{
+              fontFamily: "Roboto",
+              fontWeight: 600,
+              fontSize: "2.5rem",
+            }}
+            className={classes.heroText}
+          >
+            {collection && collection.name}
+          </Typography>
+        </Grid>
+        <Grid item>
+          <Typography
+            variant="h5"
+            className={classes.heroText}
+            align={matchesXS ? "justify" : undefined}
+          >
+            {collection && collection.description}
+          </Typography>
+        </Grid>
+      </Grid>
+      <Hidden smDown>
+        <Grid item container justify="center" alignItems="center" xs>
+          <Grid item>
+            <img src={collectionImage} className={classes.heroIcon} />
+          </Grid>
+        </Grid>
+      </Hidden>
+    </Grid>
+  );
+
+  const DashboardHero = () => (
+    <Grid
+      container
+      alignItems="center"
+      style={{
+        height: descriptionHeight,
+        paddingLeft: "2rem",
+        paddingRight: "2rem",
+        background: darken(theme.palette.common.grey, 0.4),
+      }}
+    >
+      <Typography variant="h2" style={{ color: "white" }}>
+        To be Implemented...
+      </Typography>
+    </Grid>
+  );
 
   return (
     <Grid
@@ -101,15 +175,7 @@ export default function DashboardContent({
         style={{ paddingBottom: "0.7rem" }}
         direction="column"
       >
-        <Grid
-          item
-          style={{
-            height: descriptionHeight,
-            background: theme.palette.common.cloud,
-          }}
-        >
-          {isDashboard ? "Dashboard" : "Collection"}
-        </Grid>
+        <Grid item>{isDashboard ? <DashboardHero /> : <CollectionHero />}</Grid>
         <Grid
           item
           container
@@ -123,20 +189,26 @@ export default function DashboardContent({
             textColor={matchesDark ? "secondary" : "primary"}
             variant="fullWidth"
           >
-            <Tab label="All Items" {...a11yProps(0)} />
-            <Tab label="Archived" {...a11yProps(1)} />
+            <Tab label="All Items" />
+            <Tab label="Archived" />
           </Tabs>
         </Grid>
       </Grid>
-
       {/* <Divider variant="middle" classes={{ root: classes.divider }} /> */}
-      <Grid item style={{ paddingTop: trigger ? "5rem" : "2rem", zIndex: 0 }}>
+      <Grid
+        item
+        style={{
+          paddingTop: trigger ? "5rem" : "2rem",
+          zIndex: 0,
+        }}
+      >
         {isDashboard ? (
           <CollectionGrid
             open={open}
             collectionDialog={collectionDialog}
             collectionDelete={collectionDelete}
             history={history}
+            collections={filterCollectionByArchive()}
           />
         ) : (
           <CollectionTable

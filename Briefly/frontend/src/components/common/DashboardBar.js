@@ -176,9 +176,9 @@ function DashboardBar({
   // styling utilities
   const classes = useStyles();
   const theme = useTheme();
-  const matchesMD = useMediaQuery(theme.breakpoints.down("md"));
   const matches = useMediaQuery("(max-width:600px)");
   const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
+  const matchesSM = useMediaQuery(theme.breakpoints.down("sm"));
 
   const matchesDark = theme.palette.type === "dark";
 
@@ -442,13 +442,13 @@ function DashboardBar({
                 xs
                 style={{
                   marginRight: "1.5rem",
-                  width: 100,
+                  minWidth: 140,
                   flexGrow: !open
                     ? matches
-                      ? 0.4
-                      : 0.4
-                    : matchesXS
-                    ? 1.2
+                      ? matchesSM
+                        ? 3
+                        : 0.4
+                      : 0.1
                     : 1.2,
                 }}
               >

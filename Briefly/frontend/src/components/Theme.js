@@ -9,7 +9,7 @@ const briefRed = "#ff6348";
 const briefGreen = "#2ed573";
 const briefGrey = "#2f3542";
 const briefSilver = "#bdc3c7";
-const briefCloud = "#ecf0f1";
+const briefCloud = "rgb(242, 242, 242)";
 const briefPurple = "#8e44ad";
 
 const theme = createMuiTheme({

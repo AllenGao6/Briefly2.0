@@ -11,7 +11,7 @@ const briefGrey = "#2f3542";
 const briefWhite = "#f1f2f6";
 const briefPurple = "#8e44ad";
 const briefSilver = "#bdc3c7";
-const briefCloud = "#ecf0f1";
+const briefCloud = "rgb(242, 242, 242)";
 
 const theme = createMuiTheme({
   palette: {

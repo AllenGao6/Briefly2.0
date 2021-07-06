@@ -1,15 +1,7 @@
 import React from "react";
-import {
-  Paper,
-  Grid,
-  useMediaQuery,
-  makeStyles,
-  useTheme,
-} from "@material-ui/core";
+import { Grid, useMediaQuery, makeStyles, useTheme } from "@material-ui/core";
 import CollectionCard from "./CollectionCard";
 import AddCollectionCard from "./AddCollectionCard";
-import clsx from "clsx";
-import { connect } from "react-redux";
 
 const useStyles = makeStyles((theme) => ({
   gridsContainer: {
@@ -25,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function CollectionGrid({
+export default function CollectionGrid({
   open,
   collections,
   collectionDialog,
@@ -123,11 +115,3 @@ function CollectionGrid({
     </Grid>
   );
 }
-
-function mapStateToProps(state) {
-  return {
-    collections: state.collectionReducer.collections,
-  };
-}
-
-export default connect(mapStateToProps, {})(CollectionGrid);
