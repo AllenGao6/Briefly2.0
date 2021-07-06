@@ -1,5 +1,3 @@
-briefly/api/migrations/
-briefly/social_login/migrations/
 node_modules/
 frontend/node_modules/
 ### Django ###
@@ -160,3 +158,7 @@ Thumbs.db
 
 
 # End of https://www.toptal.com/developers/gitignore/api/django
+Briefly/api/migrations/
+Briefly/social_login/migrations/
+Briefly/social_login/migrations/0001_initial.py
+Briefly/api/migrations/0001_initial.py
