@@ -29,6 +29,12 @@ import {
   updateVideoInCollection,
   deleteVideos,
 } from "../../redux/actions/video_actions";
+import {
+  loadAudiosInCollection,
+  createAudioInCollection,
+  updateAudioInCollection,
+  deleteAudios,
+} from "../../redux/actions/audio_actions";
 import ReactPlayer from "react-player";
 
 const useStyles = makeStyles((theme) => {
@@ -125,6 +131,10 @@ function CollectionTable({
   createVideoInCollection,
   updateVideoInCollection,
   deleteVideos,
+  loadAudiosInCollection,
+  createAudioInCollection,
+  updateAudioInCollection,
+  deleteAudios,
   mediaType,
   match,
   selectArchived,
@@ -149,6 +159,7 @@ function CollectionTable({
       case "video":
         loadVideosInCollection(id);
       case "audio":
+        loadAudiosInCollection(id);
       case "text":
       default:
         break;
@@ -160,6 +171,7 @@ function CollectionTable({
       case "video":
         createVideoInCollection(id, media);
       case "audio":
+        createAudioInCollection(id, media);
       case "text":
       default:
         break;
@@ -171,6 +183,7 @@ function CollectionTable({
       case "video":
         updateVideoInCollection(id, media, mediaId);
       case "audio":
+        updateAudioInCollection(id, media, mediaId);
       case "text":
       default:
         break;
@@ -182,6 +195,7 @@ function CollectionTable({
       case "video":
         deleteVideos(id, list_id);
       case "audio":
+        deleteAudios(id, list_id);
       case "text":
       default:
         break;
@@ -193,9 +207,8 @@ function CollectionTable({
       case "video":
         return videos;
       case "audio":
-        return videos;
+        return audios;
       case "text":
-        return videos;
       default:
         break;
     }
@@ -396,9 +409,11 @@ function CollectionTable({
   const handleOpenDialog = (action) => {
     setAction(action);
     if (action == "Update") {
-      const video = videos.filter((video) => video.id === selectionModel[0])[0];
-      setTitle(video.title);
-      setArchived(video.is_archived);
+      const media = getMediaInCollection().filter(
+        (item) => item.id === selectionModel[0]
+      )[0];
+      setTitle(media.title);
+      setArchived(media.is_archived);
     }
     setOpenDialog(true);
   };
@@ -595,9 +610,10 @@ function CollectionTable({
 
 function mapStateToProps(state) {
   return {
-    isLoading: state.videoReducer.isLoading,
     videos: state.videoReducer.videos,
-    isCreating: state.videoReducer.isCreating,
+    audios: state.audioReducer.audios,
+    isLoading: state.videoReducer.isLoading || state.audioReducer.isLoading,
+    isCreating: state.videoReducer.isCreating || state.audioReducer.isCreating,
   };
 }
 
@@ -606,6 +622,10 @@ const mapDispatchToProps = {
   createVideoInCollection,
   updateVideoInCollection,
   deleteVideos,
+  loadAudiosInCollection,
+  createAudioInCollection,
+  updateAudioInCollection,
+  deleteAudios,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CollectionTable);

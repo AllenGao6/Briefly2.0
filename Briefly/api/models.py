@@ -96,7 +96,7 @@ class Audio(models.Model):
     audio = models.URLField(max_length=255, null=True, blank=True)
     transcript = models.URLField(max_length=200, null=True, blank=True)
     summarization = models.JSONField(null=True, blank=True)
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateField(auto_now_add=True)
     audioText = models.FileField(upload_to=upload_video_audioText_name, null=True, blank=True)
     fileSize = models.IntegerField(default=0)
     def __str__(self):

@@ -21,28 +21,33 @@ export default function videoReducer(state = initialState, action) {
         isCreating: true,
       };
     case type.LOAD_VIDEOS_SUCCESS:
+      toast.success("😎 Your videos has been loaded!");
       return {
         ...state,
         videos: action.videos,
         isLoading: false,
       };
     case type.LOAD_VIDEOS_FAILURE:
+      toast.error("Fail to load videos.");
       return {
         ...state,
         isLoading: false,
       };
     case type.CREATE_VIDEO_SUCCESS:
+      toast.success("😎 Your video has been created!");
       return {
         ...state,
         videos: [action.video, ...state.videos],
         isCreating: false,
       };
     case type.CREATE_VIDEO_FAILURE:
+      toast.error("Fail to create video.");
       return {
         ...state,
         isCreating: false,
       };
     case type.UPDATE_VIDEO_SUCCESS:
+      toast.success("😎 Your video has been updated!");
       return {
         ...state,
         videos: [...state.videos].map((video) =>
@@ -51,6 +56,7 @@ export default function videoReducer(state = initialState, action) {
         isCreating: false,
       };
     case type.UPDATE_VIDEO_FAILURE:
+      toast.error("Fail to update video.");
       return {
         ...state,
         isCreating: false,
@@ -61,6 +67,7 @@ export default function videoReducer(state = initialState, action) {
         isDeleting: true,
       };
     case type.DELETE_VIDEO_SUCCESS:
+      toast.success("😎 Your video has been deleted!");
       const { list_id, total_size, remaining_size } = action.data;
       console.log(list_id);
       return {
@@ -71,6 +78,7 @@ export default function videoReducer(state = initialState, action) {
         isDeleting: false,
       };
     case type.DELETE_VIDEO_FAILURE:
+      toast.error("Fail to delete video.");
       return {
         ...state,
         isDeleting: false,

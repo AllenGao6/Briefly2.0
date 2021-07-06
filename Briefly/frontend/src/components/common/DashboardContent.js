@@ -98,8 +98,6 @@ export default function DashboardContent({
       style={{
         background: darken(theme.palette.common.grey, 0.4),
         height: descriptionHeight,
-        paddingLeft: "2rem",
-        paddingRight: "2rem",
       }}
     >
       <Grid
@@ -108,6 +106,10 @@ export default function DashboardContent({
         direction="column"
         justify="center"
         alignItems={matchesXS ? "center" : "flex-start"}
+        style={{
+          paddingLeft: matchesXS ? "2rem" : "7rem",
+          paddingRight: matchesXS ? "2rem" : "7rem",
+        }}
         xs
       >
         <Grid item style={{ paddingBottom: "0.5rem" }}>
