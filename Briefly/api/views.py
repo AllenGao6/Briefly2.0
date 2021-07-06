@@ -63,7 +63,15 @@ class VideoViewSet(viewsets.ModelViewSet):
     #     ''' No need to do this step: but keep here as a reference'''
     #     #s3 = boto3.resource('s3')
     #     #s3.Object(settings.AWS_STORAGE_BUCKET_NAME, url).delete()
-    
+    '''
+    This method ensures the user can only create video under his own collection
+    '''
+    def perform_create(self, serializer):
+        user = self.request.user
+        collection = get_object_or_404(Collection,pk =self.kwargs['collection_pk'], owner=user)
+        if collection:
+            return super().perform_create(serializer)
+        
     def perform_destroy(self, instance):
         
         #storage back
@@ -229,8 +237,16 @@ class AudioViewSet(viewsets.ModelViewSet):
         
         return Audio.objects.filter(Q(collection=self.kwargs['collection_pk']) & Q(collection__owner=user.pk))
 
-
+    '''
+    This method ensures the user can only create audio under his own collection
+    '''
+    def perform_create(self, serializer):
+        user = self.request.user
+        collection = get_object_or_404(Collection,pk =self.kwargs['collection_pk'], owner=user)
+        if collection:
+            return super().perform_create(serializer)
         
+
     def perform_destroy(self, instance):
         fileSize = instance.fileSize
         user = self.request.user
@@ -268,6 +284,10 @@ class AudioViewSet(viewsets.ModelViewSet):
             print(f"updating after: remaining: {user.userprofile.remaining_size}")
             user.userprofile.save()
     
+    '''
+    Call this endpoint to delete a list of videos under one collection
+    URL: api/<int: collection_id>/audio/delete_list_audios/
+    '''
     @action(methods=['POST'],detail=False, permission_classes=[IsAuthenticated])
     def delete_list_audios(self, request, *args, **kwargs):
         user = request.user
@@ -277,15 +297,13 @@ class AudioViewSet(viewsets.ModelViewSet):
         
         total_size = 0
         for pk in audios_to_delete:
-            video = get_object_or_404(Video, pk=pk, collection__owner=user.pk)
-            total_size += video.fileSize
-            video.delete()
+            audio = get_object_or_404(Audio, pk=pk, collection__owner=user.pk)
+            total_size += audio.fileSize
+            audio.delete()
             
         user.userprofile.remaining_size += total_size
         user.userprofile.save()
         return Response({"list_id": audios_to_delete, 'total_size': total_size, 'remaining_size': user.userprofile.remaining_size})
-    
-    
     
     
     # def perform_update(self, serializer):

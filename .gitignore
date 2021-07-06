@@ -158,6 +158,5 @@ Thumbs.db
 
 
 # End of https://www.toptal.com/developers/gitignore/api/django
-Briefly/social_login/migrations/
 Briefly/api/migrations/
-Briefly/api/migrations/0001_initial.py
+Briefly/social_login/migrations/
