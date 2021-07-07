@@ -75,7 +75,7 @@ export default function DashboardContent({
   )[0];
 
   const [value, setValue] = useState(0);
-  const descriptionHeight = matchesXS ? 400 : 300;
+  const descriptionHeight = 350;
   const trigger = useScrollTrigger({
     target: window ? window : undefined,
     disableHysteresis: true,
@@ -108,7 +108,7 @@ export default function DashboardContent({
         alignItems={matchesXS ? "center" : "flex-start"}
         style={{
           paddingLeft: matchesXS ? "2rem" : "7rem",
-          paddingRight: matchesXS ? "2rem" : "7rem",
+          paddingRight: matchesXS ? "2rem" : undefined,
         }}
         xs
       >

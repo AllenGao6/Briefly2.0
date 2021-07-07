@@ -94,6 +94,8 @@ function Dashboard(props) {
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [nameError, setNameError] = useState(false);
+  const [descriptionError, setDescriptionError] = useState(false);
   const [is_archived, setIsArchived] = useState(false);
   const [imageUrl, setImageUrl] = useState(defaultImage);
   const [imageFile, setImageFile] = useState(null);
@@ -226,9 +228,19 @@ function Dashboard(props) {
                 value={name}
                 fullWidth
                 className={classes.textField}
-                onChange={(e) => setName(e.currentTarget.value)}
+                onChange={(e) => {
+                  const name = e.currentTarget.value;
+                  setName(name);
+                  setNameError(name.length > 20 || name.length === 0);
+                }}
                 disabled={props.isCreating}
                 style={{ width: inputWidth }}
+                error={nameError}
+                helperText={
+                  nameError
+                    ? "Name must be non-empty and have no more than 20 characters!"
+                    : ""
+                }
               />
             </Grid>
             <Grid item>
@@ -238,10 +250,22 @@ function Dashboard(props) {
                 value={description}
                 fullWidth
                 className={classes.textField}
-                onChange={(e) => setDescription(e.currentTarget.value)}
+                onChange={(e) => {
+                  const description = e.currentTarget.value;
+                  setDescription(description);
+                  setDescriptionError(
+                    description.length > 440 || description.length === 0
+                  );
+                }}
                 multiline
                 disabled={props.isCreating}
                 style={{ width: inputWidth }}
+                error={descriptionError}
+                helperText={
+                  descriptionError
+                    ? "Description must be non-empty and have no more than 440 characters!"
+                    : ""
+                }
               />
             </Grid>
             <Grid item>
@@ -306,7 +330,13 @@ function Dashboard(props) {
                   variant="contained"
                   className={classes.createButton}
                   onClick={() => handleChangeCollection()}
-                  disabled={props.isCreating}
+                  disabled={
+                    props.isCreating ||
+                    nameError ||
+                    descriptionError ||
+                    name.length === 0 ||
+                    description.length === 0
+                  }
                 >
                   {isNewCollection ? "Create" : "Update"}
                 </Button>

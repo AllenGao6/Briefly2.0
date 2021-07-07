@@ -117,6 +117,11 @@ const useStyles = makeStyles((theme) => {
       width: "5rem",
       marginRight: "1rem",
     },
+    deleteMedia: {
+      color: theme.palette.common.red,
+      borderColor: theme.palette.common.red,
+      width: "5rem",
+    },
   };
 });
 
@@ -473,11 +478,8 @@ function CollectionTable({
             <Grid item>
               <Button
                 variant="outlined"
-                style={{
-                  color: theme.palette.common.red,
-                  borderColor: theme.palette.common.red,
-                  width: "5rem",
-                }}
+                disabled={selectionModel.length === 0}
+                className={classes.deleteMedia}
                 onClick={handleDelete}
               >
                 Delete
