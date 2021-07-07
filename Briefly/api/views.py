@@ -15,7 +15,8 @@ import boto3
 from .permissions import CollectionUserPermission,VideoUserPermission, AudioUserPermission
 from django.db.models import Q
 from django.core.mail import send_mail
-#from . import speech_to_text
+from . import speech_to_text
+from math import ceil
 
 class VideoViewSet(viewsets.ModelViewSet):
 
@@ -30,26 +31,31 @@ class VideoViewSet(viewsets.ModelViewSet):
     '''
     similar to post_save: call save twice to know the id of the video just created and save to the correct directory
     '''
-    # def perform_create(self, serializer):
+    def perform_create(self, serializer):
         
-    #     # storage check
-    #     user = self.request.user
-    #     fileSize = None
-    #     if serializer.context['request'].FILES.get('video'):
-    #         fileSize = int(ceil(serializer.context['request'].FILES['video'].size))
-    #         if fileSize + user.userprofile.total_limit >= settings.MAX_SIZE_PER_USER:
-    #             raise ValidationError(f"You have reached the limit {user.userprofile.total_limit//1024//1024} mb of {settings.MAX_SIZE_PER_USER//1024//1024} mb")
-    #         print(f"creating before: limit: {user.userprofile.total_limit} of {settings.MAX_SIZE_PER_USER}")
+        #This part ensures the user can only create video under his own collection
+        user = self.request.user
+        collection = get_object_or_404(Collection,pk =self.kwargs['collection_pk'], owner=user)
+        
+        # storage check
+        fileSize = 0
+        if serializer.context['request'].FILES.get('video'):
+            fileSize = int(ceil(serializer.context['request'].FILES['video'].size))
+            if fileSize >= user.userprofile.remaining_size:
+                raise ValidationError(f"video size {fileSize//1024//1024} mb has exceeded your remaining size: {user.userprofile.remaining_size//1024//1024} mb.")
+            print(f"creating before: remaining: {user.userprofile.remaining_size}")
         
         
-    #     instance = serializer.save()
-    #     instance.video.delete(save=False)
-    #     serializer.save()  #update from serializer, worked
+        # save twice for gainning the id of currently constructed video instance
+        instance = serializer.save()
+        instance.video.delete(save=False)
+        instance.fileSize = fileSize
+        serializer.save() 
         
-    #     if fileSize:
-    #         user.userprofile.total_limit += fileSize
-    #         user.userprofile.save()
-    #         print(f"creating after: limit: {user.userprofile.total_limit} of {settings.MAX_SIZE_PER_USER}")
+        if fileSize:
+            user.userprofile.remaining_size -= fileSize
+            user.userprofile.save()
+            print(f"creating after: remaining: {user.userprofile.remaining_size}")
         
     #     '''another way: update from instance itself, also worked but lengthy'''
     #     # update from instance itself
@@ -63,25 +69,16 @@ class VideoViewSet(viewsets.ModelViewSet):
     #     ''' No need to do this step: but keep here as a reference'''
     #     #s3 = boto3.resource('s3')
     #     #s3.Object(settings.AWS_STORAGE_BUCKET_NAME, url).delete()
-    '''
-    This method ensures the user can only create video under his own collection
-    '''
-    def perform_create(self, serializer):
-        user = self.request.user
-        collection = get_object_or_404(Collection,pk =self.kwargs['collection_pk'], owner=user)
-        if collection:
-            return super().perform_create(serializer)
+    
+
         
     def perform_destroy(self, instance):
-        
         #storage back
         user = self.request.user
         fileSize = instance.fileSize
         
         if instance.video:
-            s3_client = boto3.resource('s3')
-            response = s3_client.delete_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME,Key=instance.video)
-            print("if delete video: ", response)
+            instance.video.delete(save=False)
         if instance.audioText:
             instance.audioText.delete(save=False)
 
@@ -100,7 +97,8 @@ class VideoViewSet(viewsets.ModelViewSet):
         return Response({'video_id':id,
                          "title": name,
                          'remaining_size': remaining}, status=status.HTTP_202_ACCEPTED)
-      
+    
+    # This may not be used as the logic is reverted to the original one
     def perform_update(self, serializer):
         
         user = self.request.user
@@ -179,7 +177,7 @@ class VideoViewSet(viewsets.ModelViewSet):
         for pk in videos_to_delete:
             video = get_object_or_404(Video, pk=pk, collection__owner=user.pk)
             total_size += video.fileSize
-            video.delete()
+            video.video.delete(save=False)
             
         user.userprofile.remaining_size += total_size
         user.userprofile.save()
@@ -201,7 +199,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
         user = self.request.user
         print(user)
         return Collection.objects.filter(owner=user.pk)
-
+    
     def perform_create(self, serializer):
         instance = serializer.save()
         instance.image.delete(save=False)
@@ -238,22 +236,40 @@ class AudioViewSet(viewsets.ModelViewSet):
         return Audio.objects.filter(Q(collection=self.kwargs['collection_pk']) & Q(collection__owner=user.pk))
 
     '''
-    This method ensures the user can only create audio under his own collection
+    similar to post_save: call save twice to know the id of the audio just created and save to the correct directory
     '''
     def perform_create(self, serializer):
+        
+        #This part ensures the user can only create audio under his own collection
         user = self.request.user
         collection = get_object_or_404(Collection,pk =self.kwargs['collection_pk'], owner=user)
-        if collection:
-            return super().perform_create(serializer)
+ 
+        # storage check
+        fileSize = 0
+        if serializer.context['request'].FILES.get('audio'):
+            fileSize = int(ceil(serializer.context['request'].FILES['audio'].size))
+            if fileSize >= user.userprofile.remaining_size:
+                raise ValidationError(f"audio size {fileSize//1024//1024} mb has exceeded your remaining size: {user.userprofile.remaining_size//1024//1024} mb.")
+            print(f"creating before: remaining: {user.userprofile.remaining_size}")
         
+        
+        # save twice for gainning the id of currently constructed audio instance
+        instance = serializer.save()
+        instance.audio.delete(save=False)
+        instance.fileSize = fileSize
+        serializer.save()  #update from serializer, worked
+        
+        if fileSize:
+            user.userprofile.remaining_size -= fileSize
+            user.userprofile.save()
+            print(f"creating after: remaining: {user.userprofile.remaining_size}")
+              
 
     def perform_destroy(self, instance):
         fileSize = instance.fileSize
         user = self.request.user
         if instance.audio:
-            s3_client = boto3.resource('s3')
-            response = s3_client.delete_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME,Key=instance.audio)
-            print("if delete audio: ", response)
+            instance.audio.delete(save=False)
         if instance.audioText:
             instance.audioText.delete(save=False)
         if fileSize:    
@@ -274,6 +290,7 @@ class AudioViewSet(viewsets.ModelViewSet):
                          "title": title,
                          'remaining_size': remaining}, status=status.HTTP_202_ACCEPTED)
     
+    # similarly, this may not be used
     def perform_update(self, serializer):
         user = self.request.user
         instance = serializer.save()
@@ -299,7 +316,7 @@ class AudioViewSet(viewsets.ModelViewSet):
         for pk in audios_to_delete:
             audio = get_object_or_404(Audio, pk=pk, collection__owner=user.pk)
             total_size += audio.fileSize
-            audio.delete()
+            audio.audio.delete(save=False)
             
         user.userprofile.remaining_size += total_size
         user.userprofile.save()

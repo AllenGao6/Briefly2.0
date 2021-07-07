@@ -145,8 +145,10 @@ def read_output(data):
 
 
 # amazon_transcribe('test1.mp4', 'Collection1', 8)
+'''
 data = load_json_output('https://s3.us-west-1.amazonaws.com/briefly41/static/Collection1/video/1/sample.json')
 _ , complete_transcript = read_output(data)
+'''
 
 #everything below is experimenting, will be modified later
 import sumy
@@ -158,6 +160,7 @@ from sumy.summarizers.lsa import LsaSummarizer
 from sumy.summarizers.luhn import LuhnSummarizer
 from sumy.summarizers.kl import KLSummarizer
 
+'''
 print(complete_transcript)
 
 print(" ")
@@ -201,4 +204,4 @@ kl_summary=kl_summarizer(my_parser.document,sentences_count=sentence_count)
 # Printing the summary
 for sentence in kl_summary:
     print(sentence)
-
+'''

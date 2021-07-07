@@ -47,11 +47,11 @@ def validate_video(video):
 
 
 #video model
-# def upload_video_name(instance, filename):
-#     collection_dir = "Collection"+str(instance.collection.id)
-#     video_id = str(instance.id)
-#     url_path = [collection_dir, 'video', video_id, filename]
-#     return '/'.join(url_path)
+def upload_video_name(instance, filename):
+    collection_dir = "Collection"+str(instance.collection.id)
+    video_id = str(instance.id)
+    url_path = [collection_dir, 'video', video_id, filename]
+    return '/'.join(url_path)
 
 def upload_video_audioText_name(instance, filename):
     collection_dir = "Collection"+str(instance.collection.id)
@@ -64,23 +64,22 @@ class Video(models.Model):
     title = models.CharField(max_length=100)
     is_archived = models.BooleanField(blank=True, default=False)
     is_summarized = models.BooleanField(blank=True, default=False)
-    video = models.URLField(max_length=255,null=True, blank=True)
+    video = models.FileField(upload_to=upload_video_name, null=True, blank=True)
     transcript = models.URLField(max_length=200, null=True, blank=True)
     summarization = models.JSONField(null=True, blank=True)
     created = models.DateField(auto_now_add=True)
     audioText = models.FileField(upload_to=upload_video_audioText_name, null=True, blank=True)
-    #TODO
     fileSize = models.IntegerField(default=0)
     
     def __str__(self):
         return f"Video: {self.title}"
     
 #audio model
-# def upload_audio_name(instance, filename):
-#     collection_dir = "Collection"+str(instance.collection.id)
-#     video_id = str(instance.id)
-#     url_path = [collection_dir, 'audio', video_id, filename]
-#     return '/'.join(url_path)
+def upload_audio_name(instance, filename):
+    collection_dir = "Collection"+str(instance.collection.id)
+    video_id = str(instance.id)
+    url_path = [collection_dir, 'audio', video_id, filename]
+    return '/'.join(url_path)
 
 def upload_audio_audioText_name(instance, filename):
     collection_dir = "Collection"+str(instance.collection.id)
@@ -93,7 +92,7 @@ class Audio(models.Model):
     title = models.CharField(max_length=100)
     is_archived = models.BooleanField(blank=True, default=False)
     is_summarized = models.BooleanField(blank=True, default=False)
-    audio = models.URLField(max_length=255, null=True, blank=True)
+    audio = models.FileField(upload_to=upload_audio_name, null=True, blank=True)
     transcript = models.URLField(max_length=200, null=True, blank=True)
     summarization = models.JSONField(null=True, blank=True)
     created = models.DateField(auto_now_add=True)

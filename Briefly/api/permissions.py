@@ -10,8 +10,6 @@ class VideoUserPermission(permissions.BasePermission):
     message = "The video is avaliable for the owner only."
     
     def has_object_permission(self, request, view, obj):
-        print(obj.collection.owner)
-        print(request.user)
         print(f'power: {obj.collection.owner == request.user}')
         return obj.collection.owner == request.user
     
