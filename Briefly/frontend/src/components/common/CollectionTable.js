@@ -1,6 +1,6 @@
 import { makeStyles } from "@material-ui/styles";
 import React, { useState, useEffect, useCallback } from "react";
-import { Link } from "react-router-dom";
+
 import {
   Dialog,
   DialogTitle,
@@ -163,8 +163,10 @@ function CollectionTable({
     switch (mediaType) {
       case "video":
         loadVideosInCollection(id);
+        break;
       case "audio":
         loadAudiosInCollection(id);
+        break;
       case "text":
       default:
         break;
@@ -175,8 +177,10 @@ function CollectionTable({
     switch (mediaType) {
       case "video":
         createVideoInCollection(id, media);
+        break;
       case "audio":
         createAudioInCollection(id, media);
+        break;
       case "text":
       default:
         break;
@@ -187,8 +191,10 @@ function CollectionTable({
     switch (mediaType) {
       case "video":
         updateVideoInCollection(id, media, mediaId);
+        break;
       case "audio":
         updateAudioInCollection(id, media, mediaId);
+        break;
       case "text":
       default:
         break;
@@ -199,8 +205,10 @@ function CollectionTable({
     switch (mediaType) {
       case "video":
         deleteVideos(id, list_id);
+        break;
       case "audio":
         deleteAudios(id, list_id);
+        break;
       case "text":
       default:
         break;
@@ -382,7 +390,6 @@ function CollectionTable({
   };
 
   const handleTitleClick = (id) => {
-    console.log(id);
     history.push("/dashboard");
   };
 
@@ -392,7 +399,6 @@ function CollectionTable({
         title: title,
         is_archived: archived,
       };
-      console.log("here");
       updateMediaInCollection(match.params.id, media, selectionModel[0]);
       setSelectionModel([]);
     } else {
@@ -503,6 +509,14 @@ function CollectionTable({
           paddingRight: matchesXS ? undefined : "2rem",
         }}
       >
+        <ReactPlayer
+          controls
+          width="880px"
+          height="495px"
+          url={
+            "https://briefly41.s3.us-west-1.amazonaws.com/static/Collection1/video/10/earth.mp4"
+          }
+        />
         <DataGrid
           className={classes.dataGrid}
           disableColumnMenu

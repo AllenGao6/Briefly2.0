@@ -173,9 +173,11 @@ class VideoViewSet(viewsets.ModelViewSet):
         if not videos_to_delete:
             return Response(status=status.HTTP_404_NOT_FOUND)
         
+        print(videos_to_delete)
         total_size = 0
         for pk in videos_to_delete:
             video = get_object_or_404(Video, pk=pk, collection__owner=user.pk)
+            print(video)
             total_size += video.fileSize
             video.video.delete(save=False)
             

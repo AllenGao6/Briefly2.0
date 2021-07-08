@@ -20,6 +20,7 @@ wordcloud = "*"
 numpy = "*"
 matplotlib = "*"
 sumy = "*"
+pandas = "*"
 
 [dev-packages]
 
