@@ -177,13 +177,9 @@ class VideoViewSet(viewsets.ModelViewSet):
         total_size = 0
         for pk in videos_to_delete:
             video = get_object_or_404(Video, pk=pk, collection__owner=user.pk)
-            print(video)
-            total_size += video.fileSize
-            video.video.delete(save=False)
-            video.delete()
-            
-        user.userprofile.remaining_size += total_size
-        user.userprofile.save()
+            total_size+=video.fileSize
+            self.perform_destroy(video)
+                 
         return Response({"list_id": videos_to_delete, 'total_size': total_size, 'remaining_size': user.userprofile.remaining_size})
     
 @api_view(['POST'])
@@ -317,12 +313,10 @@ class AudioViewSet(viewsets.ModelViewSet):
         
         total_size = 0
         for pk in audios_to_delete:
-            audio = get_object_or_404(Audio, pk=pk, collection__owner=user.pk)
-            total_size += audio.fileSize
-            audio.audio.delete(save=False)
-            audio.delete()
-        user.userprofile.remaining_size += total_size
-        user.userprofile.save()
+            audio = get_object_or_404(Video, pk=pk, collection__owner=user.pk)
+            total_size+=audio.fileSize
+            self.perform_destroy(audio)
+                
         return Response({"list_id": audios_to_delete, 'total_size': total_size, 'remaining_size': user.userprofile.remaining_size})
     
     
