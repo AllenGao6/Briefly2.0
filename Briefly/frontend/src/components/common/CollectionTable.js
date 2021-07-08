@@ -35,7 +35,7 @@ import {
   updateAudioInCollection,
   deleteAudios,
 } from "../../redux/actions/audio_actions";
-import ReactPlayer from "react-player";
+import ControlledVideoPlayer from "./ControlledVideoPlayer";
 
 const useStyles = makeStyles((theme) => {
   const getBackgroundColor = () =>
@@ -509,14 +509,9 @@ function CollectionTable({
           paddingRight: matchesXS ? undefined : "2rem",
         }}
       >
-        <ReactPlayer
-          controls
-          width="880px"
-          height="495px"
-          url={
-            "https://briefly41.s3.us-west-1.amazonaws.com/static/Collection1/video/10/earth.mp4"
-          }
-        />
+        <Grid item>
+          <ControlledVideoPlayer />
+        </Grid>
         <DataGrid
           className={classes.dataGrid}
           disableColumnMenu

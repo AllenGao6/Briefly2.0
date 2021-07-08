@@ -69,7 +69,9 @@ export default function DashboardContent({
   const theme = useTheme();
   const classes = useStyles();
   const matchesDark = theme.palette.type === "dark";
+  const matchesSM = useMediaQuery(theme.breakpoints.down("sm"));
   const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
+
   const collection = collections.filter(
     (collection) => collection.id == match.params.id
   )[0];
@@ -107,8 +109,8 @@ export default function DashboardContent({
         justify="center"
         alignItems={matchesXS ? "center" : "flex-start"}
         style={{
-          paddingLeft: matchesXS ? "2rem" : "7rem",
-          paddingRight: matchesXS ? "2rem" : undefined,
+          paddingLeft: matchesSM ? "2rem" : "7rem",
+          paddingRight: matchesSM ? "2rem" : undefined,
         }}
         xs
       >
