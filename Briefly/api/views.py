@@ -180,6 +180,7 @@ class VideoViewSet(viewsets.ModelViewSet):
             print(video)
             total_size += video.fileSize
             video.video.delete(save=False)
+            video.delete()
             
         user.userprofile.remaining_size += total_size
         user.userprofile.save()
@@ -319,7 +320,7 @@ class AudioViewSet(viewsets.ModelViewSet):
             audio = get_object_or_404(Audio, pk=pk, collection__owner=user.pk)
             total_size += audio.fileSize
             audio.audio.delete(save=False)
-            
+            audio.delete()
         user.userprofile.remaining_size += total_size
         user.userprofile.save()
         return Response({"list_id": audios_to_delete, 'total_size': total_size, 'remaining_size': user.userprofile.remaining_size})
