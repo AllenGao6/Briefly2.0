@@ -36,6 +36,7 @@ import {
   deleteAudios,
 } from "../../redux/actions/audio_actions";
 import ControlledVideoPlayer from "./ControlledVideoPlayer";
+import { set } from "js-cookie";
 
 const useStyles = makeStyles((theme) => {
   const getBackgroundColor = () =>
@@ -154,6 +155,7 @@ function CollectionTable({
   const [title, setTitle] = useState("");
   const [archived, setArchived] = useState(false);
   const [action, setAction] = useState(null);
+  const [playing, setPlaying] = useState(false);
 
   const matches = useMediaQuery("(max-width:1086px)");
   const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
@@ -509,9 +511,11 @@ function CollectionTable({
           paddingRight: matchesXS ? undefined : "2rem",
         }}
       >
-        <Grid item>
-          <ControlledVideoPlayer />
-        </Grid>
+        <ControlledVideoPlayer
+          playing={playing}
+          onPlayPause={() => setPlaying(!playing)}
+        />
+
         <DataGrid
           className={classes.dataGrid}
           disableColumnMenu
@@ -521,7 +525,7 @@ function CollectionTable({
           rows={filterMediaBySearch()}
           pageSize={pageSize}
           onPageSizeChange={handlePageSizeChange}
-          rowsPerPageOptions={[5, 10, 25, 50, 100]}
+          rowsPerPageOptions={[10, 25, 50, 100]}
           rowHeight={90}
           selectionModel={selectionModel}
           onSelectionModelChange={(newSelection) => {

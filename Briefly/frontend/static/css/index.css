@@ -22,3 +22,7 @@ body {
 .link:hover {
   color: #fff;
 }
+
+video {
+  object-fit: cover !important;
+}
