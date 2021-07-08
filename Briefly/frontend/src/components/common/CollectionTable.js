@@ -511,11 +511,6 @@ function CollectionTable({
           paddingRight: matchesXS ? undefined : "2rem",
         }}
       >
-        <ControlledVideoPlayer
-          playing={playing}
-          onPlayPause={() => setPlaying(!playing)}
-        />
-
         <DataGrid
           className={classes.dataGrid}
           disableColumnMenu
@@ -577,6 +572,10 @@ function CollectionTable({
                 labelPlacement="start"
               />
             </Grid>
+            <ControlledVideoPlayer
+              playing={playing}
+              onPlayPause={() => setPlaying(!playing)}
+            />
             <Grid
               item
               container

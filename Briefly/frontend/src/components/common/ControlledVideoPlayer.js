@@ -12,6 +12,7 @@ import {
   Tooltip,
   Divider,
   useTheme,
+  formatMs,
 } from "@material-ui/core";
 import BookmarkIcon from "@material-ui/icons/Bookmark";
 import FastRewindIcon from "@material-ui/icons/FastRewind";
@@ -23,6 +24,22 @@ import VolumeOff from "@material-ui/icons/VolumeOff";
 import FullScreenIcon from "@material-ui/icons/Fullscreen";
 import Popover from "@material-ui/core/Popover";
 import screenfull from "screenfull";
+
+const format = (seconds) => {
+  if (isNaN(seconds)) {
+    return "00:00";
+  }
+  const date = new Date(seconds * 1000);
+  const hh = date.getUTCHours();
+  const mm = date.getUTCMinutes();
+  const ss = date.getUTCSeconds().toString().padStart(2, "0");
+
+  if (hh) {
+    return `${hh}:${mm.toString().padStart(2, "0")}:${ss}`;
+  }
+
+  return `${mm}:${ss}`;
+};
 
 const useStyles = makeStyles((theme) => ({
   playerWrapper: {
@@ -114,11 +131,27 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
   const classes = useStyles();
   const playerRef = useRef(null);
   const playerContainerRef = useRef(null);
+  const [played, setPlayed] = useState(0);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [muted, setMuted] = useState(false);
   const [volume, setVolume] = useState(0.5);
   const [playbackRate, setPlaybackRate] = useState(1.0);
+  const [seeking, setSeeking] = useState(false);
+  const [timeDisplayFormat, setTimeDisplayFormat] = useState("normal");
+  const [bookmarks, setBookmarks] = useState([]);
+
+  const currentTime = playerRef.current
+    ? playerRef.current.getCurrentTime()
+    : "00:00";
+  const duration = playerRef.current
+    ? playerRef.current.getDuration()
+    : "00:00";
+  const elapesedTime =
+    timeDisplayFormat === "normal"
+      ? format(currentTime)
+      : `-${format(duration - currentTime)}`;
+  const totalDuration = format(duration);
 
   const secondaryColor =
     theme.palette.type === "dark"
@@ -148,7 +181,7 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
     setMuted(newValue === 0 ? true : false);
   };
 
-  const handleVolumeSeekDown = (e, newValue) => {
+  const handleVolumeSeekUp = (e, newValue) => {
     setVolume(parseFloat(newValue / 100));
     setMuted(newValue === 0 ? true : false);
   };
@@ -160,6 +193,33 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
   const handleToggleFullScreen = () => {
     screenfull.toggle(playerContainerRef.current);
   };
+
+  const handleProgress = (changeState) => {
+    const { played } = changeState;
+    if (!seeking) setPlayed(played);
+  };
+
+  const handleSeekChange = (e, newValue) => {
+    setPlayed(parseFloat(newValue / 100));
+  };
+
+  const handleSeekMouseDown = (e) => {
+    setSeeking(true);
+  };
+
+  const handleSeekMouseUp = (e, newValue) => {
+    setSeeking(false);
+    setPlayed(parseFloat(newValue / 100));
+    playerRef.current.seekTo(newValue / 100);
+  };
+
+  const handleChangeDisplayFormat = () => {
+    setTimeDisplayFormat(
+      timeDisplayFormat === "normal" ? "remaining" : "normal"
+    );
+  };
+
+  const addBookmark = () => {};
 
   const open = Boolean(anchorEl);
   const id = open ? "playbackrate-popover" : undefined;
@@ -179,6 +239,7 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
           muted={muted}
           playing={playing}
           playbackRate={playbackRate}
+          onProgress={handleProgress}
         />
         {/* Player Control */}
         <div className={classes.controlsWrapper}>
@@ -191,13 +252,13 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
           >
             <Grid item>
               <Typography variant="h5" style={{ color: "white" }}>
-                Video Title
+                Make More Time!
               </Typography>
             </Grid>
             <Grid item>
               <Button
                 variant="contained"
-                color="primary"
+                style={{ color: "white", background: secondaryColor }}
                 startIcon={<BookmarkIcon />}
               >
                 Bookmark
@@ -236,8 +297,13 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
               <PrettoSlider
                 min={0}
                 max={100}
-                defaultValue={20}
-                ValueLabelComponent={ValueLabelComponent}
+                value={played * 100}
+                ValueLabelComponent={(props) => (
+                  <ValueLabelComponent {...props} value={elapesedTime} />
+                )}
+                onChange={handleSeekChange}
+                onMouseDown={handleSeekMouseDown}
+                onChangeCommitted={handleSeekMouseUp}
               />
             </Grid>
             {/* Other Controls (can be fully customized) */}
@@ -269,14 +335,15 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
                   value={volume * 100}
                   className={classes.volumeSlider}
                   onChange={handleVolumeChange}
-                  onChangeCommitted={handleVolumeSeekDown}
+                  onChangeCommitted={handleVolumeSeekUp}
                 />
                 <Button
+                  onClick={handleChangeDisplayFormat}
                   variant="text"
                   className={classes.bottomIcons}
                   style={{ marginLeft: 16 }}
                 >
-                  05:05
+                  {elapesedTime}/{totalDuration}
                 </Button>
               </Grid>
             </Grid>
@@ -302,6 +369,7 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
                     vertical: "bottom",
                     horizontal: "center",
                   }}
+                  style={{ zIndex: 1304 }}
                 >
                   <Grid container direction="column-reverse">
                     {[0.5, 1.0, 1.5, 2.0].map((rate, i) => (
