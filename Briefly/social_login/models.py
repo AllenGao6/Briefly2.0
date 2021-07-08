@@ -14,7 +14,7 @@ class UserProfile(models.Model):
     education = models.CharField(max_length=50,default="Not provided")
     location = models.CharField(max_length=50,default="Not provided")
     profession = models.CharField(max_length=50,default="Not provided")
-    remaining_size = models.IntegerField(default=2*1024*1024)
+    remaining_size = models.IntegerField(default=200*1024*1024)
     def __str__(self):
         return self.user.username
     

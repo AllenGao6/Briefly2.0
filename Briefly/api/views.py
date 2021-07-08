@@ -17,7 +17,8 @@ from django.db.models import Q
 from django.core.mail import send_mail
 from . import speech_to_text
 from math import ceil
-
+from pprint import pprint
+from json import dumps
 class VideoViewSet(viewsets.ModelViewSet):
 
     serializer_class = VideoSerializer
@@ -79,8 +80,6 @@ class VideoViewSet(viewsets.ModelViewSet):
         
         if instance.video:
             instance.video.delete(save=False)
-        if instance.audioText:
-            instance.audioText.delete(save=False)
 
         if fileSize:
             print(f"destroying before: remaining: {user.userprofile.remaining_size}")
@@ -143,22 +142,38 @@ class VideoViewSet(viewsets.ModelViewSet):
     Call this url to begin summarization
     URL: api/<int: collection_id>/video/<int: video_id>/summary_begin/
     '''
-    @action(methods=['get'],detail=True)
+    @action(methods=['GET'],detail=True)
     def summary_begin(self, request, *args, **kwargs):
         user = request.user
         video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
         if video:
             video = video[0]
             
-            if not video.summarization:
+            if not video.transcript:
                 try:
                     # code to perform summarization process
+                    video_path = video.video.name.split('/')
+                    video_name, video_id, collection_name = video_path[3], video_path[2], video_path[0]
                     
+                    transcribe = speech_to_text.amazon_transcribe(video_name, collection_name, video_id)
                     
-                    self.summary_ready(video)
-                    return Response("Success!")
+                    if not transcribe:
+                        return Response("Unknown failure during S3 summarization", status=status.HTTP_400_BAD_REQUEST)
+                    #video.transcript = transcribe
+                    data = speech_to_text.load_json_output(transcribe)
+                    transcript, audioText = speech_to_text.read_output(data)
+                    print("transcript:")
+                    pprint(transcript)
+                    print("audioText:")
+                    pprint(audioText)
+                    video.transcript = dumps(transcript)
+                    video.audioText = audioText
+                    video.save()
                 except:
                     return Response("fail to summarize", status=status.HTTP_400_BAD_REQUEST)
+
+            self.summary_ready(video)
+            return Response("Success!")
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
     
@@ -269,8 +284,7 @@ class AudioViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if instance.audio:
             instance.audio.delete(save=False)
-        if instance.audioText:
-            instance.audioText.delete(save=False)
+
         if fileSize:    
             print(f"destroying before: remaining: {user.userprofile.remaining_size}")
             user.userprofile.remaining_size += fileSize
