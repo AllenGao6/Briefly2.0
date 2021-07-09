@@ -123,6 +123,9 @@ const useStyles = makeStyles((theme) => {
       borderColor: theme.palette.common.red,
       width: "5rem",
     },
+    paper: {
+      width: "800px",
+    },
   };
 });
 
@@ -538,6 +541,7 @@ function CollectionTable({
         fullWidth
         fullScreen={matchesXS}
         style={{ zIndex: 1303 }}
+        maxWidth="md"
       >
         <DialogTitle>
           <Typography variant="h4" align={matchesXS ? "center" : "left"}>

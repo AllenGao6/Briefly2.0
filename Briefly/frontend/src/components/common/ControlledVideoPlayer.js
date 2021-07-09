@@ -12,7 +12,7 @@ import {
   Tooltip,
   Divider,
   useTheme,
-  formatMs,
+  Paper,
 } from "@material-ui/core";
 import BookmarkIcon from "@material-ui/icons/Bookmark";
 import FastRewindIcon from "@material-ui/icons/FastRewind";
@@ -45,6 +45,7 @@ const useStyles = makeStyles((theme) => ({
   playerWrapper: {
     width: "100%",
     position: "relative",
+    height: 500,
   },
   controlsWrapper: {
     position: "absolute",
@@ -126,13 +127,17 @@ const PrettoSlider = withStyles((theme) => ({
   },
 }))(Slider);
 
+let count = 0;
+
 export default function ControlledVideoPlayer({ onPlayPause, playing }) {
   const theme = useTheme();
   const classes = useStyles();
   const playerRef = useRef(null);
   const playerContainerRef = useRef(null);
-  const [played, setPlayed] = useState(0);
+  const canvasRef = useRef(null);
+  const controlRef = useRef(null);
 
+  const [played, setPlayed] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
   const [muted, setMuted] = useState(false);
   const [volume, setVolume] = useState(0.5);
@@ -140,6 +145,7 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
   const [seeking, setSeeking] = useState(false);
   const [timeDisplayFormat, setTimeDisplayFormat] = useState("normal");
   const [bookmarks, setBookmarks] = useState([]);
+  const [fullScreen, setFullScreen] = useState(false);
 
   const currentTime = playerRef.current
     ? playerRef.current.getCurrentTime()
@@ -192,10 +198,21 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
 
   const handleToggleFullScreen = () => {
     screenfull.toggle(playerContainerRef.current);
+    setFullScreen(!fullScreen);
   };
 
   const handleProgress = (changeState) => {
     const { played } = changeState;
+    if (count > 3) {
+      controlRef.current.style.visibility = "hidden";
+      count = 0;
+    }
+    if (controlRef.current.style.visibility == "visible") {
+      count += 1;
+      console.log(`HAHA ${count}`);
+    }
+    console.log("Progress");
+    console.log(controlRef.current.style.visibility);
     if (!seeking) setPlayed(played);
   };
 
@@ -219,30 +236,69 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
     );
   };
 
-  const addBookmark = () => {};
+  const handleMouseMove = () => {
+    controlRef.current.style.visibility = "visible";
+    count = 0;
+  };
+
+  const addBookmark = () => {
+    const canvas = canvasRef.current;
+    canvas.width = 160;
+    canvas.height = 90;
+
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(
+      playerRef.current.getInternalPlayer(),
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+    const imageUrl = canvas.toDataURL();
+    canvas.width = 0;
+    canvas.height = 0;
+
+    setBookmarks([
+      ...bookmarks,
+      { time: currentTime, display: elapesedTime, image: imageUrl },
+    ]);
+  };
 
   const open = Boolean(anchorEl);
   const id = open ? "playbackrate-popover" : undefined;
 
   return (
     <Container maxWidth="md">
-      <div ref={playerContainerRef} container className={classes.playerWrapper}>
-        {/* React Player */}
+      <div
+        ref={playerContainerRef}
+        container
+        className={classes.playerWrapper}
+        onMouseMove={handleMouseMove}
+      >
+        {/* React Player */}　
         <ReactPlayer
           ref={playerRef}
           width="100%"
-          height="100%"
+          height={fullScreen ? "75%" : "100%"}
           volume={volume}
           url={
-            "https://briefly41.s3.us-west-1.amazonaws.com/static/Collection2/video/2/Time.mp4"
+            "https://briefly41.s3.amazonaws.com/static/Collection1/video/6/sample.mp4"
           }
+          className={classes.controlsWrapper}
           muted={muted}
           playing={playing}
           playbackRate={playbackRate}
           onProgress={handleProgress}
+          config={{
+            file: {
+              attributes: {
+                crossOrigin: "anonymous",
+              },
+            },
+          }}
         />
         {/* Player Control */}
-        <div className={classes.controlsWrapper}>
+        <div className={classes.controlsWrapper} ref={controlRef}>
           {/* Control Header */}
           <Grid
             container
@@ -257,6 +313,7 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
             </Grid>
             <Grid item>
               <Button
+                onClick={addBookmark}
                 variant="contained"
                 style={{ color: "white", background: secondaryColor }}
                 startIcon={<BookmarkIcon />}
@@ -405,6 +462,17 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
           </Grid>
         </div>
       </div>
+      <Grid container style={{ marginTop: 20 }} spacing={3}>
+        {bookmarks.map((bookmark, i) => (
+          <Grid item key={i}>
+            <Paper onClick={() => playerRef.current.seekTo(bookmark.time)}>
+              <img crossOrigin="anonymous" src={bookmark.image} />
+              <Typography>Bookmark at {bookmark.display}</Typography>
+            </Paper>
+          </Grid>
+        ))}
+        <canvas ref={canvasRef} />
+      </Grid>
     </Container>
   );
 }
