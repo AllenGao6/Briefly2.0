@@ -10,9 +10,9 @@ import {
   IconButton,
   Slider,
   Tooltip,
-  Divider,
   useTheme,
   Paper,
+  Hidden,
 } from "@material-ui/core";
 import BookmarkIcon from "@material-ui/icons/Bookmark";
 import FastRewindIcon from "@material-ui/icons/FastRewind";
@@ -304,23 +304,25 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
             container
             alignItems="center"
             justify="space-between"
-            style={{ padding: 16 }}
+            style={{ padding: 16, paddingTop: "2rem" }}
           >
             <Grid item>
-              <Typography variant="h5" style={{ color: "white" }}>
+              <Typography variant="h4" style={{ color: "white" }}>
                 Make More Time!
               </Typography>
             </Grid>
-            <Grid item>
-              <Button
-                onClick={addBookmark}
-                variant="contained"
-                style={{ color: "white", background: secondaryColor }}
-                startIcon={<BookmarkIcon />}
-              >
-                Bookmark
-              </Button>
-            </Grid>
+            <Hidden xsDown>
+              <Grid item>
+                <Button
+                  onClick={addBookmark}
+                  variant="contained"
+                  style={{ color: "white", background: secondaryColor }}
+                  startIcon={<BookmarkIcon />}
+                >
+                  Bookmark
+                </Button>
+              </Grid>
+            </Hidden>
           </Grid>
           {/* Control Middle */}
           <Grid container alignItems="center" justify="center">
@@ -376,24 +378,26 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
                     <PlayArrowIcon fontSize="medium" />
                   )}
                 </IconButton>
-                <IconButton
-                  onClick={() => setMuted(!muted)}
-                  className={classes.bottomIcons}
-                >
-                  {muted ? (
-                    <VolumeOff fontSize="medium" />
-                  ) : (
-                    <VolumeUp fontSize="medium" />
-                  )}
-                </IconButton>
-                <Slider
-                  min={0}
-                  max={100}
-                  value={volume * 100}
-                  className={classes.volumeSlider}
-                  onChange={handleVolumeChange}
-                  onChangeCommitted={handleVolumeSeekUp}
-                />
+                <Hidden xsDown>
+                  <IconButton
+                    onClick={() => setMuted(!muted)}
+                    className={classes.bottomIcons}
+                  >
+                    {muted ? (
+                      <VolumeOff fontSize="medium" />
+                    ) : (
+                      <VolumeUp fontSize="medium" />
+                    )}
+                  </IconButton>
+                  <Slider
+                    min={0}
+                    max={100}
+                    value={volume * 100}
+                    className={classes.volumeSlider}
+                    onChange={handleVolumeChange}
+                    onChangeCommitted={handleVolumeSeekUp}
+                  />
+                </Hidden>
                 <Button
                   onClick={handleChangeDisplayFormat}
                   variant="text"

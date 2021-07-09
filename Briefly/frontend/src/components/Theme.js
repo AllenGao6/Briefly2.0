@@ -149,6 +149,11 @@ const theme = createMuiTheme({
   },
   overrides: {
     // override styles of existing material-ui class
+    MuiButton: {
+      root: {
+        minWidth: undefined,
+      },
+    },
   },
 });
 

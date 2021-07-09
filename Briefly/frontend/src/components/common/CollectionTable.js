@@ -14,6 +14,7 @@ import {
   TextField,
   Switch,
   LinearProgress,
+  IconButton,
 } from "@material-ui/core";
 import { darken, lighten } from "@material-ui/core/styles";
 import {
@@ -36,7 +37,8 @@ import {
   deleteAudios,
 } from "../../redux/actions/audio_actions";
 import ControlledVideoPlayer from "./ControlledVideoPlayer";
-import { set } from "js-cookie";
+import DoneIcon from "@material-ui/icons/Done";
+import CloseIcon from "@material-ui/icons/Close";
 
 const useStyles = makeStyles((theme) => {
   const getBackgroundColor = () =>
@@ -125,6 +127,16 @@ const useStyles = makeStyles((theme) => {
     },
     paper: {
       width: "800px",
+    },
+    status: {
+      ...theme.typography.roundedButton,
+      width: "8rem",
+      height: "2rem",
+      fontSize: "1rem",
+    },
+    archiveIcon: {
+      height: "2rem",
+      width: "2rem",
     },
   };
 });
@@ -273,6 +285,7 @@ function CollectionTable({
       align: "center",
       headerAlign: "center",
       type: "boolean",
+      renderCell: (params) => <ArchiveIcon archived={params.value} />,
     },
     {
       field: "type",
@@ -300,7 +313,7 @@ function CollectionTable({
       width: 120,
       type: "number",
       valueFormatter: (params) => {
-        const valueFormatted = Number(params.value).toLocaleString();
+        const valueFormatted = Number(params.value / 1048576).toLocaleString();
         return `${valueFormatted} MB`;
       },
     },
@@ -312,9 +325,9 @@ function CollectionTable({
       width: 180,
       renderCell: (params) =>
         params.value ? (
-          <Typography variant="body1">Completed</Typography>
+          <Status status="Completed" />
         ) : (
-          <Typography variant="body1">Processing</Typography>
+          <Status status="Processing" />
         ),
     },
   ];
@@ -344,6 +357,7 @@ function CollectionTable({
       headerAlign: "center",
       type: "boolean",
       flex: 1,
+      renderCell: (params) => <ArchiveIcon archived={params.value} />,
     },
     {
       field: "type",
@@ -371,7 +385,7 @@ function CollectionTable({
       flex: 1,
       type: "number",
       valueFormatter: (params) => {
-        const valueFormatted = Number(params.value).toLocaleString();
+        const valueFormatted = Number(params.value / 1048576).toLocaleString();
         return `${valueFormatted} MB`;
       },
     },
@@ -383,9 +397,9 @@ function CollectionTable({
       width: 180,
       renderCell: (params) =>
         params.value ? (
-          <Typography variant="body1">Completed</Typography>
+          <Status status="Completed" />
         ) : (
-          <Typography variant="body1">Processing</Typography>
+          <Status status="Processing" />
         ),
     },
   ];
@@ -502,6 +516,38 @@ function CollectionTable({
     );
   }
 
+  function Status({ status }) {
+    return (
+      <Button
+        variant="contained"
+        disabled
+        className={classes.status}
+        style={{ background: status === "Processing" ? "#f9ca24" : "#2ed573" }}
+      >
+        <Typography variant="h6" style={{ color: "white" }}>
+          {status}
+        </Typography>
+      </Button>
+    );
+  }
+
+  function ArchiveIcon({ archived }) {
+    return (
+      <Button
+        variant="contained"
+        className={classes.archiveIcon}
+        disabled
+        style={{ background: archived ? "#2ed573" : "#ff6348" }}
+      >
+        {archived ? (
+          <DoneIcon style={{ color: "white" }} />
+        ) : (
+          <CloseIcon style={{ color: "white" }} />
+        )}
+      </Button>
+    );
+  }
+
   return (
     <Grid container direction="column" alignItems="center">
       <Grid
@@ -550,7 +596,7 @@ function CollectionTable({
         </DialogTitle>
         <DialogContent dividers>
           <Grid container direction="column" alignItems="center" spacing={3}>
-            <Grid item>
+            <Grid item container style={{ paddingLeft: 24, paddingRight: 24 }}>
               <TextField
                 label="Title"
                 variant="filled"
@@ -558,7 +604,6 @@ function CollectionTable({
                 fullWidth
                 className={classes.textField}
                 onChange={(e) => setTitle(e.currentTarget.value)}
-                style={{ width: inputWidth }}
               />
             </Grid>
             <Grid item>
