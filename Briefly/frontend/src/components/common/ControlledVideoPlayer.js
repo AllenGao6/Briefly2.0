@@ -45,7 +45,7 @@ const useStyles = makeStyles((theme) => ({
   playerWrapper: {
     width: "100%",
     position: "relative",
-    height: 500,
+    background: "black",
   },
   controlsWrapper: {
     position: "absolute",
@@ -269,7 +269,7 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
 
   return (
     <Container maxWidth="md">
-      <div
+      <Grid
         ref={playerContainerRef}
         container
         className={classes.playerWrapper}
@@ -278,13 +278,13 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
         {/* React Player */}　
         <ReactPlayer
           ref={playerRef}
-          width="100%"
-          height="100%"
           volume={volume}
           url={
-            "https://briefly41.s3.us-west-1.amazonaws.com/static/Collection1/video/1/earth.mp4"
+            "https://briefly41.s3.us-west-1.amazonaws.com/static/Collection1/video/6/sample.mp4"
           }
-          className={classes.controlsWrapper}
+          width="100%"
+          height="100%"
+          style={{ display: "flex" }}
           muted={muted}
           playing={playing}
           playbackRate={playbackRate}
@@ -426,7 +426,6 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
                     vertical: "bottom",
                     horizontal: "center",
                   }}
-                  style={{ zIndex: 1304 }}
                 >
                   <Grid container direction="column-reverse">
                     {[0.5, 1.0, 1.5, 2.0].map((rate, i) => (
@@ -461,7 +460,7 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
             </Grid>
           </Grid>
         </div>
-      </div>
+      </Grid>
       <Grid container style={{ marginTop: 20 }} spacing={3}>
         {bookmarks.map((bookmark, i) => (
           <Grid item key={i}>
