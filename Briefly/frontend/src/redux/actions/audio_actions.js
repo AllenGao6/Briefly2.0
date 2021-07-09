@@ -25,9 +25,9 @@ export const loadAudiosInCollection = (id) => (dispatch) => {
 export const createAudioInCollection = (id, audio) => (dispatch) => {
   dispatch({ type: type.CREATING_AUDIO });
   return axios
-    .post(`${COLLECTIONS_BASE_URL}${id}/audio/`, JSON.stringify(audio), {
+    .post(`${COLLECTIONS_BASE_URL}${id}/audio/`, audio, {
       headers: {
-        "content-type": "application/json",
+        "content-type": "multipart/form-data",
         "X-CSRFToken": Cookies.get("csrftoken"),
       },
     })

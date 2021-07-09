@@ -194,7 +194,7 @@ export default function DashboardContent({
             textColor={matchesDark ? "secondary" : "primary"}
             variant="fullWidth"
           >
-            <Tab label="All Items" />
+            <Tab label="All" />
             <Tab label="Archived" />
           </Tabs>
         </Grid>

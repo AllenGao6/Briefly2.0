@@ -1,5 +1,6 @@
 import { makeStyles } from "@material-ui/styles";
 import React, { useState, useEffect, useCallback } from "react";
+import ControlledVideoPlayer from "./ControlledVideoPlayer";
 
 import {
   Dialog,
@@ -36,7 +37,7 @@ import {
   updateAudioInCollection,
   deleteAudios,
 } from "../../redux/actions/audio_actions";
-import ControlledVideoPlayer from "./ControlledVideoPlayer";
+import MediaUploader from "./MediaUploader";
 import DoneIcon from "@material-ui/icons/Done";
 import CloseIcon from "@material-ui/icons/Close";
 
@@ -169,97 +170,13 @@ function CollectionTable({
   const [openDialog, setOpenDialog] = useState(false);
   const [title, setTitle] = useState("");
   const [archived, setArchived] = useState(false);
+  const [mediaStream, setMediaStream] = useState(null);
+  const [mediaUrl, setMediaUrl] = useState(null);
   const [action, setAction] = useState(null);
-  const [playing, setPlaying] = useState(false);
 
   const matches = useMediaQuery("(max-width:1086px)");
   const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
   const inputWidth = matchesXS ? "20rem" : "35rem";
-
-  const loadMediaInCollection = (id) => {
-    switch (mediaType) {
-      case "video":
-        loadVideosInCollection(id);
-        break;
-      case "audio":
-        loadAudiosInCollection(id);
-        break;
-      case "text":
-      default:
-        break;
-    }
-  };
-
-  const createMediaInCollection = (id, media) => {
-    switch (mediaType) {
-      case "video":
-        createVideoInCollection(id, media);
-        break;
-      case "audio":
-        createAudioInCollection(id, media);
-        break;
-      case "text":
-      default:
-        break;
-    }
-  };
-
-  const updateMediaInCollection = (id, media, mediaId) => {
-    switch (mediaType) {
-      case "video":
-        updateVideoInCollection(id, media, mediaId);
-        break;
-      case "audio":
-        updateAudioInCollection(id, media, mediaId);
-        break;
-      case "text":
-      default:
-        break;
-    }
-  };
-
-  const deleteMediaInCollection = (id, list_id) => {
-    switch (mediaType) {
-      case "video":
-        deleteVideos(id, list_id);
-        break;
-      case "audio":
-        deleteAudios(id, list_id);
-        break;
-      case "text":
-      default:
-        break;
-    }
-  };
-
-  const getMediaInCollection = () => {
-    switch (mediaType) {
-      case "video":
-        return videos;
-      case "audio":
-        return audios;
-      case "text":
-      default:
-        break;
-    }
-  };
-
-  const filterMediaByArchive = () => {
-    const media = getMediaInCollection();
-    if (selectArchived) return media.filter((item) => item.is_archived);
-    return media;
-  };
-
-  const filterMediaBySearch = () => {
-    const media = filterMediaByArchive();
-    return media.filter((item) =>
-      item.title.toLowerCase().includes(search.toLowerCase())
-    );
-  };
-
-  useEffect(() => {
-    loadMediaInCollection(match.params.id);
-  }, []);
 
   const fixedColumns = [
     {
@@ -331,7 +248,6 @@ function CollectionTable({
         ),
     },
   ];
-
   const flexColumns = [
     {
       field: "title",
@@ -404,6 +320,93 @@ function CollectionTable({
     },
   ];
 
+  const loadMediaInCollection = (id) => {
+    switch (mediaType) {
+      case "video":
+        loadVideosInCollection(id);
+        break;
+      case "audio":
+        loadAudiosInCollection(id);
+        break;
+      case "text":
+      default:
+        break;
+    }
+  };
+
+  const createMediaInCollection = async (id, media) => {
+    switch (mediaType) {
+      case "video":
+        await createVideoInCollection(id, media);
+        break;
+      case "audio":
+        await createAudioInCollection(id, media);
+        break;
+      case "text":
+      default:
+        break;
+    }
+    handleDialogClose();
+  };
+
+  const updateMediaInCollection = async (id, media, mediaId) => {
+    switch (mediaType) {
+      case "video":
+        await updateVideoInCollection(id, media, mediaId);
+        break;
+      case "audio":
+        await updateAudioInCollection(id, media, mediaId);
+        break;
+      case "text":
+      default:
+        break;
+    }
+    handleDialogClose();
+  };
+
+  const deleteMediaInCollection = (id, list_id) => {
+    switch (mediaType) {
+      case "video":
+        deleteVideos(id, list_id);
+        break;
+      case "audio":
+        deleteAudios(id, list_id);
+        break;
+      case "text":
+      default:
+        break;
+    }
+  };
+
+  const getMediaInCollection = () => {
+    switch (mediaType) {
+      case "video":
+        return videos;
+      case "audio":
+        return audios;
+      case "text":
+      default:
+        break;
+    }
+  };
+
+  const filterMediaByArchive = () => {
+    const media = getMediaInCollection();
+    if (selectArchived) return media.filter((item) => item.is_archived);
+    return media;
+  };
+
+  const filterMediaBySearch = () => {
+    const media = filterMediaByArchive();
+    return media.filter((item) =>
+      item.title.toLowerCase().includes(search.toLowerCase())
+    );
+  };
+
+  useEffect(() => {
+    loadMediaInCollection(match.params.id);
+  }, []);
+
   const handlePageSizeChange = (params) => {
     setPageSize(params.pageSize);
   };
@@ -422,12 +425,13 @@ function CollectionTable({
       setSelectionModel([]);
     } else {
       // create media
-      const media = {
-        title: title,
-        is_archived: archived,
-        collection: match.params.id,
-      };
-      createMediaInCollection(match.params.id, media);
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("is_archived", archived);
+      formData.append("collection", match.params.id);
+      formData.append(mediaType, mediaStream, mediaStream.name);
+
+      createMediaInCollection(match.params.id, formData);
     }
   };
 
@@ -444,6 +448,7 @@ function CollectionTable({
       )[0];
       setTitle(media.title);
       setArchived(media.is_archived);
+      setMediaUrl(media[mediaType]);
     }
     setOpenDialog(true);
   };
@@ -452,6 +457,13 @@ function CollectionTable({
     setOpenDialog(false);
     setTitle("");
     setArchived(false);
+    setMediaStream(null);
+    setMediaUrl(null);
+  };
+
+  const handleUploadFinish = (e) => {
+    setMediaStream(e.target.files[0]);
+    setMediaUrl(URL.createObjectURL(e.target.files[0]));
   };
 
   function CustomToolbar() {
@@ -580,7 +592,6 @@ function CollectionTable({
           }}
         />
       </Grid>
-
       <Dialog
         open={openDialog}
         onClose={handleDialogClose}
@@ -596,17 +607,18 @@ function CollectionTable({
         </DialogTitle>
         <DialogContent dividers>
           <Grid container direction="column" alignItems="center" spacing={3}>
-            <Grid item container style={{ paddingLeft: 24, paddingRight: 24 }}>
+            <Grid item container style={{ paddingLeft: 36, paddingRight: 36 }}>
               <TextField
                 label="Title"
                 variant="filled"
                 value={title}
                 fullWidth
                 className={classes.textField}
+                style={{ width: "100%" }}
                 onChange={(e) => setTitle(e.currentTarget.value)}
               />
             </Grid>
-            <Grid item>
+            <Grid item style={{ paddingBottom: 0 }}>
               <FormControlLabel
                 control={
                   <Switch
@@ -621,10 +633,29 @@ function CollectionTable({
                 labelPlacement="start"
               />
             </Grid>
-            <ControlledVideoPlayer
-              playing={playing}
-              onPlayPause={() => setPlaying(!playing)}
-            />
+            <Grid
+              item
+              container
+              style={{ paddingTop: mediaUrl ? 0 : undefined }}
+            >
+              <MediaUploader
+                action={action}
+                mediaType={mediaType}
+                isCreating={isCreating}
+                onUploadFinish={handleUploadFinish}
+                mediaUrl={mediaUrl}
+              />
+            </Grid>
+            <Grid item container style={{ paddingLeft: 36, paddingRight: 36 }}>
+              <LinearProgress
+                color={theme.palette.type === "dark" ? "secondary" : "primary"}
+                style={{
+                  width: "100%",
+                  color: "black",
+                  display: isCreating ? undefined : "none",
+                }}
+              />
+            </Grid>
             <Grid
               item
               container
@@ -635,10 +666,12 @@ function CollectionTable({
               <Grid item>
                 <Button
                   variant="contained"
+                  disabled={
+                    title.length === 0 || mediaUrl === null || isCreating
+                  }
                   className={classes.createButton}
                   onClick={() => {
                     handleUpdate();
-                    handleDialogClose();
                   }}
                 >
                   {action}
@@ -647,22 +680,13 @@ function CollectionTable({
               <Grid item>
                 <Button
                   variant="outlined"
+                  disabled={isCreating}
                   className={classes.cancelButton}
                   onClick={handleDialogClose}
                 >
                   Cancel
                 </Button>
               </Grid>
-            </Grid>
-            <Grid item>
-              <LinearProgress
-                color={theme.palette.type === "dark" ? "secondary" : "primary"}
-                style={{
-                  width: inputWidth,
-                  color: "black",
-                  display: isCreating ? undefined : "none",
-                }}
-              />
             </Grid>
           </Grid>
         </DialogContent>

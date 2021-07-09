@@ -45,7 +45,6 @@ const useStyles = makeStyles((theme) => ({
   playerWrapper: {
     width: "100%",
     position: "relative",
-    background: "black",
   },
   controlsWrapper: {
     position: "absolute",
@@ -129,7 +128,7 @@ const PrettoSlider = withStyles((theme) => ({
 
 let count = 0;
 
-export default function ControlledVideoPlayer({ onPlayPause, playing }) {
+export default function ControlledVideoPlayer({ mediaUrl }) {
   const theme = useTheme();
   const classes = useStyles();
   const playerRef = useRef(null);
@@ -146,6 +145,7 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
   const [timeDisplayFormat, setTimeDisplayFormat] = useState("normal");
   const [bookmarks, setBookmarks] = useState([]);
   const [fullScreen, setFullScreen] = useState(false);
+  const [playing, setPlaying] = useState(false);
 
   const currentTime = playerRef.current
     ? playerRef.current.getCurrentTime()
@@ -209,10 +209,8 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
     }
     if (controlRef.current.style.visibility == "visible") {
       count += 1;
-      console.log(`HAHA ${count}`);
     }
-    console.log("Progress");
-    console.log(controlRef.current.style.visibility);
+
     if (!seeking) setPlayed(played);
   };
 
@@ -268,23 +266,27 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
   const id = open ? "playbackrate-popover" : undefined;
 
   return (
-    <Container maxWidth="md">
+    <Container>
       <Grid
         ref={playerContainerRef}
         container
         className={classes.playerWrapper}
         onMouseMove={handleMouseMove}
+        style={{
+          background: fullScreen
+            ? "black"
+            : theme.palette.type === "dark"
+            ? theme.palette.primary.main.light
+            : "white",
+        }}
       >
         {/* React Player */}　
         <ReactPlayer
           ref={playerRef}
           volume={volume}
-          url={
-            "https://briefly41.s3.us-west-1.amazonaws.com/static/Collection1/video/6/sample.mp4"
-          }
+          url={mediaUrl}
           width="100%"
           height="100%"
-          style={{ display: "flex" }}
           muted={muted}
           playing={playing}
           playbackRate={playbackRate}
@@ -329,7 +331,10 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
             <IconButton onClick={handleRewind} className={classes.controlIcons}>
               <FastRewindIcon fontSize="inherit" />
             </IconButton>
-            <IconButton onClick={onPlayPause} className={classes.controlIcons}>
+            <IconButton
+              onClick={() => setPlaying(!playing)}
+              className={classes.controlIcons}
+            >
               {playing ? (
                 <PauseIcon fontSize="inherit" />
               ) : (
@@ -349,10 +354,10 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
             container
             justify="space-between"
             alignItems="center"
-            style={{ padding: "1rem", paddingBottom: 8 }}
+            style={{ padding: "1rem", paddingBottom: 0 }}
           >
             {/* Video Slider */}
-            <Grid item xs={12}>
+            <Grid item xs={12} style={{ paddingBottom: 0 }}>
               <PrettoSlider
                 min={0}
                 max={100}
@@ -369,7 +374,7 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
             <Grid item>
               <Grid container alignItems="center">
                 <IconButton
-                  onClick={onPlayPause}
+                  onClick={() => setPlaying(!playing)}
                   className={classes.bottomIcons}
                 >
                   {playing ? (
@@ -408,7 +413,7 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
                 </Button>
               </Grid>
             </Grid>
-            <Grid item>
+            <Grid item style={{ paddingBottom: 0 }}>
               <Grid container alignItems="center">
                 <Button
                   variant="text"
@@ -430,6 +435,7 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
                     vertical: "bottom",
                     horizontal: "center",
                   }}
+                  style={{ zIndex: 9999999999999 }}
                 >
                   <Grid container direction="column-reverse">
                     {[0.5, 1.0, 1.5, 2.0].map((rate, i) => (
@@ -465,7 +471,7 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
           </Grid>
         </div>
       </Grid>
-      <Grid container style={{ marginTop: 20 }} spacing={3}>
+      {/*<Grid container style={{ marginTop: 20 }} spacing={3}>
         {bookmarks.map((bookmark, i) => (
           <Grid item key={i}>
             <Paper onClick={() => playerRef.current.seekTo(bookmark.time)}>
@@ -475,7 +481,7 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
           </Grid>
         ))}
         <canvas ref={canvasRef} />
-      </Grid>
+      </Grid>*/}
     </Container>
   );
 }

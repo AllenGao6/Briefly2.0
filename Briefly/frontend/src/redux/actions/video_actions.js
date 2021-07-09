@@ -25,9 +25,9 @@ export const loadVideosInCollection = (id) => (dispatch) => {
 export const createVideoInCollection = (id, video) => (dispatch) => {
   dispatch({ type: type.CREATING_VIDEO });
   return axios
-    .post(`${COLLECTIONS_BASE_URL}${id}/video/`, JSON.stringify(video), {
+    .post(`${COLLECTIONS_BASE_URL}${id}/video/`, video, {
       headers: {
-        "content-type": "application/json",
+        "content-type": "multipart/form-data",
         "X-CSRFToken": Cookies.get("csrftoken"),
       },
     })
