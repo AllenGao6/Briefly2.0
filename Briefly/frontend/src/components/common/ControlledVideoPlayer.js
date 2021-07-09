@@ -279,10 +279,10 @@ export default function ControlledVideoPlayer({ onPlayPause, playing }) {
         <ReactPlayer
           ref={playerRef}
           width="100%"
-          height={fullScreen ? "75%" : "100%"}
+          height="100%"
           volume={volume}
           url={
-            "https://briefly41.s3.amazonaws.com/static/Collection1/video/6/sample.mp4"
+            "https://briefly41.s3.us-west-1.amazonaws.com/static/Collection1/video/1/earth.mp4"
           }
           className={classes.controlsWrapper}
           muted={muted}
