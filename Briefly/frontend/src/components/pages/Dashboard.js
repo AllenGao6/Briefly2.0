@@ -185,6 +185,7 @@ function Dashboard(props) {
         onClose={handleDrawerToggle}
         collectionDialog={collectionDialog}
         isDashboard={props.isDashboard}
+        history={props.history}
       />
       <DashboardBar
         handleDrawerToggle={handleDrawerToggle}

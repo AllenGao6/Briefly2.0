@@ -19,10 +19,17 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import HomeIcon from "@material-ui/icons/Home";
 import PeopleIcon from "@material-ui/icons/People";
+import VideoLibraryIcon from '@material-ui/icons/VideoLibrary';
+import AccountTreeIcon from '@material-ui/icons/AccountTree';
 import DnsRoundedIcon from "@material-ui/icons/DnsRounded";
 import PermMediaOutlinedIcon from "@material-ui/icons/PhotoSizeSelectActual";
+import GraphicEqIcon from '@material-ui/icons/GraphicEq';
+import SubjectIcon from '@material-ui/icons/Subject';
+import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
+import NoteIcon from '@material-ui/icons/Note';
 import PublicIcon from "@material-ui/icons/Public";
 import SettingsEthernetIcon from "@material-ui/icons/SettingsEthernet";
+import BrightnessLowIcon from '@material-ui/icons/BrightnessLow';
 import SettingsInputComponentIcon from "@material-ui/icons/SettingsInputComponent";
 import TimerIcon from "@material-ui/icons/Timer";
 import SettingsIcon from "@material-ui/icons/Settings";
@@ -37,20 +44,26 @@ const categories = [
   {
     id: "Config",
     children: [
-      { id: "Authentication", icon: <PeopleIcon />, active: true },
-      { id: "Database", icon: <DnsRoundedIcon /> },
-      { id: "Storage", icon: <PermMediaOutlinedIcon /> },
-      { id: "Hosting", icon: <PublicIcon /> },
-      { id: "Functions", icon: <SettingsEthernetIcon /> },
-      { id: "ML Kit", icon: <SettingsInputComponentIcon /> },
+      { id: "video", icon: <VideoLibraryIcon />, active: true },
+      { id: "audio", icon: <GraphicEqIcon />, active: false },
+      { id: "text", icon: <SubjectIcon /> , active: false},
+      // { id: "Hosting", icon: <PublicIcon /> },
+      // { id: "Functions", icon: <SettingsEthernetIcon /> },
+      // { id: "ML Kit", icon: <SettingsInputComponentIcon /> },
     ],
   },
   {
-    id: "Settings",
+    id: "tools",
     children: [
-      { id: "Analytics", icon: <SettingsIcon /> },
-      { id: "Performance", icon: <TimerIcon /> },
-      { id: "Test Lab", icon: <PhonelinkSetupIcon /> },
+      { id: "Pop Quiz", icon: <QuestionAnswerIcon /> },
+      { id: "My Flash Card", icon: <NoteIcon /> },
+      { id: "My Mind Map", icon: <AccountTreeIcon /> },
+    ],
+  },
+  {
+    id: "settings",
+    children: [
+      { id: "Setting", icon: <SettingsIcon /> },
     ],
   },
 ];
@@ -134,6 +147,11 @@ export default function Navigator(props) {
 
   const { ...other } = props;
 
+  const change_category = (type) => {
+    var current_collection = window.location.pathname.split('/')[2];
+    props.history.push(`/dashboard/${current_collection}/${type}`);
+  }
+
   return (
     <Drawer
       variant={matchesXS ? "temporary" : "persistent"}
@@ -183,7 +201,7 @@ export default function Navigator(props) {
           <Paper
             className={classes.addCollection}
             elevation={10}
-            onClick={() => props.collectionDialog(null)}
+            onClick={props.isDashboard ? () => props.collectionDialog(null) : () => {alert(window.location.pathname);}}
           >
             <Grid container alignItems="center" justify="center">
               <AddCircleIcon
@@ -194,16 +212,16 @@ export default function Navigator(props) {
                 }}
               />
               <Typography variant="h5" style={{ color: "white" }}>
-                Create
+                {props.isDashboard ? 'Collection' : 'Document'}
               </Typography>
             </Grid>
           </Paper>
         </ListItem>
         <Divider variant="middle" className={classes.divider} />
-        {categories.map(({ id, children }) => (
+        {props.isDashboard ? null : categories.map(({ id, children }) => (
           <React.Fragment key={id}>
             {children.map(({ id: childId, icon, active }) => (
-              <ListItem key={childId} button>
+              <ListItem key={childId} onClick={id === 'Config' ? () => change_category(childId) : null} button>
                 <ListItemIcon className={classes.icon}>{icon}</ListItemIcon>
                 <ListItemText disableTypography className={classes.text}>
                   {childId}
