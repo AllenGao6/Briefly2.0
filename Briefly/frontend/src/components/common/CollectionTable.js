@@ -1,6 +1,5 @@
 import { makeStyles } from "@material-ui/styles";
 import React, { useState, useEffect, useCallback } from "react";
-import ControlledVideoPlayer from "./ControlledVideoPlayer";
 
 import {
   Dialog,

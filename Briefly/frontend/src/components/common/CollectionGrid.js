@@ -2,6 +2,7 @@ import React from "react";
 import { Grid, useMediaQuery, makeStyles, useTheme } from "@material-ui/core";
 import CollectionCard from "./CollectionCard";
 import AddCollectionCard from "./AddCollectionCard";
+import ParticleBackground from "../ParticleBackground";
 
 const useStyles = makeStyles((theme) => ({
   gridsContainer: {

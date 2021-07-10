@@ -16,6 +16,7 @@ import {
 import clsx from "clsx";
 import { darken, lighten } from "@material-ui/core/styles";
 import collectionImage from "../../assets/hero/statistics.svg";
+import ParticleBackground from "../ParticleBackground";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -77,7 +78,7 @@ export default function DashboardContent({
   )[0];
 
   const [value, setValue] = useState(0);
-  const descriptionHeight = 350;
+  const descriptionHeight = 400;
   const trigger = useScrollTrigger({
     target: window ? window : undefined,
     disableHysteresis: true,

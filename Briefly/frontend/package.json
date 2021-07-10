@@ -39,10 +39,12 @@
     "file-loader": "^6.2.0",
     "js-cookie": "^2.2.1",
     "react-google-login": "^5.2.2",
+    "react-particles-js": "^3.5.3",
     "react-player": "^1.6.4",
     "react-redux": "^7.2.4",
     "react-router-dom": "^5.2.0",
     "react-toastify": "^7.0.4",
+    "react-tsparticles": "^1.31.1",
     "reactjs-media": "^1.5.1",
     "redux": "^4.1.0",
     "redux-devtools-extension": "^2.13.9",
@@ -50,6 +52,7 @@
     "redux-persist": "^6.0.0",
     "redux-thunk": "^2.3.0",
     "screenfull": "^5.1.0",
+    "tsparticles": "^1.31.1",
     "url-loader": "^4.1.1"
   },
   "description": ""

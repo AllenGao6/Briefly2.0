@@ -7,6 +7,7 @@ import {
   Typography,
   Grid,
   Icon,
+  Paper,
   Button,
 } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
@@ -28,11 +29,13 @@ import SettingsIcon from "@material-ui/icons/Settings";
 import PhonelinkSetupIcon from "@material-ui/icons/PhonelinkSetup";
 import { makeStyles } from "@material-ui/styles";
 import IconTextButton from "./IconTextButton";
-import AddCircleIcon from "@material-ui/icons/AddCircleOutlineOutlined";
+import AddCircleIcon from "@material-ui/icons/Add";
+import SidebarBackground from "../../assets/background/sidebar.jpg";
+import { darken, lighten } from "@material-ui/core/styles";
 
 const categories = [
   {
-    id: "Develop",
+    id: "Config",
     children: [
       { id: "Authentication", icon: <PeopleIcon />, active: true },
       { id: "Database", icon: <DnsRoundedIcon /> },
@@ -43,7 +46,7 @@ const categories = [
     ],
   },
   {
-    id: "Quality",
+    id: "Settings",
     children: [
       { id: "Analytics", icon: <SettingsIcon /> },
       { id: "Performance", icon: <TimerIcon /> },
@@ -58,7 +61,7 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(2),
   },
   categoryHeaderPrimary: {
-    color: theme.palette.common.white,
+    color: theme.palette.common.grey,
   },
   item: {
     paddingTop: 1,
@@ -84,7 +87,7 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(2),
   },
   divider: {
-    marginTop: theme.spacing(2),
+    background: "black",
   },
   drawerPaper: {
     width: 256,
@@ -94,17 +97,33 @@ const useStyles = makeStyles((theme) => ({
     borderRight: `1px solid ${theme.palette.common.silver}`,
   },
   addCollection: {
-    borderRadius: 50,
-    textTransform: "none",
-    width: "12rem",
-    paddingTop: "1rem",
-    paddingBottom: "1rem",
+    cursor: "pointer",
+    borderRadius: 30,
+    width: "9rem",
+    paddingTop: "0.7rem",
+    paddingBottom: "0.7rem",
     background:
-      "linear-gradient(75deg, rgba(237,20,20,1) 0%, rgba(30,144,255,1) 92%)",
+      theme.palette.type === "dark"
+        ? theme.palette.common.orange
+        : theme.palette.common.blue,
     transition: "all 0.3s",
     "&:hover": {
-      opacity: 0.9,
+      background:
+        theme.palette.type === "dark"
+          ? darken(theme.palette.common.orange, 0.2)
+          : darken(theme.palette.common.blue, 0.2),
     },
+  },
+  icon: {
+    color: theme.palette.common.grey,
+    fontSize: "3rem",
+    minWidth: "auto",
+    paddingLeft: "1rem",
+    paddingRight: "1rem",
+  },
+  text: {
+    color: theme.palette.common.grey,
+    fontSize: "1.2rem",
   },
 }));
 
@@ -125,7 +144,15 @@ export default function Navigator(props) {
         paperAnchorDockedLeft: classes.noBorder,
       }}
     >
-      <List disablePadding>
+      <List
+        disablePadding
+        style={{
+          backgroundImage: `url(${SidebarBackground})`,
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "cover",
+          height: "100%",
+        }}
+      >
         <ListItem
           className={clsx(classes.item, classes.itemCategory)}
           style={{ textAlign: "center", height: 69 }}
@@ -145,55 +172,46 @@ export default function Navigator(props) {
             Home
           </Typography>
         </ListItem>
-        <ListItem>
-          <Grid
+        <ListItem
+          style={{
+            marginBottom: "0.7rem",
+            marginTop: "0.3rem",
+            paddingLeft: "1.5rem",
+            minWidth: "auto",
+          }}
+        >
+          <Paper
             className={classes.addCollection}
+            elevation={10}
             onClick={() => props.collectionDialog(null)}
-            container
-            alignItems="center"
-            justify="center"
-            spacing={4}
-            component={Button}
           >
-            <Grid item>
-              <AddCircleIcon style={{ fontSize: "2rem", color: "white" }} />
-            </Grid>
-            <Grid item style={{ marginTop: 3, marginLeft: "1rem" }}>
-              <Typography variant="h4" style={{ color: "white" }}>
+            <Grid container alignItems="center" justify="center">
+              <AddCircleIcon
+                style={{
+                  fontSize: "2rem",
+                  marginRight: "0.3rem",
+                  color: "white",
+                }}
+              />
+              <Typography variant="h5" style={{ color: "white" }}>
                 Create
               </Typography>
             </Grid>
-          </Grid>
+          </Paper>
         </ListItem>
+        <Divider variant="middle" className={classes.divider} />
         {categories.map(({ id, children }) => (
           <React.Fragment key={id}>
-            <ListItem className={classes.categoryHeader}>
-              <ListItemText
-                classes={{
-                  primary: classes.categoryHeaderPrimary,
-                }}
-              >
-                {id}
-              </ListItemText>
-            </ListItem>
             {children.map(({ id: childId, icon, active }) => (
-              <ListItem
-                key={childId}
-                button
-                className={clsx(classes.item, active && classes.itemActiveItem)}
-              >
-                <ListItemIcon className={classes.itemIcon}>{icon}</ListItemIcon>
-                <ListItemText
-                  classes={{
-                    primary: classes.itemPrimary,
-                  }}
-                >
+              <ListItem key={childId} button>
+                <ListItemIcon className={classes.icon}>{icon}</ListItemIcon>
+                <ListItemText disableTypography className={classes.text}>
                   {childId}
                 </ListItemText>
               </ListItem>
             ))}
 
-            <Divider className={classes.divider} />
+            <Divider variant="middle" className={classes.divider} />
           </React.Fragment>
         ))}
       </List>

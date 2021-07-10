@@ -47,6 +47,7 @@ class App extends Component {
             draggable
             pauseOnHover
           />
+
           <Switch>
             <Route
               exact
