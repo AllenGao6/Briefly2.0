@@ -435,7 +435,7 @@ export default function ControlledVideoPlayer({ mediaUrl }) {
                     vertical: "bottom",
                     horizontal: "center",
                   }}
-                  style={{ zIndex: 9999999999999 }}
+                  style={{ zIndex: 999999999 }}
                 >
                   <Grid container direction="column-reverse">
                     {[0.5, 1.0, 1.5, 2.0].map((rate, i) => (
