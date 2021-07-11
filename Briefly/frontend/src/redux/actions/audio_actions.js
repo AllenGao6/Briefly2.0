@@ -24,12 +24,16 @@ export const loadAudiosInCollection = (id) => (dispatch) => {
 
 export const createAudioInCollection = (id, audio) => async (dispatch) => {
   dispatch({ type: type.CREATING_AUDIO });
-  const response = axios.post(`${COLLECTIONS_BASE_URL}${id}/audio/`, audio, {
-    headers: {
-      "content-type": "multipart/form-data",
-      "X-CSRFToken": Cookies.get("csrftoken"),
-    },
-  });
+  const response = await axios.post(
+    `${COLLECTIONS_BASE_URL}${id}/audio/`,
+    audio,
+    {
+      headers: {
+        "content-type": "multipart/form-data",
+        "X-CSRFToken": Cookies.get("csrftoken"),
+      },
+    }
+  );
 
   if (response.status === 201) {
     dispatch({

@@ -245,7 +245,7 @@ function CollectionTable({
         params.value ? (
           <Status status="Completed" />
         ) : (
-          <Status status="Transcribing" />
+          <Status status="Transcribe" id={params.id} />
         ),
     },
   ];
@@ -316,10 +316,15 @@ function CollectionTable({
         params.value ? (
           <Status status="Completed" />
         ) : (
-          <Status status="Transcribing" />
+          <Status status="Transcribe" id={params.id} />
         ),
     },
   ];
+
+  useEffect(() => {
+    loadVideosInCollection(match.params.id);
+    loadAudiosInCollection(match.params.id);
+  }, []);
 
   const loadMediaInCollection = (id) => {
     switch (mediaType) {
@@ -349,9 +354,13 @@ function CollectionTable({
         break;
     }
     handleDialogClose();
+    handleMediaTranscription(createdMedia.id);
+  };
+
+  const handleMediaTranscription = async (mediaId) => {
     const transcribeSuccess = await transcribeMedia(
-      id,
-      createdMedia.id,
+      match.params.id,
+      mediaId,
       mediaType
     );
     if (transcribeSuccess) loadMediaInCollection(match.params.id);
@@ -536,15 +545,16 @@ function CollectionTable({
     );
   }
 
-  function Status({ status }) {
+  function Status({ status, id }) {
     return (
       <Button
         variant="contained"
-        disabled
+        disabled={status === "Completed"}
         className={classes.status}
         style={{
-          background: status === "Transcribing" ? "#f9ca24" : "#2ed573",
+          background: status === "Transcribe" ? "#f9ca24" : "#2ed573",
         }}
+        onClick={() => handleMediaTranscription(id)}
       >
         <Typography variant="h6" style={{ color: "white" }}>
           {status}
@@ -632,6 +642,7 @@ function CollectionTable({
                 className={classes.textField}
                 style={{ width: "100%" }}
                 onChange={(e) => setTitle(e.currentTarget.value)}
+                disabled={isCreating}
               />
             </Grid>
             <Grid item style={{ paddingBottom: 0 }}>
@@ -639,6 +650,7 @@ function CollectionTable({
                 control={
                   <Switch
                     checked={archived}
+                    disabled={isCreating}
                     color={
                       theme.palette.type === "dark" ? "secondary" : "primary"
                     }

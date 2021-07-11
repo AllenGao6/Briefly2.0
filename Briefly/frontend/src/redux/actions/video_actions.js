@@ -24,6 +24,7 @@ export const loadVideosInCollection = (id) => (dispatch) => {
 
 export const createVideoInCollection = (id, video) => async (dispatch) => {
   dispatch({ type: type.CREATING_VIDEO });
+  console.log("Post");
   const response = await axios.post(
     `${COLLECTIONS_BASE_URL}${id}/video/`,
     video,

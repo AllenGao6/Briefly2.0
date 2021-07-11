@@ -6,6 +6,7 @@ const SUMMARIZE_BASE_URL = BASE_URL + "api/collection/";
 
 export const transcribeMedia =
   (collectionId, mediaId, mediaType) => async (dispatch) => {
+    console.log(mediaId);
     const response = await axios.get(
       `${SUMMARIZE_BASE_URL}${collectionId}/${mediaType}/${mediaId}/summary_begin/`
     );
