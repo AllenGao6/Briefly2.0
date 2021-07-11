@@ -485,23 +485,28 @@ class AudioViewSet(viewsets.ModelViewSet):
         #     return Response("You have summarized the video", status=status.HTTP_400_BAD_REQUEST)
         
         if request.method == "POST":
-            print("POST")
-            model = request.data.get('model', "Bert")
-            num_sentence = request.data.get('num_sentence', None)
-            max_sentence = request.data.get('max_sentence', 20)
-            summary = speech_to_text.summarize(audio.audioText, loads(audio.transcript), model=model, num_sentence=num_sentence, max_sentence=max_sentence)
-            print(model)
-            pprint(summary)
             try:
-                last_summaries = loads(audio.summarization)
+                print("POST")
+                model = request.data.get('model', "Bert")
+                num_sentence = request.data.get('num_sentence', None)
+                max_sentence = request.data.get('max_sentence', 20)
+                summary = speech_to_text.summarize(audio.audioText, loads(audio.transcript), model=model, num_sentence=num_sentence, max_sentence=max_sentence)
+                print(model)
+                pprint(summary)
+                try:
+                    last_summaries = loads(audio.summarization)
+                except:
+                    last_summaries = {}
+                last_summaries[model] = summary
+                audio.summarization = dumps(last_summaries)
+                audio.save()
+                print(f"Individual {model} summarization  time spent: {time()-t1:.2f}")
+                pprint(summary)
+                return Response(summary, status=status.HTTP_200_OK)
             except:
-                last_summaries = {}
-            last_summaries[model] = summary
-            audio.summarization = dumps(last_summaries)
-            audio.save()
-            print(f"Individual {model} summarization  time spent: {time()-t1:.2f}")
-            pprint(summary)
-            return Response(summary, status=status.HTTP_200_OK)
+                return Response("Fail to summarize", status=status.HTTP_400_BAD_REQUEST)
+            
+        # this is for method=="GET"
         try:
             summary_bert = speech_to_text.summarize(audio.audioText, loads(audio.transcript), model='Bert')
             summary_gpt2 = speech_to_text.summarize(audio.audioText, loads(audio.transcript), model='GPT-2')
