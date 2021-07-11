@@ -3,6 +3,7 @@ import boto3
 import json
 import datetime
 from .sentence_process import SentenceHandler
+import random
 # from django.conf import settings
 
 AWS_ACCESS_KEY_ID = 'AKIA4Q6A67QESQQAFLMF'
@@ -14,22 +15,37 @@ transcribe = boto3.client('transcribe', region_name='us-west-1', aws_access_key_
 s3 = boto3.resource('s3', region_name='us-west-1', aws_access_key_id=AWS_ACCESS_KEY_ID,
          aws_secret_access_key= AWS_SECRET_ACCESS_KEY)
 
+def random_job_name_generator():
+    rand_dig = 6
+    extender = "-"
+    for i in range(rand_dig):
+        extender += str(random.randint(0,9))
+    return extender
 def check_job_name(job_name):
     '''
         delete duplicate trancribe job, avoid conflict
     '''
     job_verification = True
     
-    # all the transcriptions
-    existed_jobs = transcribe.list_transcription_jobs()
-    
-    for job in existed_jobs['TranscriptionJobSummaries']:
-        if job_name == job['TranscriptionJobName']:
+    # all the transcriptions 
+    Queue_jobs = transcribe.list_transcription_jobs(Status='QUEUED', JobNameContains=job_name)
+    in_progress_jobs = transcribe.list_transcription_jobs(Status='IN_PROGRESS', JobNameContains=job_name)
+
+    current_jobs = [] 
+    for job in Queue_jobs['TranscriptionJobSummaries'] + in_progress_jobs['TranscriptionJobSummaries']:
+        job_title = job['TranscriptionJobName']
+        print(job_title)
+        current_jobs.append(job_title)
+        if job_name == job_title:
             job_verification = False
             break
 
     if job_verification == False:
-        transcribe.delete_transcription_job(TranscriptionJobName=job_name)
+        while True:
+            extention = random_job_name_generator()
+            if job_name + extention not in current_jobs:
+                job_name += extention
+                break
 
     return job_name
 
@@ -75,7 +91,6 @@ def amazon_transcribe(audio_file_name, collection_name, video_id,  max_speakers 
             LanguageCode='en-US',
             OutputBucketName= AWS_STORAGE_BUCKET_NAME ,
             OutputKey= target_key,
-
         )    
     
     while True:
