@@ -21,7 +21,8 @@ from django.core.mail import send_mail
 from . import speech_to_text
 from math import ceil
 from pprint import pprint
-from json import dumps
+from json import dumps, loads
+from time import time
 class VideoViewSet(viewsets.ModelViewSet):
 
     serializer_class = VideoSerializer
@@ -36,7 +37,7 @@ class VideoViewSet(viewsets.ModelViewSet):
     similar to post_save: call save twice to know the id of the video just created and save to the correct directory
     '''
     def perform_create(self, serializer):
-        
+        t1 = time()
         #This part ensures the user can only create video under his own collection
         user = self.request.user
         collection = get_object_or_404(Collection,pk =self.kwargs['collection_pk'], owner=user)
@@ -61,7 +62,8 @@ class VideoViewSet(viewsets.ModelViewSet):
             with transaction.atomic():
                 profile.remaining_size -= fileSize
                 profile.save()
-                print(f"creating after: remaining: {user.userprofile.remaining_size}")
+                print(f"creating after: remaining: {profile.remaining_size}")
+                print(f"video create time spent: {time()-t1:.2f}")
         
     #     '''another way: update from instance itself, also worked but lengthy'''
     #     # update from instance itself
@@ -164,8 +166,9 @@ class VideoViewSet(viewsets.ModelViewSet):
             if not video.transcript:
                 try:
                     # code to perform summarization process
+                    t1 = time()   
                     video_path = video.video.name.split('/')
-                    video_name, video_id, collection_name = video_path[3], video_path[2], video_path[0]      
+                    video_name, video_id, collection_name = video_path[3], video_path[2], video_path[0]   
                     transcribe = speech_to_text.amazon_transcribe(video_name, collection_name, video_id)
                     
                     if not transcribe:
@@ -173,6 +176,7 @@ class VideoViewSet(viewsets.ModelViewSet):
                     #video.transcript = transcribe
                     data = speech_to_text.load_json_output(transcribe)
                     transcript, audioText = speech_to_text.read_output(data)
+                    print(f"transcribe time spent: {time()-t1:.2f}")
                     print("transcript: (for dev purpose only! delete before deploy)")
                     pprint(transcript)
                     print("audioText: (for dev purpose only! delete before deploy)")
@@ -180,6 +184,7 @@ class VideoViewSet(viewsets.ModelViewSet):
                     video.transcript = dumps(transcript)          #json field
                     video.audioText = audioText
                     video.save()
+                    print(f"transcribe time spent: {time()-t1:.2f}")
                 except:
                     return Response("Fail to transcribe", status=status.HTTP_400_BAD_REQUEST)
 
@@ -188,6 +193,72 @@ class VideoViewSet(viewsets.ModelViewSet):
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
     
+    
+    '''
+    Call this endpoint to start summarization with all models,
+    This endpoint is avaliable if video.audioText is provided.
+    
+    When method=="GET", no parameters are required, all three models will be to summarized.
+    
+    When method=="POST", following fields are required:
+        model (if None, default: "Bert"),
+        num_sentence (if None, default: None),
+        max_sentence (if None, default: 20)
+         
+    URL: api/<int: collection_id>/video/<int: video_id>/summary_begin/
+    '''
+    @action(methods=['GET', 'POST'],detail=True)
+    def summary_begin(self, request, *args, **kwargs):
+        t1 = time()
+        user = request.user
+        video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
+        
+        if not video:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        video = video[0]
+        if not video.audioText:
+            return Response("Cannot find the audioText for this video", status=status.HTTP_400_BAD_REQUEST)
+        # if video.summarization:
+        #     return Response("You have summarized the video", status=status.HTTP_400_BAD_REQUEST)
+        
+        if request.method == "POST":
+            print("POST")
+            model = request.data.get('model', "Bert")
+            num_sentence = request.data.get('num_sentence', None)
+            max_sentence = request.data.get('max_sentence', 20)
+            summary = speech_to_text.summarize(video.audioText, loads(video.transcript), model=model, num_sentence=num_sentence, max_sentence=max_sentence)
+            print(model)
+            pprint(summary)
+            try:
+                last_summaries = loads(video.summarization)
+            except:
+                last_summaries = {}
+            last_summaries[model] = summary
+            video.summarization = dumps(last_summaries)
+            video.save()
+            print(f"Individual {model} summarization  time spent: {time()-t1:.2f}")
+            pprint(summary)
+            return Response(summary, status=status.HTTP_200_OK)
+        try:
+            summary_bert = speech_to_text.summarize(video.audioText, loads(video.transcript), model='Bert')
+            summary_gpt2 = speech_to_text.summarize(video.audioText, loads(video.transcript), model='GPT-2')
+            summary_xlnet = speech_to_text.summarize(video.audioText, loads(video.transcript), model='XLNet')
+            summary_total = dumps({"Bert":summary_bert, "GPT-2":summary_gpt2, "XLNet":summary_xlnet})
+            print("Bert")
+            pprint(summary_bert)
+            print("GPT-2")
+            pprint(summary_gpt2)
+            print("XLNet")
+            pprint(summary_xlnet)
+            
+            video.summarization = summary_total
+            video.save()
+            print(f"Three bundle summarization time spent: {time()-t1:.2f}")
+            return Response(summary_total, status=status.HTTP_200_OK)
+
+        except:
+            return Response("Fail to summarize", status=status.HTTP_400_BAD_REQUEST)
+            
     '''
     Call this endpoint to delete a list of videos under one collection
     URL: api/<int: collection_id>/video/delete_list_videos/
@@ -208,11 +279,7 @@ class VideoViewSet(viewsets.ModelViewSet):
                  
         return Response({"list_id": videos_to_delete, 'total_size': total_size, 'remaining_size': user.userprofile.remaining_size})
     
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def upload_video(request):
-    user = request.user
-    return Response({'user':user.email})
+    
 
 class CollectionViewSet(viewsets.ModelViewSet):
     serializer_class = CollectionSerializer
@@ -388,8 +455,72 @@ class AudioViewSet(viewsets.ModelViewSet):
             return Response("Success!")
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
+        
 
+    '''
+    Call this endpoint to start summarization with all models,
+    This endpoint is avaliable if video.audioText is provided.
     
+    When method=="GET", no parameters are required, all three models will be to summarized.
+    
+    When method=="POST", following fields are required:
+        model (if None, default: "Bert"),
+        num_sentence (if None, default: None),
+        max_sentence (if None, default: 20)
+         
+    URL: api/<int: collection_id>/audio/<int: audio_id>/summary_begin/
+    '''
+    @action(methods=['GET', 'POST'],detail=True)
+    def summary_begin(self, request, *args, **kwargs):
+        t1 = time()
+        user = request.user
+        audio = Audio.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
+        
+        if not audio:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        audio = audio[0]
+        if not audio.audioText:
+            return Response("Cannot find the audioText for this audio", status=status.HTTP_400_BAD_REQUEST)
+        # if video.summarization:
+        #     return Response("You have summarized the video", status=status.HTTP_400_BAD_REQUEST)
+        
+        if request.method == "POST":
+            print("POST")
+            model = request.data.get('model', "Bert")
+            num_sentence = request.data.get('num_sentence', None)
+            max_sentence = request.data.get('max_sentence', 20)
+            summary = speech_to_text.summarize(audio.audioText, loads(audio.transcript), model=model, num_sentence=num_sentence, max_sentence=max_sentence)
+            print(model)
+            pprint(summary)
+            try:
+                last_summaries = loads(audio.summarization)
+            except:
+                last_summaries = {}
+            last_summaries[model] = summary
+            audio.summarization = dumps(last_summaries)
+            audio.save()
+            print(f"Individual {model} summarization  time spent: {time()-t1:.2f}")
+            pprint(summary)
+            return Response(summary, status=status.HTTP_200_OK)
+        try:
+            summary_bert = speech_to_text.summarize(audio.audioText, loads(audio.transcript), model='Bert')
+            summary_gpt2 = speech_to_text.summarize(audio.audioText, loads(audio.transcript), model='GPT-2')
+            summary_xlnet = speech_to_text.summarize(audio.audioText, loads(audio.transcript), model='XLNet')
+            summary_total = dumps({"Bert":summary_bert, "GPT-2":summary_gpt2, "XLNet":summary_xlnet})
+            print("Bert")
+            pprint(summary_bert)
+            print("GPT-2")
+            pprint(summary_gpt2)
+            print("XLNet")
+            pprint(summary_xlnet)
+            
+            audio.summarization = summary_total
+            audio.save()
+            print(f"Three bundle summarization time spent: {time()-t1:.2f}")
+            return Response(summary_total, status=status.HTTP_200_OK)
+
+        except:
+            return Response("Fail to summarize", status=status.HTTP_400_BAD_REQUEST)
     
     
 @api_view(['POST'])
