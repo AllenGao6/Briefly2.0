@@ -1,6 +1,9 @@
 from django.core.exceptions import ValidationError
 from django.db.models.expressions import Col
+from django.db import transaction
+import transformers
 from .models import Collection, Video, Audio
+from social_login.models import UserProfile
 from django.shortcuts import render, get_object_or_404
 from rest_framework import serializers, viewsets
 from .serializers import AudioSerializer, VideoSerializer, CollectionSerializer
@@ -54,9 +57,11 @@ class VideoViewSet(viewsets.ModelViewSet):
         serializer.save() 
         
         if fileSize:
-            user.userprofile.remaining_size -= fileSize
-            user.userprofile.save()
-            print(f"creating after: remaining: {user.userprofile.remaining_size}")
+            profile = UserProfile.objects.select_for_update().filter(user=user)[0]
+            with transaction.atomic():
+                profile.remaining_size -= fileSize
+                profile.save()
+                print(f"creating after: remaining: {user.userprofile.remaining_size}")
         
     #     '''another way: update from instance itself, also worked but lengthy'''
     #     # update from instance itself
@@ -82,11 +87,14 @@ class VideoViewSet(viewsets.ModelViewSet):
             instance.video.delete(save=False)
 
         if fileSize:
-            print(f"destroying before: remaining: {user.userprofile.remaining_size}")
-            user.userprofile.remaining_size += fileSize
-            user.userprofile.save()
-            print(f"destroying after: remaining: {user.userprofile.remaining_size}")
+            profile = UserProfile.objects.select_for_update().filter(user=user)[0]
+            with transaction.atomic():
+                print(f"destroying before: remaining: {profile.remaining_size}")
+                profile.remaining_size += fileSize
+                profile.save()
+                print(f"destroying after: remaining: {profile.remaining_size}")
         return super().perform_destroy(instance)
+    
     
     def destroy(self, request, *args, **kwargs):
         id = self.get_object().pk
@@ -97,6 +105,7 @@ class VideoViewSet(viewsets.ModelViewSet):
                          "title": name,
                          'remaining_size': remaining}, status=status.HTTP_202_ACCEPTED)
     
+    # Don't do any 
     # This may not be used as the logic is reverted to the original one
     def perform_update(self, serializer):
         
@@ -104,11 +113,14 @@ class VideoViewSet(viewsets.ModelViewSet):
         instance = serializer.save()
         fileSize = instance.fileSize
         if fileSize:
-            print(f"updating before: remaining: {user.userprofile.remaining_size}")
-            user.userprofile.remaining_size -= fileSize
-            print(f"updating after: remaining: {user.userprofile.remaining_size}")
-            user.userprofile.save()
-        
+            profile = UserProfile.objects.select_for_update().filter(user=user)[0]
+            with transaction.atomic():
+                print(f"updating before: remaining: {profile.remaining_size}")
+                profile.remaining_size -= fileSize
+                profile.save()
+                print(f"updating after: remaining: {profile.remaining_size}")
+    
+    
     #override create
     '''def create(self, request, *args, **kwargs):
         print(self.kwargs['collection_pk'])
@@ -139,11 +151,11 @@ class VideoViewSet(viewsets.ModelViewSet):
         return mail
     
     '''
-    Call this url to begin summarization
-    URL: api/<int: collection_id>/video/<int: video_id>/summary_begin/
+    Call this url to begin transcribe from Amazon
+    URL: api/<int: collection_id>/video/<int: video_id>/transcribe_begin/
     '''
     @action(methods=['GET'],detail=True)
-    def summary_begin(self, request, *args, **kwargs):
+    def transcribe_begin(self, request, *args, **kwargs):
         user = request.user
         video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
         if video:
@@ -158,21 +170,21 @@ class VideoViewSet(viewsets.ModelViewSet):
                     transcribe = speech_to_text.amazon_transcribe(video_name, collection_name, video_id)
                     
                     if not transcribe:
-                        return Response("Unknown failure during S3 summarization", status=status.HTTP_400_BAD_REQUEST)
+                        return Response("Unknown failure during S3 transcribe", status=status.HTTP_400_BAD_REQUEST)
                     #video.transcript = transcribe
                     data = speech_to_text.load_json_output(transcribe)
                     transcript, audioText = speech_to_text.read_output(data)
-                    print("transcript:")
+                    print("transcript: (for dev purpose only! delete before deploy)")
                     pprint(transcript)
-                    print("audioText:")
+                    print("audioText: (for dev purpose only! delete before deploy)")
                     pprint(audioText)
-                    video.transcript = dumps(transcript)
+                    video.transcript = dumps(transcript)          #json field
                     video.audioText = audioText
                     video.save()
                 except:
-                    return Response("fail to summarize", status=status.HTTP_400_BAD_REQUEST)
+                    return Response("Fail to transcribe", status=status.HTTP_400_BAD_REQUEST)
 
-            self.summary_ready(video)
+            #self.summary_ready(video)
             return Response("Success!")
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -274,10 +286,12 @@ class AudioViewSet(viewsets.ModelViewSet):
         serializer.save()  #update from serializer, worked
         
         if fileSize:
-            user.userprofile.remaining_size -= fileSize
-            user.userprofile.save()
-            print(f"creating after: remaining: {user.userprofile.remaining_size}")
-              
+            profile = UserProfile.objects.select_for_update().filter(user=user)[0]
+            with transaction.atomic():
+                print(f"create before: remaining: {profile.remaining_size}")
+                profile.remaining_size -= fileSize
+                profile.save()
+                print(f"create after: remaining: {profile.remaining_size}")
 
     def perform_destroy(self, instance):
         fileSize = instance.fileSize
@@ -285,13 +299,15 @@ class AudioViewSet(viewsets.ModelViewSet):
         if instance.audio:
             instance.audio.delete(save=False)
 
-        if fileSize:    
-            print(f"destroying before: remaining: {user.userprofile.remaining_size}")
-            user.userprofile.remaining_size += fileSize
-            user.userprofile.save()
-            print(f"destroying after: remaining: {user.userprofile.remaining_size}")
+        if fileSize:
+            profile = UserProfile.objects.select_for_update().filter(user=user)[0]
+            with transaction.atomic():
+                print(f"destroying before: remaining: {profile.remaining_size}")
+                profile.remaining_size += fileSize
+                profile.save()
+                print(f"destroying after: remaining: {profile.remaining_size}")
         return super().perform_destroy(instance)
-    
+        
     def destroy(self, request, *args, **kwargs):
         id = self.get_object().pk
         title = self.get_object().title
@@ -308,12 +324,15 @@ class AudioViewSet(viewsets.ModelViewSet):
         user = self.request.user
         instance = serializer.save()
         fileSize = instance.fileSize
+        
         if fileSize:
-            print(f"updating before: remaining: {user.userprofile.remaining_size}")
-            user.userprofile.remaining_size -= fileSize
-            print(f"updating after: remaining: {user.userprofile.remaining_size}")
-            user.userprofile.save()
-    
+            profile = UserProfile.objects.select_for_update().filter(user=user)[0]
+            with transaction.atomic():
+                print(f"updating before: remaining: {profile.remaining_size}")
+                profile.remaining_size -= fileSize
+                profile.save()
+                print(f"updating after: remaining: {profile.remaining_size}")
+        
     '''
     Call this endpoint to delete a list of videos under one collection
     URL: api/<int: collection_id>/audio/delete_list_audios/
@@ -327,20 +346,51 @@ class AudioViewSet(viewsets.ModelViewSet):
         
         total_size = 0
         for pk in audios_to_delete:
-            audio = get_object_or_404(Video, pk=pk, collection__owner=user.pk)
+            audio = get_object_or_404(Audio, pk=pk, collection__owner=user.pk)
             total_size+=audio.fileSize
             self.perform_destroy(audio)
                 
         return Response({"list_id": audios_to_delete, 'total_size': total_size, 'remaining_size': user.userprofile.remaining_size})
     
+    '''
+    Call this url to begin transcribe from Amazon
+    URL: api/<int: collection_id>/audio/<int: audio_id>/transcribe_begin/
+    '''
+    @action(methods=['GET'],detail=True)
+    def transcribe_begin(self, request, *args, **kwargs):
+        user = request.user
+        audio = Audio.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
+        if audio:
+            audio = audio[0]
+            
+            if not audio.transcript:
+                try:
+                    # code to perform summarization process
+                    audio_path = audio.audio.name.split('/')
+                    audio_name, audio_id, collection_name = audio_path[3], audio_path[2], audio_path[0]
+                    
+                    transcribe = speech_to_text.amazon_transcribe(audio_name, collection_name, audio_id)
+                    
+                    if not transcribe:
+                        return Response("Unknown failure during S3 transcribe", status=status.HTTP_400_BAD_REQUEST)
+                    data = speech_to_text.load_json_output(transcribe)
+                    transcript, audioText = speech_to_text.read_output(data)
+                    print("audio transcript: dev purpose only")
+                    pprint(transcript)
+                    print("audio audioText: dev purpose only")
+                    pprint(audioText)
+                    audio.transcript = dumps(transcript)          #json field
+                    audio.audioText = audioText
+                    audio.save()
+                except:
+                    return Response("Fail to transcribe", status=status.HTTP_400_BAD_REQUEST)
+
+            #self.summary_ready(audio)
+            return Response("Success!")
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
     
-    # def perform_update(self, serializer):
-    #     original_audio = self.get_object()
-    #     if serializer.context['request'].FILES.get('audio'):
-    #         original_audio.audio.delete(save=False)
-    #     if serializer.context['request'].FILES.get('audioText'):
-    #         original_audio.audioText.delete(save=False)
-    #     return super().perform_update(serializer)
     
     
 @api_view(['POST'])
