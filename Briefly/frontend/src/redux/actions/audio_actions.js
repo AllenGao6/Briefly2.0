@@ -22,26 +22,27 @@ export const loadAudiosInCollection = (id) => (dispatch) => {
     });
 };
 
-export const createAudioInCollection = (id, audio) => (dispatch) => {
+export const createAudioInCollection = (id, audio) => async (dispatch) => {
   dispatch({ type: type.CREATING_AUDIO });
-  return axios
-    .post(`${COLLECTIONS_BASE_URL}${id}/audio/`, audio, {
-      headers: {
-        "content-type": "multipart/form-data",
-        "X-CSRFToken": Cookies.get("csrftoken"),
-      },
-    })
-    .then((res) => {
-      dispatch({
-        type: type.CREATE_AUDIO_SUCCESS,
-        audio: res.data,
-      });
-    })
-    .catch((err) => {
-      dispatch({
-        type: type.CREATE_AUDIO_FAILURE,
-      });
+  const response = axios.post(`${COLLECTIONS_BASE_URL}${id}/audio/`, audio, {
+    headers: {
+      "content-type": "multipart/form-data",
+      "X-CSRFToken": Cookies.get("csrftoken"),
+    },
+  });
+
+  if (response.status === 201) {
+    dispatch({
+      type: type.CREATE_AUDIO_SUCCESS,
+      audio: response.data,
     });
+    return response.data;
+  } else {
+    dispatch({
+      type: type.CREATE_AUDIO_FAILURE,
+    });
+    return null;
+  }
 };
 
 export const updateAudioInCollection = (id, audio, audioId) => (dispatch) => {
