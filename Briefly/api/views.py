@@ -165,8 +165,7 @@ class VideoViewSet(viewsets.ModelViewSet):
                 try:
                     # code to perform summarization process
                     video_path = video.video.name.split('/')
-                    video_name, video_id, collection_name = video_path[3], video_path[2], video_path[0]
-                    
+                    video_name, video_id, collection_name = video_path[3], video_path[2], video_path[0]      
                     transcribe = speech_to_text.amazon_transcribe(video_name, collection_name, video_id)
                     
                     if not transcribe:

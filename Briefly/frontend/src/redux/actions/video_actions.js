@@ -22,26 +22,32 @@ export const loadVideosInCollection = (id) => (dispatch) => {
     });
 };
 
-export const createVideoInCollection = (id, video) => (dispatch) => {
+export const createVideoInCollection = (id, video) => async (dispatch) => {
   dispatch({ type: type.CREATING_VIDEO });
-  return axios
-    .post(`${COLLECTIONS_BASE_URL}${id}/video/`, video, {
+  console.log("Post");
+  const response = await axios.post(
+    `${COLLECTIONS_BASE_URL}${id}/video/`,
+    video,
+    {
       headers: {
         "content-type": "multipart/form-data",
         "X-CSRFToken": Cookies.get("csrftoken"),
       },
-    })
-    .then((res) => {
-      dispatch({
-        type: type.CREATE_VIDEO_SUCCESS,
-        video: res.data,
-      });
-    })
-    .catch((err) => {
-      dispatch({
-        type: type.CREATE_VIDEO_FAILURE,
-      });
+    }
+  );
+
+  if (response.status === 201) {
+    dispatch({
+      type: type.CREATE_VIDEO_SUCCESS,
+      video: response.data,
     });
+    return response.data;
+  } else {
+    dispatch({
+      type: type.CREATE_VIDEO_FAILURE,
+    });
+    return null;
+  }
 };
 
 export const updateVideoInCollection = (id, video, videoId) => (dispatch) => {

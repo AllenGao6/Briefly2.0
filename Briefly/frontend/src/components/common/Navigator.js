@@ -19,17 +19,17 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import HomeIcon from "@material-ui/icons/Home";
 import PeopleIcon from "@material-ui/icons/People";
-import VideoLibraryIcon from '@material-ui/icons/VideoLibrary';
-import AccountTreeIcon from '@material-ui/icons/AccountTree';
+import VideoLibraryIcon from "@material-ui/icons/VideoLibrary";
+import AccountTreeIcon from "@material-ui/icons/AccountTree";
 import DnsRoundedIcon from "@material-ui/icons/DnsRounded";
 import PermMediaOutlinedIcon from "@material-ui/icons/PhotoSizeSelectActual";
-import GraphicEqIcon from '@material-ui/icons/GraphicEq';
-import SubjectIcon from '@material-ui/icons/Subject';
-import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
-import NoteIcon from '@material-ui/icons/Note';
+import GraphicEqIcon from "@material-ui/icons/GraphicEq";
+import SubjectIcon from "@material-ui/icons/Subject";
+import QuestionAnswerIcon from "@material-ui/icons/QuestionAnswer";
+import NoteIcon from "@material-ui/icons/Note";
 import PublicIcon from "@material-ui/icons/Public";
 import SettingsEthernetIcon from "@material-ui/icons/SettingsEthernet";
-import BrightnessLowIcon from '@material-ui/icons/BrightnessLow';
+import BrightnessLowIcon from "@material-ui/icons/BrightnessLow";
 import SettingsInputComponentIcon from "@material-ui/icons/SettingsInputComponent";
 import TimerIcon from "@material-ui/icons/Timer";
 import SettingsIcon from "@material-ui/icons/Settings";
@@ -46,7 +46,7 @@ const categories = [
     children: [
       { id: "video", icon: <VideoLibraryIcon />, active: true },
       { id: "audio", icon: <GraphicEqIcon />, active: false },
-      { id: "text", icon: <SubjectIcon /> , active: false},
+      { id: "text", icon: <SubjectIcon />, active: false },
       // { id: "Hosting", icon: <PublicIcon /> },
       // { id: "Functions", icon: <SettingsEthernetIcon /> },
       // { id: "ML Kit", icon: <SettingsInputComponentIcon /> },
@@ -62,9 +62,7 @@ const categories = [
   },
   {
     id: "settings",
-    children: [
-      { id: "Setting", icon: <SettingsIcon /> },
-    ],
+    children: [{ id: "Setting", icon: <SettingsIcon /> }],
   },
 ];
 
@@ -112,7 +110,7 @@ const useStyles = makeStyles((theme) => ({
   addCollection: {
     cursor: "pointer",
     borderRadius: 30,
-    width: "9rem",
+    width: "10rem",
     paddingTop: "0.7rem",
     paddingBottom: "0.7rem",
     background:
@@ -148,9 +146,9 @@ export default function Navigator(props) {
   const { ...other } = props;
 
   const change_category = (type) => {
-    var current_collection = window.location.pathname.split('/')[2];
+    var current_collection = window.location.pathname.split("/")[2];
     props.history.push(`/dashboard/${current_collection}/${type}`);
-  }
+  };
 
   return (
     <Drawer
@@ -201,7 +199,13 @@ export default function Navigator(props) {
           <Paper
             className={classes.addCollection}
             elevation={10}
-            onClick={props.isDashboard ? () => props.collectionDialog(null) : () => {alert(window.location.pathname);}}
+            onClick={
+              props.isDashboard
+                ? () => props.collectionDialog(null)
+                : () => {
+                    alert(window.location.pathname);
+                  }
+            }
           >
             <Grid container alignItems="center" justify="center">
               <AddCircleIcon
@@ -212,26 +216,34 @@ export default function Navigator(props) {
                 }}
               />
               <Typography variant="h5" style={{ color: "white" }}>
-                {props.isDashboard ? 'Collection' : 'Document'}
+                {props.isDashboard ? "Collection" : "Media"}
               </Typography>
             </Grid>
           </Paper>
         </ListItem>
         <Divider variant="middle" className={classes.divider} />
-        {props.isDashboard ? null : categories.map(({ id, children }) => (
-          <React.Fragment key={id}>
-            {children.map(({ id: childId, icon, active }) => (
-              <ListItem key={childId} onClick={id === 'Config' ? () => change_category(childId) : null} button>
-                <ListItemIcon className={classes.icon}>{icon}</ListItemIcon>
-                <ListItemText disableTypography className={classes.text}>
-                  {childId}
-                </ListItemText>
-              </ListItem>
-            ))}
+        {props.isDashboard
+          ? null
+          : categories.map(({ id, children }) => (
+              <React.Fragment key={id}>
+                {children.map(({ id: childId, icon, active }) => (
+                  <ListItem
+                    key={childId}
+                    onClick={
+                      id === "Config" ? () => change_category(childId) : null
+                    }
+                    button
+                  >
+                    <ListItemIcon className={classes.icon}>{icon}</ListItemIcon>
+                    <ListItemText disableTypography className={classes.text}>
+                      {childId}
+                    </ListItemText>
+                  </ListItem>
+                ))}
 
-            <Divider variant="middle" className={classes.divider} />
-          </React.Fragment>
-        ))}
+                <Divider variant="middle" className={classes.divider} />
+              </React.Fragment>
+            ))}
       </List>
     </Drawer>
   );

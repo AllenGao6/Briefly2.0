@@ -36,6 +36,7 @@ import {
   updateAudioInCollection,
   deleteAudios,
 } from "../../redux/actions/audio_actions";
+import { transcribeMedia } from "../../redux/actions/summarize_actions";
 import MediaUploader from "./MediaUploader";
 import DoneIcon from "@material-ui/icons/Done";
 import CloseIcon from "@material-ui/icons/Close";
@@ -160,6 +161,7 @@ function CollectionTable({
   match,
   selectArchived,
   search,
+  transcribeMedia,
 }) {
   const theme = useTheme();
   const classes = useStyles();
@@ -234,7 +236,7 @@ function CollectionTable({
       },
     },
     {
-      field: "is_summarized",
+      field: "transcript",
       headerName: "Status",
       align: "center",
       headerAlign: "center",
@@ -243,7 +245,7 @@ function CollectionTable({
         params.value ? (
           <Status status="Completed" />
         ) : (
-          <Status status="Processing" />
+          <Status status="Transcribe" id={params.id} />
         ),
     },
   ];
@@ -305,7 +307,7 @@ function CollectionTable({
       },
     },
     {
-      field: "is_summarized",
+      field: "transcript",
       headerName: "Status",
       align: "center",
       headerAlign: "center",
@@ -314,10 +316,15 @@ function CollectionTable({
         params.value ? (
           <Status status="Completed" />
         ) : (
-          <Status status="Processing" />
+          <Status status="Transcribe" id={params.id} />
         ),
     },
   ];
+
+  useEffect(() => {
+    loadVideosInCollection(match.params.id);
+    loadAudiosInCollection(match.params.id);
+  }, []);
 
   const loadMediaInCollection = (id) => {
     switch (mediaType) {
@@ -334,18 +341,29 @@ function CollectionTable({
   };
 
   const createMediaInCollection = async (id, media) => {
+    let createdMedia;
     switch (mediaType) {
       case "video":
-        await createVideoInCollection(id, media);
+        createdMedia = await createVideoInCollection(id, media);
         break;
       case "audio":
-        await createAudioInCollection(id, media);
+        createdMedia = await createAudioInCollection(id, media);
         break;
       case "text":
       default:
         break;
     }
     handleDialogClose();
+    handleMediaTranscription(createdMedia.id);
+  };
+
+  const handleMediaTranscription = async (mediaId) => {
+    const transcribeSuccess = await transcribeMedia(
+      match.params.id,
+      mediaId,
+      mediaType
+    );
+    if (transcribeSuccess) loadMediaInCollection(match.params.id);
   };
 
   const updateMediaInCollection = async (id, media, mediaId) => {
@@ -527,13 +545,16 @@ function CollectionTable({
     );
   }
 
-  function Status({ status }) {
+  function Status({ status, id }) {
     return (
       <Button
         variant="contained"
-        disabled
+        disabled={status === "Completed"}
         className={classes.status}
-        style={{ background: status === "Processing" ? "#f9ca24" : "#2ed573" }}
+        style={{
+          background: status === "Transcribe" ? "#f9ca24" : "#2ed573",
+        }}
+        onClick={() => handleMediaTranscription(id)}
       >
         <Typography variant="h6" style={{ color: "white" }}>
           {status}
@@ -560,7 +581,12 @@ function CollectionTable({
   }
 
   return (
-    <Grid container direction="column" alignItems="center">
+    <Grid
+      container
+      direction="column"
+      alignItems="center"
+      style={{ minHeight: "100vh" }}
+    >
       <Grid
         item
         container
@@ -569,6 +595,7 @@ function CollectionTable({
           width: "100%",
           paddingLeft: matchesXS ? undefined : "2rem",
           paddingRight: matchesXS ? undefined : "2rem",
+          marginBottom: "3rem",
         }}
       >
         <DataGrid
@@ -615,6 +642,7 @@ function CollectionTable({
                 className={classes.textField}
                 style={{ width: "100%" }}
                 onChange={(e) => setTitle(e.currentTarget.value)}
+                disabled={isCreating}
               />
             </Grid>
             <Grid item style={{ paddingBottom: 0 }}>
@@ -622,6 +650,7 @@ function CollectionTable({
                 control={
                   <Switch
                     checked={archived}
+                    disabled={isCreating}
                     color={
                       theme.palette.type === "dark" ? "secondary" : "primary"
                     }
@@ -712,6 +741,7 @@ const mapDispatchToProps = {
   createAudioInCollection,
   updateAudioInCollection,
   deleteAudios,
+  transcribeMedia,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CollectionTable);
