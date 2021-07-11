@@ -28,18 +28,17 @@ def check_job_name(job_name):
     job_verification = True
     
     # all the transcriptions 
-    Queue_jobs = transcribe.list_transcription_jobs(Status='QUEUED', JobNameContains=job_name)
-    in_progress_jobs = transcribe.list_transcription_jobs(Status='IN_PROGRESS', JobNameContains=job_name)
+    Queue_jobs = transcribe.list_transcription_jobs(Status='QUEUED', JobNameContains=job_name, MaxResults=100)
+    in_progress_jobs = transcribe.list_transcription_jobs(Status='IN_PROGRESS', JobNameContains=job_name, MaxResults=100)
 
     current_jobs = [] 
     for job in Queue_jobs['TranscriptionJobSummaries'] + in_progress_jobs['TranscriptionJobSummaries']:
         job_title = job['TranscriptionJobName']
-        print(job_title)
+        # print(job_title)
         current_jobs.append(job_title)
         if job_name == job_title:
             job_verification = False
             break
-
     if job_verification == False:
         while True:
             extention = random_job_name_generator()
@@ -48,7 +47,7 @@ def check_job_name(job_name):
                 break
 
     return job_name
-
+    
 # AWS speech to text
 def amazon_transcribe(audio_file_name, collection_name, video_id,  max_speakers = -1):
     '''
