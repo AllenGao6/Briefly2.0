@@ -60,60 +60,84 @@ const InfoSection = (props) => (
 const createArray = (length) => [...Array(length)];
 
 const MyStar = ({ selected = false, onSelect = (f) => f }) => {
-{
-    return selected ? (
-    <StarRoundedIcon
-        style={{ fontSize: "500%", color: "#f1c40f" }}
-        onClick={onSelect}
-    />
-    ) : (
-    <StarOutlineRoundedIcon
-        style={{ fontSize: "500%" }}
-        onClick={onSelect}
-    />
-    );
-}
+  {
+      return selected ? (
+      <StarRoundedIcon
+          style={{ fontSize: "500%", color: "#f1c40f" }}
+          onClick={onSelect}
+      />
+      ) : (
+      <StarOutlineRoundedIcon
+          style={{ fontSize: "500%" }}
+          onClick={onSelect}
+      />
+      );
+  }
+};
+
+const Rating = ({ totalStars = 5 }) => {
+  const classes = useStyles()
+  const [rated, setRated] = useState(false)
+  const [rating, setRating] = useState(0);
+  return (
+      <>
+        <Grid style={{ padding: 10 }}>
+            {createArray(totalStars).map((star, idx) => (
+            <MyStar
+                key={`mystar-${star}-${idx}`}
+                selected={rating > idx}
+                onSelect={() => {
+                setRating(idx + 1);
+                setRated(true);
+                }}
+            />
+            ))}
+        </Grid>
+        <Typography>
+            {rated ? (
+            <Typography
+                className={classes.secondaryCaption}
+                style={{ fontSize: "50px", color: "#c0392b" }}
+            >
+                {ratingComment[rating - 1]}
+            </Typography>
+            ) : (
+            <Typography
+                className={classes.secondaryCaption}
+                style={{ fontSize: "50px", color: "#7f8c8d" }}
+            >
+                Click to rate the page.
+            </Typography>
+            )}
+        </Typography>
+        <TextareaAutosize
+          aria-label="minimum height"
+          rowsMin={5}
+          style={{ width: "80%" }}
+          placeholder="Some Feedbacks ..."
+          colsmin={50}
+        />
+
+        <Button
+          disabled={!rated}
+          variant="contained"
+          color="secondary"
+          onClick={() => alert("Thank you! Your feedback is valuable.")}
+          style={{ margin: 10, textTransform: "none" }}
+        >
+          <Typography
+            className={classes.secondaryCaption}
+            style={{ color: "#2c3e50" }}
+          >
+            Submit
+          </Typography>
+        </Button>
+      </>
+  );
 };
 
 export const ContactSection = () => {
     const classes = useStyles()
-    const [rated, setRated] = useState(false)
-    const [rating, setRating] = useState(0);
-    const StarRating = ({ totalStars = 5 }) => {
-        return (
-            <>
-            <Grid style={{ padding: 10 }}>
-                {createArray(totalStars).map((star, idx) => (
-                <MyStar
-                    key={`mystar-${star}-${idx}`}
-                    selected={rating > idx}
-                    onSelect={() => {
-                    setRating(idx + 1);
-                    setRated(true);
-                    }}
-                />
-                ))}
-            </Grid>
-            <Typography>
-                {rated ? (
-                <Typography
-                    className={classes.secondaryCaption}
-                    style={{ fontSize: "50px", color: "#c0392b" }}
-                >
-                    {ratingComment[rating - 1]}
-                </Typography>
-                ) : (
-                <Typography
-                    className={classes.secondaryCaption}
-                    style={{ fontSize: "50px", color: "#7f8c8d" }}
-                >
-                    Click to rate the page.
-                </Typography>
-                )}
-            </Typography>
-            </>
-        );
-    };
 
     return(
         <Grid
@@ -143,29 +167,7 @@ export const ContactSection = () => {
               className={classes.contactArea}
               style={{ maxWidth: "50%" }}
             >
-              <StarRating />
-              <TextareaAutosize
-                aria-label="minimum height"
-                rowsMin={5}
-                style={{ width: "80%" }}
-                placeholder="Some Feedbacks ..."
-                colsmin={50}
-              />
-
-              <Button
-                disabled={!rated}
-                variant="contained"
-                color="secondary"
-                onClick={() => alert("Thank you! Your feedback is valuable.")}
-                style={{ margin: 10, textTransform: "none" }}
-              >
-                <Typography
-                  className={classes.secondaryCaption}
-                  style={{ color: "#2c3e50" }}
-                >
-                  Submit
-                </Typography>
-              </Button>
+              <Rating />
             </Grid>
           </Grid>
         </Grid>

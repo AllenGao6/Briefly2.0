@@ -347,7 +347,7 @@ function LandingHeader({ history, user, accessToken, login, logout, scrollIntoVi
           {tabs.map((tab, i) => (
             <ListItem
               key={`ListItem-${tab.name}${i}`}
-              onClick={() => { scrollIntoView(i);}}
+              onClick={() => { scrollIntoView(i)}}
               divider
               button
               style={{ height: "5rem" }}

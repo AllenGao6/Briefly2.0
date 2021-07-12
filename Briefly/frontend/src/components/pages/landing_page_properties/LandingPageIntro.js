@@ -111,27 +111,27 @@ export const IntroSection = () => {
         direction="column"
         id="new-intro"
         >
-        <Typography
-            className={classes.captionMargins}
-            variant="h2"
-            align="center"
-        >
-            What is Briefly?
-        </Typography>
-        <Grid
-            container
-            justify="space-evenly"
-            className={classes.introContainer}
-        >
-            {lengthArray(9).map((item, idx) => (
-            <MyCard
-                key={idx}
-                icon={icons2[idx]}
-                caption={captions2[idx]}
-                description={descriptions2[idx]}
-            />
-            ))}
-        </Grid>
+          <Typography
+              className={classes.captionMargins}
+              variant="h2"
+              align="center"
+          >
+              What is Briefly?
+          </Typography>
+          <Grid
+              container
+              justify="space-evenly"
+              className={classes.introContainer}
+          >
+              {lengthArray(9).map((item, idx) => (
+              <MyCard
+                  key={idx}
+                  icon={icons2[idx]}
+                  caption={captions2[idx]}
+                  description={descriptions2[idx]}
+              />
+              ))}
+          </Grid>
         </Grid>
     )
 }
