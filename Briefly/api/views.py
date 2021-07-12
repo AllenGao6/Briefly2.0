@@ -168,8 +168,8 @@ class VideoViewSet(viewsets.ModelViewSet):
                     # code to perform summarization process
                     t1 = time()   
                     video_path = video.video.name.split('/')
-                    video_name, video_id, collection_name = video_path[3], video_path[2], video_path[0]   
-                    transcribe = speech_to_text.amazon_transcribe(video_name, collection_name, video_id)
+                    video_name, video_id, type, collection_name = video_path[3], video_path[2],video_path[1], video_path[0]   
+                    transcribe = speech_to_text.amazon_transcribe(video_name, collection_name, type, video_id)
                     
                     if not transcribe:
                         return Response("Unknown failure during S3 transcribe", status=status.HTTP_400_BAD_REQUEST)
@@ -335,7 +335,7 @@ class AudioViewSet(viewsets.ModelViewSet):
     similar to post_save: call save twice to know the id of the audio just created and save to the correct directory
     '''
     def perform_create(self, serializer):
-        
+        t1 = time()
         #This part ensures the user can only create audio under his own collection
         user = self.request.user
         collection = get_object_or_404(Collection,pk =self.kwargs['collection_pk'], owner=user)
@@ -362,7 +362,7 @@ class AudioViewSet(viewsets.ModelViewSet):
                 profile.remaining_size -= fileSize
                 profile.save()
                 print(f"create after: remaining: {profile.remaining_size}")
-
+                print(f"create time spent: {time()-t1:.2f}")
     def perform_destroy(self, instance):
         fileSize = instance.fileSize
         user = self.request.user
@@ -426,8 +426,9 @@ class AudioViewSet(viewsets.ModelViewSet):
     Call this url to begin transcribe from Amazon
     URL: api/<int: collection_id>/audio/<int: audio_id>/transcribe_begin/
     '''
-    @action(methods=['GET'],detail=True)
+    @action(methods=['GET'],detail=True, permission_classes=[IsAuthenticated])
     def transcribe_begin(self, request, *args, **kwargs):
+        t1 = time()
         user = request.user
         audio = Audio.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
         if audio:
@@ -437,9 +438,9 @@ class AudioViewSet(viewsets.ModelViewSet):
                 try:
                     # code to perform summarization process
                     audio_path = audio.audio.name.split('/')
-                    audio_name, audio_id, collection_name = audio_path[3], audio_path[2], audio_path[0]
+                    audio_name, audio_id, type, collection_name = audio_path[3], audio_path[2], audio_path[1],audio_path[0]
                     
-                    transcribe = speech_to_text.amazon_transcribe(audio_name, collection_name, audio_id)
+                    transcribe = speech_to_text.amazon_transcribe(audio_name, collection_name, type, audio_id)
                     
                     if not transcribe:
                         return Response("Unknown failure during S3 transcribe", status=status.HTTP_400_BAD_REQUEST)
@@ -452,6 +453,7 @@ class AudioViewSet(viewsets.ModelViewSet):
                     audio.transcript = dumps(transcript)          #json field
                     audio.audioText = audioText
                     audio.save()
+                    print(f"transcribe time spent: {time()-t1:.2f}")
                 except:
                     return Response("Fail to transcribe", status=status.HTTP_400_BAD_REQUEST)
 
@@ -474,7 +476,7 @@ class AudioViewSet(viewsets.ModelViewSet):
          
     URL: api/<int: collection_id>/audio/<int: audio_id>/summary_begin/
     '''
-    @action(methods=['GET', 'POST'],detail=True)
+    @action(methods=['GET', 'POST'],detail=True, permission_classes=[IsAuthenticated])
     def summary_begin(self, request, *args, **kwargs):
         t1 = time()
         user = request.user
