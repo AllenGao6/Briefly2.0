@@ -420,10 +420,6 @@ function CollectionTable({
     );
   };
 
-  useEffect(() => {
-    loadMediaInCollection(match.params.id);
-  }, []);
-
   const handlePageSizeChange = (params) => {
     setPageSize(params.pageSize);
   };
