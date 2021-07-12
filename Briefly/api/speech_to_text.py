@@ -49,7 +49,7 @@ def check_job_name(job_name):
     return job_name
     
 # AWS speech to text
-def amazon_transcribe(audio_file_name, collection_name, video_id,  max_speakers = -1):
+def amazon_transcribe(audio_file_name, collection_name, type, video_id,  max_speakers = -1):
     '''
         calling aws transcribe service
         input:
@@ -63,7 +63,7 @@ def amazon_transcribe(audio_file_name, collection_name, video_id,  max_speakers 
     if max_speakers > 10:
         raise ValueError("Maximum detected speakers is 10.")
 
-    target_key = "static/" + collection_name + "/video/" + str(video_id)+ "/"
+    target_key = "static/" + collection_name + f"/{type}/" + str(video_id)+ "/"
     job_uri = "s3://"+ AWS_STORAGE_BUCKET_NAME + "/" + target_key + audio_file_name 
     job_name = (audio_file_name.split('.')[0]).replace(" ", "")
     
@@ -83,6 +83,7 @@ def amazon_transcribe(audio_file_name, collection_name, video_id,  max_speakers 
             OutputKey= target_key,
         )
     else: 
+        print(job_name,job_uri, audio_file_name.split('.')[1], AWS_STORAGE_BUCKET_NAME,target_key)
         transcribe.start_transcription_job(
             TranscriptionJobName=job_name,
             Media={'MediaFileUri': job_uri},
