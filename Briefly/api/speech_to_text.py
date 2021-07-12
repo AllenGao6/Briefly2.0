@@ -63,7 +63,7 @@ def amazon_transcribe(audio_file_name, collection_name, type, video_id,  max_spe
     if max_speakers > 10:
         raise ValueError("Maximum detected speakers is 10.")
 
-    target_key = "static/" + collection_name + f"/{type}/" + str(video_id)+ "/"
+    target_key = "static/" + collection_name + "/"+ type +"/" + str(video_id)+ "/"
     job_uri = "s3://"+ AWS_STORAGE_BUCKET_NAME + "/" + target_key + audio_file_name 
     job_name = (audio_file_name.split('.')[0]).replace(" ", "")
     

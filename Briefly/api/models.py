@@ -50,7 +50,8 @@ def validate_video(video):
 def upload_video_name(instance, filename):
     collection_dir = "Collection"+str(instance.collection.id)
     video_id = str(instance.id)
-    url_path = [collection_dir, 'video', video_id, filename]
+    type = filename.split('.')[1]
+    url_path = [collection_dir, 'video', video_id, f"video{video_id}.{type}"]
     return '/'.join(url_path)
 
 # def upload_video_audioText_name(instance, filename):
@@ -78,7 +79,8 @@ class Video(models.Model):
 def upload_audio_name(instance, filename):
     collection_dir = "Collection"+str(instance.collection.id)
     video_id = str(instance.id)
-    url_path = [collection_dir, 'audio', video_id, filename]
+    type = filename.split('.')[1]
+    url_path = [collection_dir, 'audio', video_id, f"audio{video_id}.{type}"]
     return '/'.join(url_path)
 
 # def upload_audio_audioText_name(instance, filename):
