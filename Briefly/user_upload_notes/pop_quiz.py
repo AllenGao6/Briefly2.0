@@ -78,9 +78,9 @@ def popQuiz(graph):
         
     return(questionList)
         
-   
-#Usage example:
 '''
+#Usage example:
+
 a = popQuiz(graph)
 
 for i in range(len(a)):
