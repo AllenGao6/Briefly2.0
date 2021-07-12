@@ -8,7 +8,7 @@ export const transcribeMedia =
   (collectionId, mediaId, mediaType) => async (dispatch) => {
     console.log(mediaId);
     const response = await axios.get(
-      `${SUMMARIZE_BASE_URL}${collectionId}/${mediaType}/${mediaId}/summary_begin/`
+      `${SUMMARIZE_BASE_URL}${collectionId}/${mediaType}/${mediaId}/transcribe_begin/`
     );
     if (response.status === 200) {
       dispatch({
