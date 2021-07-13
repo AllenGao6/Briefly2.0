@@ -13,6 +13,7 @@ import { ThemeProvider } from "@material-ui/styles";
 //toast
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { particlesJS } from "tsparticles";
 
 class App extends Component {
   constructor(props) {
@@ -34,6 +35,7 @@ class App extends Component {
     const stateProps = {
       switchTheme: this.switchTheme,
     };
+
     return (
       <ThemeProvider theme={this.state.theme}>
         <BrowserRouter>
@@ -101,7 +103,7 @@ class App extends Component {
             />
             <Route
               path="/dashboard/:id/:mediaType/:mediaId"
-              component={Workspace}
+              render={(props) => <Workspace {...props} {...stateProps} />}
             />
             <Route path="/not-found" component={NotFound} />
             <Redirect to="/not-found" />

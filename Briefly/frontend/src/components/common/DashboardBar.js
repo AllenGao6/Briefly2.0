@@ -54,6 +54,8 @@ const useStyles = makeStyles((theme) => ({
   },
   logoContainer: {
     paddingRight: 0,
+    paddingTop: 0,
+    paddingBottom: 0,
   },
   specialText: {
     color: theme.palette.common.blue,
@@ -70,8 +72,8 @@ const useStyles = makeStyles((theme) => ({
   },
   avatar: { color: "white", width: 45, height: 45 },
   accountAvatar: {
-    height: 45,
-    width: 45,
+    height: 35,
+    width: 35,
     background: theme.palette.secondary.main,
     color: "white",
     "&:hover": {
@@ -117,6 +119,7 @@ const useStyles = makeStyles((theme) => ({
     marginRight: "0.8rem",
   },
   search: {
+    width: 250,
     background:
       theme.palette.type === "dark"
         ? theme.palette.primary.main
@@ -369,7 +372,7 @@ function DashboardBar({
           <Toolbar disableGutters className={classes.toolbar}>
             <Grid
               container
-              justify="space-around"
+              justify="space-between"
               alignItems="center"
               className={clsx(classes.gridContainer, {
                 [classes.appBarShift]: open && !matchesXS,
@@ -377,41 +380,43 @@ function DashboardBar({
             >
               <Grid
                 item
-                container
                 justify="flex-start"
                 alignItems="center"
                 style={{
                   marginLeft: "1rem",
+                  display: "flex",
                 }}
-                xs
               >
-                <Grid item>
-                  <IconButton
-                    className={classes.menuIconContainer}
-                    onClick={handleDrawerToggle}
-                  >
-                    <MenuIcon className={classes.menuIcon} />
-                  </IconButton>
-                </Grid>
+                <IconButton
+                  className={classes.menuIconContainer}
+                  onClick={handleDrawerToggle}
+                >
+                  <MenuIcon className={classes.menuIcon} />
+                </IconButton>
+
                 <Hidden smDown>
-                  <Grid item>
-                    <Button
-                      className={classes.logoContainer}
-                      component={Link}
-                      to="/"
-                    >
-                      <img
-                        src={matchesDark ? logo : blackLogo}
-                        alt="briefly logo"
-                        className={classes.logo}
-                      />
-                    </Button>
-                  </Grid>
+                  <Button
+                    className={classes.logoContainer}
+                    component={Link}
+                    to="/"
+                  >
+                    <img
+                      src={matchesDark ? logo : blackLogo}
+                      alt="briefly logo"
+                      className={classes.logo}
+                    />
+                  </Button>
                 </Hidden>
                 <Hidden xsDown>
                   {!open ? (
-                    <Grid item style={{ marginLeft: "1rem" }}>
+                    <Grid
+                      item
+                      style={{
+                        display: "inline-flex",
+                      }}
+                    >
                       <InputBase
+                        style={{ marginLeft: "1rem", verticalAlign: "center" }}
                         placeholder="Search..."
                         id="search"
                         variant="outlined"
@@ -419,7 +424,6 @@ function DashboardBar({
                         fullWidth
                         size="small"
                         classes={{ root: classes.search }}
-                        className={classes.searchInput}
                         startAdornment={
                           <InputAdornment position="start">
                             <SearchOutlinedIcon
@@ -440,18 +444,7 @@ function DashboardBar({
                 container
                 justify="flex-end"
                 alignItems="center"
-                xs
-                style={{
-                  marginRight: "1.5rem",
-                  minWidth: 140,
-                  flexGrow: !open
-                    ? matches
-                      ? matchesSM
-                        ? 3
-                        : 0.4
-                      : 0.1
-                    : 1.2,
-                }}
+                style={{ marginRight: "1rem", width: "auto" }}
               >
                 <Grid item style={{ marginRight: "1rem" }}>
                   {matchesDark ? (
@@ -474,7 +467,7 @@ function DashboardBar({
                     </IconButton>
                   )}
                 </Grid>
-                <Grid item>{user ? profileMenu : loginButton}</Grid>
+                {user ? profileMenu : loginButton}
               </Grid>
             </Grid>
           </Toolbar>

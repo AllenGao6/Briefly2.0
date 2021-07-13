@@ -186,6 +186,7 @@ function Dashboard(props) {
         collectionDialog={collectionDialog}
         isDashboard={props.isDashboard}
         history={props.history}
+        isWorkspace={false}
       />
       <DashboardBar
         handleDrawerToggle={handleDrawerToggle}

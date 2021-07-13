@@ -29,6 +29,7 @@ const useStyles = makeStyles((theme) => ({
     width: 360,
     height: 264,
     background: theme.palette.common.icon,
+    zIndex: 10,
   },
   cardText: {
     color: theme.palette.type === "dark" ? "white" : theme.palette.common.grey,
@@ -181,7 +182,7 @@ function CollectionCard({
         placement="bottom"
         onClose={handleClose}
         component={CardSettings}
-        elevation={3}
+        elevation={6}
         style={{ borderRadius: 5, background: "white" }}
       />
     </Card>

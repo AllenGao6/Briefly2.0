@@ -173,7 +173,7 @@ export default function DashboardContent({
       })}
       direction="column"
       justify="flex-start"
-      style={{ minHeight: "100vh" }}
+      style={{ position: "relative" }}
     >
       <Grid
         item
@@ -206,6 +206,7 @@ export default function DashboardContent({
         style={{
           paddingTop: trigger ? "5rem" : "2rem",
           zIndex: 0,
+          minHeight: "100vh",
         }}
       >
         {isDashboard ? (
