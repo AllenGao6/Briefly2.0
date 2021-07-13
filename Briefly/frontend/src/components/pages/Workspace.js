@@ -26,6 +26,11 @@ class Workspace extends Component {
     navbarOpen: false,
   };
 
+  componentDidMount = () => {
+    this.props.loadVideosInCollection(this.props.match.params.id);
+    this.props.loadAudiosInCollection(this.props.match.params.id);
+  };
+
   handleDrawerToggle = () => {
     this.setState({ navbarOpen: !this.state.navbarOpen });
   };
