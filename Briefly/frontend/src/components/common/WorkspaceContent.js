@@ -66,7 +66,7 @@ export default function WorkspaceContent({ open }) {
           minHeight: "100vh",
         }}
       >
-        <Typography variant="h2">asklh</Typography>
+        <Typography variant="h2">Start From Here...</Typography>
       </Grid>
     </Grid>
   );

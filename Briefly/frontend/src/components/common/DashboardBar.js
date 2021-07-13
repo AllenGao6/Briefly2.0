@@ -72,8 +72,8 @@ const useStyles = makeStyles((theme) => ({
   },
   avatar: { color: "white", width: 45, height: 45 },
   accountAvatar: {
-    height: 35,
-    width: 35,
+    height: 45,
+    width: 45,
     background: theme.palette.secondary.main,
     color: "white",
     "&:hover": {
