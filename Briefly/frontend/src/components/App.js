@@ -1,14 +1,15 @@
 import React, { Component } from "react";
 import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
+import LandingPage from "./pages/LandingPage";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import Workspace from "./pages/Workspace";
 //ui interface module
 import theme from "./Theme";
 import darkTheme from "./DarkTheme";
 import { ThemeProvider } from "@material-ui/styles";
 //google login
-import LandingPage from "./pages/LandingPage";
 //toast
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -64,6 +65,7 @@ class App extends Component {
             />
             <Route
               path="/dashboard/:id/video"
+              exact
               render={(props) => (
                 <Dashboard
                   {...props}
@@ -75,6 +77,7 @@ class App extends Component {
             />
             <Route
               path="/dashboard/:id/audio"
+              exact
               render={(props) => (
                 <Dashboard
                   {...props}
@@ -86,6 +89,7 @@ class App extends Component {
             />
             <Route
               path="/dashboard/:id/text"
+              exact
               render={(props) => (
                 <Dashboard
                   {...props}
@@ -94,6 +98,10 @@ class App extends Component {
                   mediaType={"text"}
                 />
               )}
+            />
+            <Route
+              path="/dashboard/:id/:mediaType/:mediaId"
+              component={Workspace}
             />
             <Route path="/not-found" component={NotFound} />
             <Redirect to="/not-found" />

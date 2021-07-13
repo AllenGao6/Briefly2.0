@@ -425,7 +425,7 @@ function CollectionTable({
   };
 
   const handleTitleClick = (id) => {
-    history.push("/dashboard");
+    history.push(`/dashboard/${match.params.id}/${mediaType}/${id}/`);
   };
 
   const handleUpdate = () => {
