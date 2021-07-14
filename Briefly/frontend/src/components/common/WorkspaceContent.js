@@ -9,6 +9,8 @@ import {
 } from "@material-ui/core";
 import clsx from "clsx";
 import { darken, lighten } from "@material-ui/core/styles";
+import SplitPane from "react-split-pane";
+import "../../../static/css/split.css"; // do not delete!
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -31,6 +33,11 @@ const useStyles = makeStyles((theme) => ({
       duration: theme.transitions.duration.enteringScreen,
     }),
   },
+  block: {
+    height: "100%",
+    width: "100%",
+  },
+  splitPane: {},
 }));
 
 export default function WorkspaceContent({ open }) {
@@ -40,34 +47,37 @@ export default function WorkspaceContent({ open }) {
   const matchesSM = useMediaQuery(theme.breakpoints.down("sm"));
   const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
 
-  const [value, setValue] = useState(0);
-  const descriptionHeight = 400;
-  const trigger = useScrollTrigger({
-    target: window ? window : undefined,
-    disableHysteresis: true,
-    threshold: descriptionHeight,
-  });
-
   return (
-    <Grid
-      container
+    <div
       className={clsx(classes.root, {
         [classes.contentShift]: open && !matchesXS,
       })}
-      direction="column"
-      justify="flex-start"
+      style={{ position: "relative" }}
     >
       {/* <Divider variant="middle" classes={{ root: classes.divider }} /> */}
-      <Grid
-        item
-        style={{
-          paddingTop: trigger ? "5rem" : "2rem",
-          zIndex: 0,
-          minHeight: "100vh",
-        }}
+      <SplitPane
+        split="vertical"
+        defaultSize="50%"
+        className={classes.splitPane}
+        style={{ height: "100vh" }}
       >
-        <Typography variant="h2">Start From Here...</Typography>
-      </Grid>
-    </Grid>
+        <SplitPane
+          split="horizontal"
+          defaultSize="50%"
+          className={classes.splitPane}
+        >
+          <div></div>
+          <div></div>
+        </SplitPane>
+        <SplitPane
+          split="horizontal"
+          defaultSize="50%"
+          className={classes.splitPane}
+        >
+          <div></div>
+          <div></div>
+        </SplitPane>
+      </SplitPane>
+    </div>
   );
 }

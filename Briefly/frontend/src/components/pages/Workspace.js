@@ -11,7 +11,7 @@ import WorkspaceBar from "../common/WorkspaceBar";
 import MediaScrollbar from "../common/MediaScrollbar";
 import WorkspaceContent from "../common/WorkspaceContent";
 //resizeable grid experimenting
-import { Rnd } from 'react-rnd';
+import { Rnd } from "react-rnd";
 
 const useStyles = (theme) => {
   const matchesDark = theme.palette.type === "dark";
@@ -41,14 +41,12 @@ class Workspace extends Component {
     this.setState({ navbarOpen: !this.state.navbarOpen });
   };
 
-
   render() {
     const { classes, history } = this.props;
     const { navbarOpen } = this.state;
 
     return (
       <React.Fragment>
-
         <MediaScrollbar
           open={navbarOpen}
           onClose={this.handleDrawerToggle}
@@ -61,7 +59,8 @@ class Workspace extends Component {
           open={navbarOpen}
           history={history}
         />
-        <div>{/* <Rnd
+        <div>
+          {/* <Rnd
           minHeight={100}
           disableDragging={true}
           enableResizing={{ top:false, right:true, bottom:false, left:false, topRight:false, bottomRight:false, bottomLeft:false, topLeft:false }}
@@ -76,7 +75,8 @@ class Workspace extends Component {
           }}
         >
           <WorkspaceContent open={navbarOpen} />
-        </Rnd> */}</div>
+        </Rnd> */}
+        </div>
         <WorkspaceContent open={navbarOpen} />
       </React.Fragment>
     );
