@@ -15,8 +15,8 @@ const useStyles = makeStyles((theme) => ({
 const PlayingVideo = () => (
     <ReactPlayer
       controls
-      width="880px"
-      height="495px"
+      width="800px"
+      height="450px"
       url={"https://www.youtube.com/watch?v=pVT__5g_S1E"}
     />
 );

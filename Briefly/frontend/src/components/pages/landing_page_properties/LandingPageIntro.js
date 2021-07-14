@@ -123,7 +123,7 @@ export const IntroSection = () => {
               justify="space-evenly"
               className={classes.introContainer}
           >
-              {lengthArray(9).map((item, idx) => (
+              {lengthArray(6).map((item, idx) => (
               <MyCard
                   key={idx}
                   icon={icons2[idx]}

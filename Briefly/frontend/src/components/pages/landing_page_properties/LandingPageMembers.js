@@ -1,8 +1,9 @@
 import {makeStyles} from "@material-ui/styles";
-import {Avatar, Card, Container, Paper, Grid, Typography, CardMedia,} from "@material-ui/core";
-import {teamInfo} from "./data.js";
+import {Avatar, Card, Container, Grid, Typography} from "@material-ui/core";
+import { teamInfo } from "./data";
 import React from 'react';
-import head5 from "../../../assets/heads/head5.jpg";
+import main from "../../../assets/heads/main.jpg";
+import "./style.css";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -23,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
         color: "#2980b9",
     },
     teamContainer: {
-        width: "80%",
+        width: "87%",
     },
     teamMemberStrip: {
         marginBottom: "50px",
@@ -31,28 +32,100 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
+const radius = 40
+const cardWidth = 340
+const descriptionHeight = 160
+const cardBorderRadius = 5
+const cardBackgroundColor = "#ecf0f1"
+
 const MemberInfoStrip = (props) => {
-    const classes = useStyles()
-    return(
-        <>
+    return (
+      <>
+        <Grid
+          justify="center"
+          align-items="flex-start"
+          direction="column"
+          container
+          style={{ width: `${cardWidth}px`,
+                   marginLeft: "10px",
+                   marginRight: "10px"
+          }}
+        >
+          <Avatar
+            alt="Team Member"
+            variant="circle"
+            src={props.headImage}
+            style={{
+              marginBottom: `${-radius}px`,
+              marginLeft: `${(cardWidth-radius*2)*0.5}px`,
+              height:`${radius*2}px`,
+              width:`${radius*2}px`
+            }}
+          />
+          <Card
+            elevation={5}
+            style={{
+              backgroundColor: cardBackgroundColor,
+              borderRadius:`${cardBorderRadius}px`
+            }}
+          >
+            <Container
+              height={`${cardBorderRadius}px`}
+              style={{ height: "10px", backgroundColor: "#8e44ad" }}
+            ><></>
+            </Container>
             <Grid
-                justify='center'
-                align-items='center'
-                direction='column'
-                container
-                style={{backgroundColor:"#3498db"}}
+              container
+              justify="center"
             >
-                <Avatar 
-                    alt="Remy Sharp" 
-                    src={head5}
-                    style={{marginBottom:"-20px", marginLeft:"30px"}}/>
-                <Card style={{height:"100px", width:"100px", backgroundColor:"#95a5a6"}}>
-                    <Grid style={{height:"100px", width:"100%", color:"#c0392b"}}></Grid>
-                </Card>
+              <Typography
+                variant='h5'
+                style={{marginTop:`${radius}px`, fontSize:"1.5rem"}}
+              >
+                {props.name}
+              </Typography>
             </Grid>
-        </>
-    )
-};
+  
+            <Grid
+              container
+              justify="center"
+              style={{color:"#8e44ad"}}
+            >
+              <Typography
+                variant='p'
+                style={{ fontSize:"0.9rem" }}
+              >
+                {props.position}
+              </Typography>
+            </Grid>
+            
+            <Grid
+              container
+              justify="center"
+              style={{marginBottom: "10px"}}
+            >
+              <Typography
+                variant='body2'
+                id="scroll"
+                style={{
+                  overflowY: 'scroll',
+                  height: `${descriptionHeight}px`,
+                  resize: "none",
+                  padding:"10px",
+                  madginTop:"10px"
+                }}
+              >
+                {props.description}
+              </Typography>
+            </Grid>
+  
+          </Card>
+          
+        </Grid>
+      </>
+    );
+  };
+
 
 export const MemberSection = () => {
     const classes = useStyles()
@@ -73,8 +146,10 @@ export const MemberSection = () => {
                 >
                     Team
                 </Typography>
-                <Grid container justify="center" direction="column">
-                    <MemberInfoStrip />
+                <Grid container align-items="flex-start">
+                    {teamInfo.map((member, idx) => 
+                        <MemberInfoStrip key={idx} {...member}/>
+                    )}
                 </Grid>
             </Grid>
         </Grid>

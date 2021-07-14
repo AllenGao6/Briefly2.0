@@ -8,6 +8,7 @@ import { AboutSection } from "./landing_page_properties/LandingPageAbout"
 import { ContactSection } from "./landing_page_properties/LandingPageContact"
 import { PageFooter } from "./landing_page_properties/LandingPageFooter";
 import { MemberSection } from "./landing_page_properties/LandingPageMembers";
+import { MemberCard } from "./landing_page_properties/MemberCard";
 
 
 import { Grid,} from "@material-ui/core";

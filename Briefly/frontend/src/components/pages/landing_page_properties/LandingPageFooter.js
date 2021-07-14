@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
     secondaryCaption: {
         ...theme.typography.secondaryCaption,
         color:'inherit',
-        marginTop: '2px',
+        marginTop: '-5px',
     },
     infoFont: {
         ...theme.typography.secondaryCaption,
@@ -142,10 +142,11 @@ const Rating = ({ totalStars = 5 }) => {
                 </Typography>
                 <TextareaAutosize
                     aria-label="minimum height"
-                    rowsMin={5}
+                    rowsMin={4}
                     style={{ width: "80%" }}
                     placeholder="Some Feedbacks ..."
-                    colsmin={50}
+                    cols={40}
+                    style={{fontFamily: "Ubuntu", fontSize:"1.5rem"}}
                 />
         
                 <Button
