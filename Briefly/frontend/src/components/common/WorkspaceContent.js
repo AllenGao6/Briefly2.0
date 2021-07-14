@@ -11,6 +11,10 @@ import clsx from "clsx";
 import { darken, lighten } from "@material-ui/core/styles";
 import SplitPane from "react-split-pane";
 import "../../../static/css/split.css"; // do not delete!
+// local component
+import SummaryContent from "../workspace/SummaryContent";
+import MediaDisplay from "../workspace/MediaDisplay";
+import Transcripts from "../workspace/Transcripts";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -21,6 +25,7 @@ const useStyles = makeStyles((theme) => ({
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
     }),
+    position: "relative",
   },
   divider: {
     background: theme.palette.type === "dark" ? "white" : "black",
@@ -52,31 +57,33 @@ export default function WorkspaceContent({ open }) {
       className={clsx(classes.root, {
         [classes.contentShift]: open && !matchesXS,
       })}
-      style={{ position: "relative" }}
     >
       {/* <Divider variant="middle" classes={{ root: classes.divider }} /> */}
       <SplitPane
         split="vertical"
         defaultSize="50%"
         className={classes.splitPane}
-        style={{ height: "100vh" }}
+        style={{
+          height: "-moz-calc(100vh - 69px)",
+          height: "-webkit-calc(100vh - 69px)",
+          border: "15px solid rgba(0, 0, 0, 0.1)",
+        }}
+        minSize={1}
+        maxSize={-46}
+        primary="second"
       >
         <SplitPane
           split="horizontal"
           defaultSize="50%"
           className={classes.splitPane}
+          primary="second"
+          minSize={1}
+          maxSize={-46}
         >
-          <div></div>
-          <div></div>
+          <MediaDisplay />
+          <Transcripts />
         </SplitPane>
-        <SplitPane
-          split="horizontal"
-          defaultSize="50%"
-          className={classes.splitPane}
-        >
-          <div></div>
-          <div></div>
-        </SplitPane>
+        <SummaryContent />
       </SplitPane>
     </div>
   );
