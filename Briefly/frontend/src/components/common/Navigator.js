@@ -180,11 +180,11 @@ export default function Navigator(props) {
             Briefly
           </Typography>
         </ListItem>
-        <ListItem className={clsx(classes.item, classes.itemCategory)}>
+        <ListItem className={clsx(classes.item, classes.itemCategory)} onClick={()=>{props.history.push(`/dashboard`)}} button>
           <ListItemIcon className={classes.itemIcon}>
             <HomeIcon style={{ color: "white" }} />
           </ListItemIcon>
-          <Typography variant="h5" style={{ color: "white" }}>
+          <Typography variant="h5" style={{ color: "white" }} >
             Home
           </Typography>
         </ListItem>

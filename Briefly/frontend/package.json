@@ -42,6 +42,7 @@
     "react-particles-js": "^3.5.3",
     "react-player": "^1.6.4",
     "react-redux": "^7.2.4",
+    "react-rnd": "^10.3.4",
     "react-router-dom": "^5.2.0",
     "react-toastify": "^7.0.4",
     "react-tsparticles": "^1.31.1",
