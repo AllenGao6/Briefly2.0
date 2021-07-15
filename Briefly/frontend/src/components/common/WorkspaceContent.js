@@ -42,10 +42,9 @@ const useStyles = makeStyles((theme) => ({
     height: "100%",
     width: "100%",
   },
-  splitPane: {},
 }));
 
-export default function WorkspaceContent({ open }) {
+export default function WorkspaceContent({ open, media, mediaType }) {
   const theme = useTheme();
   const classes = useStyles();
   const matchesDark = theme.palette.type === "dark";
@@ -58,11 +57,9 @@ export default function WorkspaceContent({ open }) {
         [classes.contentShift]: open && !matchesXS,
       })}
     >
-      {/* <Divider variant="middle" classes={{ root: classes.divider }} /> */}
       <SplitPane
         split="vertical"
         defaultSize="50%"
-        className={classes.splitPane}
         style={{
           height: "-moz-calc(100vh - 69px)",
           height: "-webkit-calc(100vh - 69px)",
@@ -80,10 +77,10 @@ export default function WorkspaceContent({ open }) {
           minSize={1}
           maxSize={-46}
         >
-          <MediaDisplay />
-          <Transcripts />
+          <MediaDisplay media={media} mediaType={mediaType} />
+          <Transcripts media={media} />
         </SplitPane>
-        <SummaryContent />
+        <SummaryContent media={media} />
       </SplitPane>
     </div>
   );

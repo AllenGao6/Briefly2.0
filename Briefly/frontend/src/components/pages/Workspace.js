@@ -26,7 +26,7 @@ const useStyles = (theme) => {
 class Workspace extends Component {
   state = {
     navbarOpen: false,
-    search: '',
+    search: "",
     x: 0,
     y: 0,
     width: 320,
@@ -38,9 +38,9 @@ class Workspace extends Component {
     this.props.loadAudiosInCollection(this.props.match.params.id);
   };
 
-  setSearch = (search) =>{
-    this.setState({search});
-  }
+  setSearch = (search) => {
+    this.setState({ search });
+  };
   handleDrawerToggle = () => {
     this.setState({ navbarOpen: !this.state.navbarOpen });
   };
@@ -48,11 +48,23 @@ class Workspace extends Component {
   filter_media = (medias) => {
     return medias.filter((item) =>
       item.title.toLowerCase().includes(this.state.search.toLowerCase())
-    )
+    );
+  };
+
+  getMedia = () => {
+    switch (this.props.match.params.mediaType) {
+      case "video":
+        return this.props.videos;
+      case "audio":
+        return this.props.audios;
+      case "text":
+      default:
+        return [];
+    }
   };
 
   render() {
-    const { classes, history, videos, audios, match} = this.props;
+    const { classes, history, videos, audios, match } = this.props;
     const { navbarOpen, search } = this.state;
     const media_type = match.params.mediaType;
     const filter = this.filter_media;
@@ -68,7 +80,7 @@ class Workspace extends Component {
           setSearch={this.setSearch}
           search={search}
           media_type={media_type}
-          media={media_type === 'video' ? filter(videos) : (media_type === 'audio' ? filter(audios) : null )}
+          media={filter(this.getMedia())}
         />
         <WorkspaceBar
           {...this.props}
@@ -76,25 +88,13 @@ class Workspace extends Component {
           open={navbarOpen}
           history={history}
         />
-        <div>
-          {/* <Rnd
-          minHeight={100}
-          disableDragging={true}
-          enableResizing={{ top:false, right:true, bottom:false, left:false, topRight:false, bottomRight:false, bottomLeft:false, topLeft:false }}
-          size={{ width: this.state.width, height: this.state.height }}
-          position={{ x: this.state.x, y: this.state.y }}
-          onResizeStop={(e, direction, ref, delta, position) => {
-            this.setState({
-              width: ref.style.width,
-              height: ref.style.height,
-              ...position,
-            });
-          }}
-        >
-          <WorkspaceContent open={navbarOpen} />
-        </Rnd> */}
-        </div>
-        <WorkspaceContent open={navbarOpen} />
+        <WorkspaceContent
+          open={navbarOpen}
+          media={
+            this.getMedia().filter((item) => item.id == match.params.mediaId)[0]
+          }
+          mediaType={media_type}
+        />
       </React.Fragment>
     );
   }
