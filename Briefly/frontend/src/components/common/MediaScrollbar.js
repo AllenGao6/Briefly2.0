@@ -14,14 +14,18 @@ import {
   InputAdornment,
   InputBase,
 } from "@material-ui/core";
+import Divider from "@material-ui/core/Divider";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import HomeIcon from "@material-ui/icons/Home";
 import SearchOutlinedIcon from "@material-ui/icons/SearchOutlined";
-
-
+import Avatar from '@material-ui/core/Avatar';
+import VideoLibraryIcon from '@material-ui/icons/VideoLibrary';
+import ListItemAvatar from '@material-ui/core/ListItemAvatar';
+import DescriptionIcon from '@material-ui/icons/Description';
+import AudiotrackIcon from '@material-ui/icons/Audiotrack';
 
 const useStyles = makeStyles((theme) => ({
   drawerPaper: {
@@ -45,6 +49,20 @@ const useStyles = makeStyles((theme) => ({
     minWidth: "auto",
     marginRight: theme.spacing(2),
   },
+  divider: {
+    background: "black",
+  },
+  search: {
+    width: 250,
+    // background:
+    //   theme.palette.type === "dark"
+    //     ? theme.palette.primary.main
+    //     : lighten("#2481F4", 0.2),
+    height: "2.8rem",
+    padding: "1rem",
+    // color: "white",
+    fontSize: "1.25rem",
+  },
 }));
 
 export default function MediaScrollbar(props) {
@@ -53,6 +71,9 @@ export default function MediaScrollbar(props) {
   const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
 
   const { ...other } = props; // important, don't delete!
+  const {media, media_type} = props;
+
+  // console.log(props.media);
 
   return (
     <Drawer
@@ -95,10 +116,10 @@ export default function MediaScrollbar(props) {
             placeholder="Search..."
             id="search"
             variant="outlined"
-            // value={search}
+            value={props.search}
             fullWidth
             size="small"
-            // classes={{ root: classes.search }}
+            classes={{ root: classes.search }}
             startAdornment={
               <InputAdornment position="start">
                 <SearchOutlinedIcon
@@ -106,10 +127,20 @@ export default function MediaScrollbar(props) {
                 />
               </InputAdornment>
             }
-            // onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) => props.setSearch(event.target.value)}
           >
       </InputBase>
         </ListItem>
+        <Divider variant="middle" className={classes.divider} />
+        {media.map((item, index) => (
+          <ListItem key={index} onClick={() => props.history.push(`/dashboard/${item.collection}/${media_type}/${item.id}`)} button>
+            <ListItemAvatar>
+                {media_type === 'video' ? <VideoLibraryIcon /> : (media_type === 'audio' ? <AudiotrackIcon /> : <DescriptionIcon />)}
+            </ListItemAvatar>
+            <ListItemText primary={item.title} secondary={item.created} />
+          </ListItem>
+      ))}
+    
       </List>
       
     </Drawer>

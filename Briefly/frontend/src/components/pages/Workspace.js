@@ -26,6 +26,7 @@ const useStyles = (theme) => {
 class Workspace extends Component {
   state = {
     navbarOpen: false,
+    search: '',
     x: 0,
     y: 0,
     width: 320,
@@ -37,14 +38,26 @@ class Workspace extends Component {
     this.props.loadAudiosInCollection(this.props.match.params.id);
   };
 
+  setSearch = (search) =>{
+    this.setState({search});
+  }
   handleDrawerToggle = () => {
     this.setState({ navbarOpen: !this.state.navbarOpen });
   };
 
-  render() {
-    const { classes, history } = this.props;
-    const { navbarOpen } = this.state;
+  filter_media = (medias) => {
+    return medias.filter((item) =>
+      item.title.toLowerCase().includes(this.state.search.toLowerCase())
+    )
+  };
 
+  render() {
+    const { classes, history, videos, audios, match} = this.props;
+    const { navbarOpen, search } = this.state;
+    const media_type = match.params.mediaType;
+    const filter = this.filter_media;
+
+    //console.log('this is ',videos);
     return (
       <React.Fragment>
         <MediaScrollbar
@@ -52,6 +65,10 @@ class Workspace extends Component {
           onClose={this.handleDrawerToggle}
           history={history}
           isWorkspace={true}
+          setSearch={this.setSearch}
+          search={search}
+          media_type={media_type}
+          media={media_type === 'video' ? filter(videos) : (media_type === 'audio' ? filter(audios) : null )}
         />
         <WorkspaceBar
           {...this.props}
