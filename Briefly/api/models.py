@@ -61,6 +61,11 @@ def upload_video_name(instance, filename):
 #     return '/'.join(url_path)
 
 class Video(models.Model):
+    MODEL_TYPE_CHOICES = [
+        ('B', 'BERT'),
+        ('G', 'GPT-2'),
+        ('X', 'XLNet')
+    ]
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     is_archived = models.BooleanField(blank=True, default=False)
@@ -68,6 +73,8 @@ class Video(models.Model):
     video = models.FileField(upload_to=upload_video_name, null=True, blank=True)
     transcript = models.JSONField(null=True, blank=True)
     summarization = models.JSONField(null=True, blank=True)
+    num_sentences = models.IntegerField(default=0)
+    model_type = models.CharField(max_length=1, choices=MODEL_TYPE_CHOICES, blank=True, null=True)
     created = models.DateField(auto_now_add=True)
     audioText = models.TextField(null=True, blank=True)
     fileSize = models.IntegerField(default=0)
@@ -90,6 +97,11 @@ def upload_audio_name(instance, filename):
 #     return '/'.join(url_path)
 
 class Audio(models.Model):
+    MODEL_TYPE_CHOICES = [
+        ('B', 'BERT'),
+        ('G', 'GPT-2'),
+        ('X', 'XLNet')
+    ]
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     is_archived = models.BooleanField(blank=True, default=False)
@@ -97,6 +109,8 @@ class Audio(models.Model):
     audio = models.FileField(upload_to=upload_audio_name, null=True, blank=True)
     transcript = models.JSONField(null=True, blank=True)
     summarization = models.JSONField(null=True, blank=True)
+    num_sentences = models.IntegerField(default=0)
+    model_type = models.CharField(max_length=1, choices=MODEL_TYPE_CHOICES, blank=True, null=True)
     created = models.DateField(auto_now_add=True)
     audioText = models.TextField(null=True, blank=True)
     fileSize = models.IntegerField(default=0)

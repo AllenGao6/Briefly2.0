@@ -70,6 +70,8 @@ export default function SummaryContent({ media }) {
   const [numSentences, setNumSentences] = useState(5);
   const [optimalSentence, setOptimalSentence] = useState(false);
   const [modelType, setModelType] = useState(0);
+  const fakeData = media.transcript;
+  console.log(fakeData);
 
   const summarize = () => {
     const summaryOptions = {
@@ -138,7 +140,7 @@ export default function SummaryContent({ media }) {
   };
 
   return (
-    <Grid container direction="column">
+    <Grid container direction="column" style={{ minWidth: 300 }}>
       <Grid item container>
         <Tabs
           value={value}
