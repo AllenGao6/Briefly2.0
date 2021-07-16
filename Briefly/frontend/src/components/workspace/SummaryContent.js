@@ -19,9 +19,13 @@ import {
   useMediaQuery,
   TextField,
   Checkbox,
+  Paper,
+  IconButton,
 } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/styles";
 import EmptyIcon from "@material-ui/icons/HourglassEmpty";
+import ResetIcon from "@material-ui/icons/Cached";
+import AddIcon from "@material-ui/icons/AddBoxOutlined";
 
 const useStyles = makeStyles((theme) => {
   const matchesDark = theme.palette.type === "dark";
@@ -56,6 +60,29 @@ const useStyles = makeStyles((theme) => {
     divider: {
       background: theme.palette.type === "dark" ? "white" : "black",
     },
+    cardOutline: {
+      width: "100%",
+      paddingLeft: 15,
+      paddingRight: 15,
+      paddingTop: 5,
+      paddingBottom: 5,
+      background: matchesDark ? undefined : theme.palette.common.cloud,
+    },
+    summaryStatus: {
+      padding: 10,
+      borderRadius: 15,
+    },
+    text: {
+      color: matchesDark ? "white" : theme.palette.common.grey,
+    },
+    specialText: {
+      fontStyle: "italic",
+      color: matchesDark
+        ? theme.palette.common.orange
+        : theme.palette.common.blue,
+      paddingLeft: "0.5rem",
+      fontWeight: 1000,
+    },
   };
 });
 
@@ -70,13 +97,13 @@ export default function SummaryContent({ media }) {
   const [numSentences, setNumSentences] = useState(5);
   const [optimalSentence, setOptimalSentence] = useState(false);
   const [modelType, setModelType] = useState(0);
-  const fakeData = media.transcript;
-  console.log(fakeData);
+  const [dev, setDev] = useState(false);
 
   const summarize = () => {
     const summaryOptions = {
       model_type: getModelType(),
       num_sentences: optimalSentence ? null : numSentences,
+      id: media.id,
     };
     console.log(summaryOptions);
   };
@@ -97,21 +124,34 @@ export default function SummaryContent({ media }) {
     setOpen(false);
   };
 
+  const handleReset = () => {
+    console.log("reset");
+  };
+
+  const handleAddBulletPoint = () => {
+    console.log("add bullet points");
+  };
+
   const getModelType = () => {
     switch (modelType) {
       case 1:
-        return "BERT";
+        return "B";
       case 2:
-        return "GPT-2";
+        return "G";
       case 3:
-        return "XLNet";
+        return "X";
       default:
-        return "BERT";
+        return "B";
     }
   };
 
   const Summary = (media) => {
-    if (!media.is_summarized) {
+    media = {
+      ...media,
+      model_type: "BERT",
+      num_sentences: 10,
+    };
+    if (!dev && !media.is_summarized) {
       return (
         <React.Fragment>
           <Grid item>
@@ -133,9 +173,58 @@ export default function SummaryContent({ media }) {
               Start Summarization
             </Button>
           </Grid>
+          <Grid item style={{ marginTop: "1.5rem" }}>
+            <Button
+              variant="contained"
+              color={matchesDark ? "secondary" : "primary"}
+              style={{ color: "white" }}
+              onClick={() => setDev(true)}
+            >
+              See Bullet Points (dev mode)
+            </Button>
+          </Grid>
         </React.Fragment>
       );
     } else {
+      return (
+        <Grid item container className={classes.summaryStatus}>
+          <Paper className={classes.cardOutline}>
+            <Grid container justify="space-between" alignItems="center">
+              <Grid item>
+                <Grid item container direction="column">
+                  <Grid item container>
+                    <Typography variant="h6" className={classes.text}>
+                      Model Type:
+                    </Typography>
+                    <Typography variant="h6" className={classes.specialText}>
+                      {media.model_type}
+                    </Typography>
+                  </Grid>
+                  <Grid item container style={{ marginTop: 5 }}>
+                    <Typography variant="h6" className={classes.text}>
+                      Bullet Points:
+                    </Typography>
+                    <Typography variant="h6" className={classes.specialText}>
+                      {media.num_sentences}
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item>
+                <IconButton>
+                  <ResetIcon className={classes.icon} onClick={handleReset} />
+                </IconButton>
+                <IconButton onClick={handleAddBulletPoint}>
+                  <AddIcon className={classes.icon} />
+                </IconButton>
+              </Grid>
+            </Grid>
+          </Paper>
+          <Paper className={classes.cardOutline} style={{ marginTop: 10 }}>
+            <Grid container direction="column" style={{ height: 500 }}></Grid>
+          </Paper>
+        </Grid>
+      );
     }
   };
 
@@ -157,7 +246,7 @@ export default function SummaryContent({ media }) {
         item
         container
         className={classes.sectionContainer}
-        justify="center"
+        justify={dev ? "flex-start" : "center"}
         alignItems="center"
         direction="column"
       >
