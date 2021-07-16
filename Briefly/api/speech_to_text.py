@@ -188,7 +188,7 @@ def read_output(data):
         audio_script_timed[line_data['line']] = [timestamp, float(line_data['time'])]
     print(audio_script_timed)
     
-    return audio_script_timed, complete_transcript
+    return audio_script_timed, complete_transcript, len(sorted_lines)
 
 
 from summarizer import Summarizer, TransformerSummarizer
@@ -206,7 +206,7 @@ def summarize(body_transcript, audio_text_timed, num_sentence=None, max_sentence
         if num_sentence == None:
             num_sentence = Bert.calculate_optimal_k(body_transcript, k_max=max_sentence)
 
-        result = Bert(body_transcript, num_sentences=num_sentence)
+        result = Bert(body_transcript, num_sentences=min(num_sentence, max_sentence))
     
     else:
         if model == 'GPT-2':
@@ -215,7 +215,7 @@ def summarize(body_transcript, audio_text_timed, num_sentence=None, max_sentence
             if num_sentence == None:
                 num_sentence = GPT2_model.calculate_optimal_k(body_transcript, k_max=max_sentence)
             
-            result = GPT2_model(body_transcript, num_sentences=num_sentence)
+            result = GPT2_model(body_transcript, num_sentences=min(num_sentence, max_sentence))
             
         elif model == 'XLNet':
             XLNet = TransformerSummarizer(transformer_type="XLNet",transformer_model_key="xlnet-base-cased")
@@ -223,14 +223,14 @@ def summarize(body_transcript, audio_text_timed, num_sentence=None, max_sentence
             if num_sentence == None:
                 num_sentence = XLNet.calculate_optimal_k(body_transcript, k_max=max_sentence)
 
-            result = XLNet(body_transcript, min_length=60)
+            result = XLNet(body_transcript, num_sentences=min(num_sentence, max_sentence))
 
     # split the result into timestamped pieces
     sentence_dict = {}
     
     for sentence in sentence_handler(result, 40, 600):
         timestamp, time_in_sec = audio_text_timed[sentence]
-        sentence_dict[time_in_sec] = [sentence, timestamp]
+        sentence_dict[sentence] = [time_in_sec, timestamp]
     
     return sentence_dict
 
