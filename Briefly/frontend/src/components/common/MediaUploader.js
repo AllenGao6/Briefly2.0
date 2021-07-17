@@ -31,6 +31,8 @@ export default function MediaUploader({
 }) {
   const fileInputRef = useRef(null);
   const classes = useStyles();
+  // controlling state for video player
+  const [played, setPlayed] = useState(0);
 
   function capitalize(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
@@ -38,7 +40,13 @@ export default function MediaUploader({
 
   return (
     <React.Fragment>
-      {mediaUrl ? <ControlledVideoPlayer mediaUrl={mediaUrl} /> : null}
+      {mediaUrl ? (
+        <ControlledVideoPlayer
+          mediaUrl={mediaUrl}
+          played={played}
+          setPlayed={setPlayed}
+        />
+      ) : null}
       {action === "Update" ? null : (
         <Grid item xs={12} className={classes.padding}>
           <input

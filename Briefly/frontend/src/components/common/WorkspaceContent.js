@@ -63,7 +63,7 @@ export default function WorkspaceContent({ open, media, mediaType }) {
         style={{
           height: "-moz-calc(100vh - 69px)",
           height: "-webkit-calc(100vh - 69px)",
-          border: "15px solid rgba(0, 0, 0, 0.1)",
+          border: "15px solid #dfe4ea",
         }}
         minSize={1}
         maxSize={-46}
@@ -71,9 +71,9 @@ export default function WorkspaceContent({ open, media, mediaType }) {
       >
         <SplitPane
           split="horizontal"
-          defaultSize="50%"
+          defaultSize="90%"
           className={classes.splitPane}
-          primary="second"
+          primary="first"
           minSize={1}
           maxSize={-46}
         >

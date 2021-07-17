@@ -128,7 +128,7 @@ const PrettoSlider = withStyles((theme) => ({
 
 let count = 0;
 
-export default function ControlledVideoPlayer({ mediaUrl }) {
+export default function ControlledVideoPlayer({ mediaUrl, played, setPlayed }) {
   const theme = useTheme();
   const classes = useStyles();
   const playerRef = useRef(null);
@@ -136,7 +136,6 @@ export default function ControlledVideoPlayer({ mediaUrl }) {
   const canvasRef = useRef(null);
   const controlRef = useRef(null);
 
-  const [played, setPlayed] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
   const [muted, setMuted] = useState(false);
   const [volume, setVolume] = useState(0.5);
@@ -377,22 +376,14 @@ export default function ControlledVideoPlayer({ mediaUrl }) {
                   onClick={() => setPlaying(!playing)}
                   className={classes.bottomIcons}
                 >
-                  {playing ? (
-                    <PauseIcon fontSize="medium" />
-                  ) : (
-                    <PlayArrowIcon fontSize="medium" />
-                  )}
+                  {playing ? <PauseIcon /> : <PlayArrowIcon />}
                 </IconButton>
                 <Hidden xsDown>
                   <IconButton
                     onClick={() => setMuted(!muted)}
                     className={classes.bottomIcons}
                   >
-                    {muted ? (
-                      <VolumeOff fontSize="medium" />
-                    ) : (
-                      <VolumeUp fontSize="medium" />
-                    )}
+                    {muted ? <VolumeOff /> : <VolumeUp />}
                   </IconButton>
                   <Slider
                     min={0}
@@ -464,7 +455,7 @@ export default function ControlledVideoPlayer({ mediaUrl }) {
                   onClick={handleToggleFullScreen}
                   className={classes.bottomIcons}
                 >
-                  <FullScreenIcon fontSize="medium" />
+                  <FullScreenIcon />
                 </IconButton>
               </Grid>
             </Grid>

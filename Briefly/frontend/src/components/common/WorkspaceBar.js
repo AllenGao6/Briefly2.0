@@ -300,7 +300,7 @@ function WorkspaceBar({
         </Grid>
       </Grid>
       {accountMenus.map((menu, i) => (
-        <React.Fragment>
+        <React.Fragment key={`accountMenus-workspace-${i}`}>
           {menu.label === "Logout" ? (
             <div key={`space-${i}`} style={{ marginTop: "1.25rem" }} />
           ) : undefined}
