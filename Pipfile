@@ -23,9 +23,9 @@ sumy = "*"
 pandas = "*"
 sklearn = "*"
 torch = "*"
-transformers = "==2.2.0"
 spacy = "*"
 bert-extractive-summarizer = "==0.7.1"
+transformers = "*"
 
 [dev-packages]
 

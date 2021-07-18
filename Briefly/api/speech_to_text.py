@@ -232,13 +232,37 @@ def summarize(body_transcript, audio_text_timed, num_sentence=None, max_sentence
     
     return summary_output
 
+# implmenting abstract summary for later potential use
+from transformers import pipeline
+def abstract_summary(body, gap_size=900):
+    tokenized_body = body.split(' ')
+    doc_mark = 0
+    summarizer = pipeline("summarization")
+    Complete_summary = ''
+    gap = len(tokenized_body) - doc_mark
 
+    while gap != 0:
+        if gap <= gap_size:
+            Complete_summary += summarizer(' '.join(tokenized_body[doc_mark::]), max_length=100, min_length=5, 
+                                            do_sample=False)[0]['summary_text']
+            break
+        else:
+            print(' '.join(tokenized_body[doc_mark: doc_mark + gap_size]))
+            Complete_summary += summarizer(' '.join(tokenized_body[doc_mark: doc_mark + 500]), max_length=100, min_length=5, 
+                                            do_sample=False)[0]['summary_text']
+            doc_mark += gap_size
+            gap = len(tokenized_body) - doc_mark
+    # trained on c4 common crawl web corpus only for tensor flow
+    #summarizer = pipeline("summarization", model="t5-base", tokenizer="t5-base", framework="tf")
+    return Complete_summary
 #url = amazon_transcribe('sample.mp4', 'Collection1', 9)
 
-# data = load_json_output('s3://briefly41/static/Collection5/video/20/video20.json')
-# x, y, z = read_output(data)
+data = load_json_output('s3://briefly41/static/Collection5/video/20/video20.json')
+x, y, z = read_output(data)
 # print('')
-# #print(x) 
+print(y)
+result_abs = abstract_summary(y)
+print(result_abs)
 # result = summarize(y, x, num_sentence=None, max_sentence=20, model='XLNet')
 # print(result)
 
