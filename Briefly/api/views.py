@@ -177,7 +177,7 @@ class VideoViewSet(viewsets.ModelViewSet):
                         return Response("Unknown failure during S3 transcribe", status=status.HTTP_400_BAD_REQUEST)
                     #video.transcript = transcribe
                     data = speech_to_text.load_json_output(transcribe)
-                    transcript, audioText = speech_to_text.read_output(data)
+                    transcript, audioText, sentences = speech_to_text.read_output(data)
                     print(f"transcribe time spent: {time()-t1:.2f}")
                     print("transcript: (for dev purpose only! delete before deploy)")
                     pprint(transcript)
@@ -200,7 +200,7 @@ class VideoViewSet(viewsets.ModelViewSet):
     Call this endpoint to start summarization with all models,
     This endpoint is avaliable if video.audioText is provided.
     
-    When method=="GET", no parameters are required, all three models will be to summarized.
+    Not avaliable: When method=="GET", no parameters are required, all three models will be to summarized.
     
     When method=="POST", following fields are required:
         model (if None, default: "Bert"),
@@ -209,8 +209,8 @@ class VideoViewSet(viewsets.ModelViewSet):
          
     URL: api/<int: collection_id>/video/<int: video_id>/summary_begin/
     '''
-    @action(methods=['GET', 'POST'],detail=True)
-    def summary_begin(self, request, *args, **kwargs):
+    @action(methods=['POST'],detail=True)
+    def summary_begin(self, request, *args, **kwargs):  
         t1 = time()
         user = request.user
         video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
@@ -220,50 +220,47 @@ class VideoViewSet(viewsets.ModelViewSet):
         video = video[0]
         if not video.audioText:
             return Response("Cannot find the audioText for this video", status=status.HTTP_400_BAD_REQUEST)
-        # if video.summarization:
-        #     return Response("You have summarized the video", status=status.HTTP_400_BAD_REQUEST)
         
-        if request.method == "POST":
-            try:
-                print("POST")
-                model = request.data.get('model', "Bert")
-                num_sentence = request.data.get('num_sentence', None)
-                max_sentence = request.data.get('max_sentence', 20)
-                summary = speech_to_text.summarize(video.audioText, loads(video.transcript), model=model, num_sentence=num_sentence, max_sentence=max_sentence)
-                print(model)
-                pprint(summary)
-                try:
-                    last_summaries = loads(video.summarization)
-                except:
-                    last_summaries = {}
-                last_summaries[model] = summary
-                video.summarization = dumps(last_summaries)
+        try:
+            model = request.data.get('model', "Bert")
+            
+            num_sentence = request.data.get('num_sentence', None)
+            if num_sentence is not None:
+                num_sentence = int(num_sentence)
+            max_sentence = int(request.data.get('max_sentence', 20))
+            summary = speech_to_text.summarize(video.audioText, loads(video.transcript), model=model, num_sentence=num_sentence, max_sentence=max_sentence)
+            pprint(summary)
+            with transaction.atomic():
+                video.model_type = model
+                video.num_sentences = num_sentence
+                video.summarization = dumps(summary)
+                video.is_summarized = True
                 video.save()
                 print(f"Individual {model} summarization  time spent: {time()-t1:.2f}")
-                pprint(summary)
+                print(model)
                 return Response(summary, status=status.HTTP_200_OK)
-            except:
-                return Response("Fail to summarize", status=status.HTTP_400_BAD_REQUEST)
-            
-        try:
-            summary_bert = speech_to_text.summarize(video.audioText, loads(video.transcript), model='Bert')
-            summary_gpt2 = speech_to_text.summarize(video.audioText, loads(video.transcript), model='GPT-2')
-            summary_xlnet = speech_to_text.summarize(video.audioText, loads(video.transcript), model='XLNet')
-            summary_total = dumps({"Bert":summary_bert, "GPT-2":summary_gpt2, "XLNet":summary_xlnet})
-            print("Bert")
-            pprint(summary_bert)
-            print("GPT-2")
-            pprint(summary_gpt2)
-            print("XLNet")
-            pprint(summary_xlnet)
-            
-            video.summarization = summary_total
-            video.save()
-            print(f"Three bundle summarization time spent: {time()-t1:.2f}")
-            return Response(summary_total, status=status.HTTP_200_OK)
-
         except:
             return Response("Fail to summarize", status=status.HTTP_400_BAD_REQUEST)
+            
+        # try:
+        #     summary_bert = speech_to_text.summarize(video.audioText, loads(video.transcript), model='Bert')
+        #     summary_gpt2 = speech_to_text.summarize(video.audioText, loads(video.transcript), model='GPT-2')
+        #     summary_xlnet = speech_to_text.summarize(video.audioText, loads(video.transcript), model='XLNet')
+        #     summary_total = dumps({"Bert":summary_bert, "GPT-2":summary_gpt2, "XLNet":summary_xlnet})
+        #     print("Bert")
+        #     pprint(summary_bert)
+        #     print("GPT-2")
+        #     pprint(summary_gpt2)
+        #     print("XLNet")
+        #     pprint(summary_xlnet)
+            
+        #     video.summarization = summary_total
+        #     video.save()
+        #     print(f"Three bundle summarization time spent: {time()-t1:.2f}")
+        #     return Response(summary_total, status=status.HTTP_200_OK)
+
+        # except:
+        #     return Response("Fail to summarize", status=status.HTTP_400_BAD_REQUEST)
             
     '''
     Call this endpoint to delete a list of videos under one collection
@@ -285,8 +282,23 @@ class VideoViewSet(viewsets.ModelViewSet):
                  
         return Response({"list_id": videos_to_delete, 'total_size': total_size, 'remaining_size': user.userprofile.remaining_size})
     
-    
-
+    @action(methods=['GET'],detail=True, permission_classes=[IsAuthenticated])
+    def reset(self, request, *args, **kwargs):
+        user = request.user
+        video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
+        if not video:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        video = video[0]
+        try:
+            video.is_summarized = False
+            video.model_type = False
+            video.num_sentences = 0
+            video.summarization = None
+            video.save()
+            return Response(f"{video} RESET success", status=status.HTTP_200_OK)
+        except :
+            return Response("Fail to reset", status=status.HTTP_400_BAD_REQUEST)
+        
 class CollectionViewSet(viewsets.ModelViewSet):
     serializer_class = CollectionSerializer
     authentication_classes = [SessionAuthentication, TokenAuthentication]
@@ -469,7 +481,7 @@ class AudioViewSet(viewsets.ModelViewSet):
     Call this endpoint to start summarization with all models,
     This endpoint is avaliable if video.audioText is provided.
     
-    When method=="GET", no parameters are required, all three models will be to summarized.
+    Not avaliable: When method=="GET", no parameters are required, all three models will be to summarized.
     
     When method=="POST", following fields are required:
         model (if None, default: "Bert"),
@@ -478,63 +490,76 @@ class AudioViewSet(viewsets.ModelViewSet):
          
     URL: api/<int: collection_id>/audio/<int: audio_id>/summary_begin/
     '''
-    @action(methods=['GET', 'POST'],detail=True, permission_classes=[IsAuthenticated])
-    def summary_begin(self, request, *args, **kwargs):
+    @action(methods=['POST'],detail=True)
+    def summary_begin(self, request, *args, **kwargs):  
         t1 = time()
         user = request.user
-        audio = Audio.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
+        video = Audio.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
         
+        if not video:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        video = video[0]
+        if not video.audioText:
+            return Response("Cannot find the audioText for this audio", status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            model = request.data.get('model', "Bert")
+            
+            num_sentence = request.data.get('num_sentence', None)
+            if num_sentence is not None:
+                num_sentence = int(num_sentence)
+            max_sentence = int(request.data.get('max_sentence', 20))
+            summary = speech_to_text.summarize(video.audioText, loads(video.transcript), model=model, num_sentence=num_sentence, max_sentence=max_sentence)
+            pprint(summary)
+            with transaction.atomic():
+                video.model_type = model
+                video.num_sentences = num_sentence
+                video.summarization = dumps(summary)
+                video.is_summarized = True
+                video.save()
+                print(f"Individual {model} summarization  time spent: {time()-t1:.2f}")
+                print(model)
+                return Response(summary, status=status.HTTP_200_OK)
+        except:
+            return Response("Fail to summarize", status=status.HTTP_400_BAD_REQUEST)
+            
+        # # this is for method=="GET"
+        # try:
+        #     summary_bert = speech_to_text.summarize(audio.audioText, loads(audio.transcript), model='Bert')
+        #     summary_gpt2 = speech_to_text.summarize(audio.audioText, loads(audio.transcript), model='GPT-2')
+        #     summary_xlnet = speech_to_text.summarize(audio.audioText, loads(audio.transcript), model='XLNet')
+        #     summary_total = dumps({"Bert":summary_bert, "GPT-2":summary_gpt2, "XLNet":summary_xlnet})
+        #     print("Bert")
+        #     pprint(summary_bert)
+        #     print("GPT-2")
+        #     pprint(summary_gpt2)
+        #     print("XLNet")
+        #     pprint(summary_xlnet)
+            
+        #     audio.summarization = summary_total
+        #     audio.save()
+        #     print(f"Three bundle summarization time spent: {time()-t1:.2f}")
+        #     return Response(summary_total, status=status.HTTP_200_OK)
+
+        # except:
+        #     return Response("Fail to summarize", status=status.HTTP_400_BAD_REQUEST)
+        
+    @action(methods=['GET'],detail=True, permission_classes=[IsAuthenticated])
+    def reset(self, request, *args, **kwargs):
+        user = request.user
+        audio = Audio.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
         if not audio:
             return Response(status=status.HTTP_404_NOT_FOUND)
         audio = audio[0]
-        if not audio.audioText:
-            return Response("Cannot find the audioText for this audio", status=status.HTTP_400_BAD_REQUEST)
-        # if video.summarization:
-        #     return Response("You have summarized the video", status=status.HTTP_400_BAD_REQUEST)
-        
-        if request.method == "POST":
-            try:
-                print("POST")
-                model = request.data.get('model', "Bert")
-                num_sentence = request.data.get('num_sentence', None)
-                max_sentence = request.data.get('max_sentence', 20)
-                summary = speech_to_text.summarize(audio.audioText, loads(audio.transcript), model=model, num_sentence=num_sentence, max_sentence=max_sentence)
-                print(model)
-                pprint(summary)
-                try:
-                    last_summaries = loads(audio.summarization)
-                except:
-                    last_summaries = {}
-                last_summaries[model] = summary
-                audio.summarization = dumps(last_summaries)
-                audio.save()
-                print(f"Individual {model} summarization  time spent: {time()-t1:.2f}")
-                pprint(summary)
-                return Response(summary, status=status.HTTP_200_OK)
-            except:
-                return Response("Fail to summarize", status=status.HTTP_400_BAD_REQUEST)
-            
-        # this is for method=="GET"
         try:
-            summary_bert = speech_to_text.summarize(audio.audioText, loads(audio.transcript), model='Bert')
-            summary_gpt2 = speech_to_text.summarize(audio.audioText, loads(audio.transcript), model='GPT-2')
-            summary_xlnet = speech_to_text.summarize(audio.audioText, loads(audio.transcript), model='XLNet')
-            summary_total = dumps({"Bert":summary_bert, "GPT-2":summary_gpt2, "XLNet":summary_xlnet})
-            print("Bert")
-            pprint(summary_bert)
-            print("GPT-2")
-            pprint(summary_gpt2)
-            print("XLNet")
-            pprint(summary_xlnet)
-            
-            audio.summarization = summary_total
+            audio.is_summarized = False
+            audio.model_type = False
+            audio.num_sentences = 0
+            audio.summarization = None
             audio.save()
-            print(f"Three bundle summarization time spent: {time()-t1:.2f}")
-            return Response(summary_total, status=status.HTTP_200_OK)
-
-        except:
-            return Response("Fail to summarize", status=status.HTTP_400_BAD_REQUEST)
-    
+            return Response(f"{audio} RESET success", status=status.HTTP_200_OK)
+        except :
+            return Response("Fail to reset", status=status.HTTP_400_BAD_REQUEST)
     
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
