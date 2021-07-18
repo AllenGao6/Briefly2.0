@@ -88,7 +88,13 @@ const useStyles = makeStyles((theme) => {
   };
 });
 
-function SummaryContent({ media, mediaType, collectionId, summarizeMedia }) {
+function SummaryContent({
+  media,
+  mediaType,
+  collectionId,
+  summarizeMedia,
+  setPlayed,
+}) {
   const classes = useStyles();
   const theme = useTheme();
   const matchesDark = theme.palette.type === "dark";
@@ -229,8 +235,8 @@ function SummaryContent({ media, mediaType, collectionId, summarizeMedia }) {
                   </Grid>
                 </Grid>
                 <Grid item>
-                  <IconButton>
-                    <ResetIcon className={classes.icon} onClick={handleReset} />
+                  <IconButton onClick={handleReset}>
+                    <ResetIcon className={classes.icon} />
                   </IconButton>
                   <IconButton onClick={handleAddBulletPoint}>
                     <AddIcon className={classes.icon} />
@@ -247,7 +253,7 @@ function SummaryContent({ media, mediaType, collectionId, summarizeMedia }) {
                 padding: 0,
               }}
             >
-              <BulletPointList />
+              <BulletPointList setPlayed={setPlayed} />
             </Paper>
           </Grid>
         </Grid>

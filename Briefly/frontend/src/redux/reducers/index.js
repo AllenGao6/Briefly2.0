@@ -4,6 +4,7 @@ import collectionReducer from "./collection_reducer";
 import videoReducer from "./video_reducer";
 import audioReducer from "./audio_reducer";
 import summarizeReducer from "./summarize_reducer";
+import playerReducer from "./player_reducer";
 
 const rootReducer = combineReducers({
   authReducer,
@@ -11,6 +12,7 @@ const rootReducer = combineReducers({
   videoReducer,
   audioReducer,
   summarizeReducer,
+  playerReducer,
 });
 
 export default rootReducer;

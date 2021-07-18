@@ -1,8 +1,9 @@
-import React, { useState, forwardRef } from "react";
+import React, { useState, forwardRef, useEffect } from "react";
 import ControlledVideoPlayer from "../common/ControlledVideoPlayer";
 import { Grid, Divider, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { useTheme } from "@material-ui/styles";
+import { connect } from "react-redux";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,9 +31,15 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function MediaDisplay({ media, mediaType, played, setPlayed }, mediaRef) {
+function MediaDisplay({ media, mediaType, seekTime }, mediaRef) {
   const theme = useTheme();
   const classes = useStyles();
+  const [played, setPlayed] = useState(0);
+
+  useEffect(() => {
+    setPlayed(seekTime);
+    if (mediaRef.current) mediaRef.current.seekTo(seekTime);
+  }, [seekTime]);
 
   if (!media) return <div className={classes.root}></div>;
   return (
@@ -52,4 +59,14 @@ function MediaDisplay({ media, mediaType, played, setPlayed }, mediaRef) {
 
 const ForwardMediaDisplay = forwardRef(MediaDisplay);
 
-export default ForwardMediaDisplay;
+function mapStateToProps(state) {
+  return {
+    seekTime: state.playerReducer.seekTime,
+  };
+}
+
+const mapDispatchToProps = {};
+
+export default connect(mapStateToProps, mapDispatchToProps, null, {
+  forwardRef: true,
+})(ForwardMediaDisplay);

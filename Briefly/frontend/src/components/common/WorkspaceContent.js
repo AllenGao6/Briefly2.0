@@ -61,6 +61,11 @@ export default function WorkspaceContent({
   const matchesSM = useMediaQuery(theme.breakpoints.down("sm"));
   const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
 
+  const handleSeeking = (time) => {
+    setPlayed(parseFloat(time));
+    mediaRef.current.seekTo(time);
+  };
+
   // const populateScreenshot = () => {
   //   return [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9].map((time) =>
   //     handleScreenshot(time)
@@ -123,20 +128,14 @@ export default function WorkspaceContent({
           minSize={1}
           maxSize={-46}
         >
-          <MediaDisplay
-            media={media}
-            mediaType={mediaType}
-            played={played}
-            setPlayed={setPlayed}
-            ref={mediaRef}
-          />
+          <MediaDisplay media={media} mediaType={mediaType} ref={mediaRef} />
           <Transcripts media={media} />
         </SplitPane>
         <SummaryContent
           media={media}
           mediaType={mediaType}
           collectionId={collectionId}
-          setPlayed={setPlayed}
+          setPlayed={handleSeeking}
         />
       </SplitPane>
       <canvas ref={canvasRef} />

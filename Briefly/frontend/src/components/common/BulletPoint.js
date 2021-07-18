@@ -19,6 +19,9 @@ import Collapse from "@material-ui/core/Collapse";
 import { darken, lighten } from "@material-ui/core/styles";
 import defaultImage from "../../assets/dummy/book.png";
 
+import { connect } from "react-redux";
+import { seekTo } from "../../redux/actions/player_actions";
+
 const useStyles = makeStyles((theme) => ({
   divider: {
     background: theme.palette.type === "dark" ? "white" : "black",
@@ -58,7 +61,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function BulletPoint({ transcript }) {
+function BulletPoint({ transcript, time, seekTo }) {
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = useState(false);
@@ -81,7 +84,11 @@ export default function BulletPoint({ transcript }) {
         <Grid container direction="column">
           <Grid item container justify="space-between" alignItems="center">
             <Grid item>
-              <Button variant="contained" className={classes.timestampButton}>
+              <Button
+                variant="contained"
+                className={classes.timestampButton}
+                onClick={() => seekTo(time)}
+              >
                 {transcript.displayed_time}
               </Button>
             </Grid>
@@ -135,15 +142,12 @@ export default function BulletPoint({ transcript }) {
   );
 }
 
-/*
-<ListItemText
-    className={classes.secondary}
-    primary={transcript.sentence}
-    secondary={transcript.time}
-/>
-<ListItemSecondaryAction>
-    <IconButton edge="end" aria-label="delete">
-    <MoreVertIcon />
-    </IconButton>
-</ListItemSecondaryAction>
-*/
+function mapStateToProps(state) {
+  return {};
+}
+
+const mapDispatchToProps = {
+  seekTo,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(BulletPoint);

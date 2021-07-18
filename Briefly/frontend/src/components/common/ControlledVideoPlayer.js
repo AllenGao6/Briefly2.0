@@ -391,7 +391,7 @@ function ControlledVideoPlayer(
                 >
                   <Grid container direction="column-reverse">
                     {[0.5, 1.0, 1.5, 2.0].map((rate, i) => (
-                      <React.Fragment>
+                      <React.Fragment key={`rate-${rate}-${i}`}>
                         <Button
                           onClick={() => handlePlaybackRateChange(rate)}
                           variant="text"
