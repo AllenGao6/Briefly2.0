@@ -23,7 +23,6 @@ from math import ceil
 from pprint import pprint
 from json import dumps, loads
 from time import time
-import cv2
 
 class VideoViewSet(viewsets.ModelViewSet):
 
@@ -46,12 +45,8 @@ class VideoViewSet(viewsets.ModelViewSet):
         
         # storage check
         fileSize = 0
-        duration = 0
         if serializer.context['request'].FILES.get('video'):
             fileSize = int(ceil(serializer.context['request'].FILES['video'].size))
-            video = cv2.VideoCapture(serializer.context['request'].FILES['video'])
-            duration = video.get(cv2.CAP_PROP_POS_MSEC)
-            print('The duration: ', duration)
             if fileSize >= user.userprofile.remaining_size:
                 raise ValidationError(f"video size {fileSize//1024//1024} mb has exceeded your remaining size: {user.userprofile.remaining_size//1024//1024} mb.")
             print(f"creating before: remaining: {user.userprofile.remaining_size}")

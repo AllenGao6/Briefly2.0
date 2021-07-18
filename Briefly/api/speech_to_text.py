@@ -2,7 +2,7 @@ import time
 import boto3
 import json
 import datetime
-from sentence_process import SentenceHandler
+from .sentence_process import SentenceHandler
 import random
 # from django.conf import settings
 
@@ -257,12 +257,12 @@ def abstract_summary(body, gap_size=900):
     return Complete_summary
 #url = amazon_transcribe('sample.mp4', 'Collection1', 9)
 
-data = load_json_output('s3://briefly41/static/Collection5/video/20/video20.json')
-x, y, z = read_output(data)
-# print('')
-print(y)
-result_abs = abstract_summary(y)
-print(result_abs)
+# data = load_json_output('s3://briefly41/static/Collection5/video/20/video20.json')
+# x, y, z = read_output(data)
+# # print('')
+# print(y)
+# result_abs = abstract_summary(y)
+# print(result_abs)
 # result = summarize(y, x, num_sentence=None, max_sentence=20, model='XLNet')
 # print(result)
 
