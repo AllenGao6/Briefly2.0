@@ -33,6 +33,7 @@ export default function MediaUploader({
   const classes = useStyles();
   // controlling state for video player
   const [played, setPlayed] = useState(0);
+  const playerRef = useRef(null);
 
   function capitalize(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
@@ -45,6 +46,8 @@ export default function MediaUploader({
           mediaUrl={mediaUrl}
           played={played}
           setPlayed={setPlayed}
+          background="white"
+          ref={playerRef}
         />
       ) : null}
       {action === "Update" ? null : (

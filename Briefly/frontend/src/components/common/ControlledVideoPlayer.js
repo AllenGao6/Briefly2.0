@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, forwardRef } from "react";
 import ReactPlayer from "react-player";
 import {
   Typography,
@@ -128,10 +128,12 @@ const PrettoSlider = withStyles((theme) => ({
 
 let count = 0;
 
-export default function ControlledVideoPlayer({ mediaUrl, played, setPlayed }) {
+function ControlledVideoPlayer(
+  { mediaUrl, played, setPlayed, background },
+  playerRef
+) {
   const theme = useTheme();
   const classes = useStyles();
-  const playerRef = useRef(null);
   const playerContainerRef = useRef(null);
   const canvasRef = useRef(null);
   const controlRef = useRef(null);
@@ -238,29 +240,6 @@ export default function ControlledVideoPlayer({ mediaUrl, played, setPlayed }) {
     count = 0;
   };
 
-  const addBookmark = () => {
-    const canvas = canvasRef.current;
-    canvas.width = 160;
-    canvas.height = 90;
-
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(
-      playerRef.current.getInternalPlayer(),
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
-    const imageUrl = canvas.toDataURL();
-    canvas.width = 0;
-    canvas.height = 0;
-
-    setBookmarks([
-      ...bookmarks,
-      { time: currentTime, display: elapesedTime, image: imageUrl },
-    ]);
-  };
-
   const open = Boolean(anchorEl);
   const id = open ? "playbackrate-popover" : undefined;
 
@@ -276,7 +255,7 @@ export default function ControlledVideoPlayer({ mediaUrl, played, setPlayed }) {
             ? "black"
             : theme.palette.type === "dark"
             ? theme.palette.primary.main.light
-            : "white",
+            : background,
         }}
       >
         {/* React Player */}　
@@ -304,27 +283,9 @@ export default function ControlledVideoPlayer({ mediaUrl, played, setPlayed }) {
           <Grid
             container
             alignItems="center"
-            justify="space-between"
+            justify="flex-end"
             style={{ padding: 16, paddingTop: "2rem" }}
-          >
-            <Grid item>
-              <Typography variant="h4" style={{ color: "white" }}>
-                Make More Time!
-              </Typography>
-            </Grid>
-            <Hidden xsDown>
-              <Grid item>
-                <Button
-                  onClick={addBookmark}
-                  variant="contained"
-                  style={{ color: "white", background: secondaryColor }}
-                  startIcon={<BookmarkIcon />}
-                >
-                  Bookmark
-                </Button>
-              </Grid>
-            </Hidden>
-          </Grid>
+          ></Grid>
           {/* Control Middle */}
           <Grid container alignItems="center" justify="center">
             <IconButton onClick={handleRewind} className={classes.controlIcons}>
@@ -462,17 +423,10 @@ export default function ControlledVideoPlayer({ mediaUrl, played, setPlayed }) {
           </Grid>
         </div>
       </Grid>
-      {/*<Grid container style={{ marginTop: 20 }} spacing={3}>
-        {bookmarks.map((bookmark, i) => (
-          <Grid item key={i}>
-            <Paper onClick={() => playerRef.current.seekTo(bookmark.time)}>
-              <img crossOrigin="anonymous" src={bookmark.image} />
-              <Typography>Bookmark at {bookmark.display}</Typography>
-            </Paper>
-          </Grid>
-        ))}
-        <canvas ref={canvasRef} />
-      </Grid>*/}
     </Container>
   );
 }
+
+const ForwardVideoPlayer = forwardRef(ControlledVideoPlayer);
+
+export default ForwardVideoPlayer;

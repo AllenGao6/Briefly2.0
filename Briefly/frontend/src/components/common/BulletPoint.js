@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 
 import List from "@material-ui/core/List";
@@ -69,7 +69,8 @@ export default function BulletPoint({ transcript }) {
 
   transcript = {
     id: 1,
-    time: "00:05:34",
+    displayed_time: "00:05:24",
+    time: 0.2,
     sentence:
       "Briefly will win the challenge. Will win the challenge. Win the challenge. The challenge. Challenge. <null>. Briefly will win the challenge. Will win the challenge. Win the challenge.",
   };
@@ -81,7 +82,7 @@ export default function BulletPoint({ transcript }) {
           <Grid item container justify="space-between" alignItems="center">
             <Grid item>
               <Button variant="contained" className={classes.timestampButton}>
-                {transcript.time}
+                {transcript.displayed_time}
               </Button>
             </Grid>
             <Grid item>
@@ -123,6 +124,7 @@ export default function BulletPoint({ transcript }) {
             <img
               src={defaultImage}
               alt="default"
+              crossOrigin="anonymous"
               style={{ objectFit: "cover", width: "100%", borderRadius: 10 }}
             />
           </Grid>

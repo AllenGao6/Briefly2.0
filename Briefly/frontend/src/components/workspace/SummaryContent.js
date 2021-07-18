@@ -27,15 +27,15 @@ import EmptyIcon from "@material-ui/icons/HourglassEmpty";
 import ResetIcon from "@material-ui/icons/Cached";
 import AddIcon from "@material-ui/icons/AddBoxOutlined";
 import BulletPointList from "../common/BulletPointList";
+import { connect } from "react-redux";
+import { summarizeMedia } from "../../redux/actions/summarize_actions";
 
 const useStyles = makeStyles((theme) => {
   const matchesDark = theme.palette.type === "dark";
 
   return {
     tabContainer: {
-      background: matchesDark
-        ? theme.palette.primary.dark
-        : theme.palette.common.cloud,
+      background: matchesDark ? theme.palette.primary.dark : "white",
       width: "100%",
       color: matchesDark ? "white" : undefined,
     },
@@ -43,7 +43,9 @@ const useStyles = makeStyles((theme) => {
       fontWeight: 800,
     },
     sectionContainer: {
-      background: matchesDark ? theme.palette.primary.main : "white",
+      background: matchesDark
+        ? theme.palette.primary.main
+        : theme.palette.common.cloud,
       height: "-moz-calc(100vh - 99px - 48px)",
       height: "-webkit-calc(100vh - 99px - 48px)",
     },
@@ -67,7 +69,6 @@ const useStyles = makeStyles((theme) => {
       paddingRight: 15,
       paddingTop: 5,
       paddingBottom: 5,
-      background: matchesDark ? undefined : theme.palette.common.cloud,
     },
     summaryStatus: {
       padding: 10,
@@ -87,7 +88,7 @@ const useStyles = makeStyles((theme) => {
   };
 });
 
-export default function SummaryContent({ media }) {
+function SummaryContent({ media, mediaType, collectionId, summarizeMedia }) {
   const classes = useStyles();
   const theme = useTheme();
   const matchesDark = theme.palette.type === "dark";
@@ -100,13 +101,18 @@ export default function SummaryContent({ media }) {
   const [modelType, setModelType] = useState(0);
   const [dev, setDev] = useState(false);
 
-  const summarize = () => {
-    const summaryOptions = {
-      model_type: getModelType(),
-      num_sentences: optimalSentence ? null : numSentences,
-      id: media.id,
+  const summarize = async () => {
+    const summaryConfig = {
+      model: getModelType(),
+      num_sentence: optimalSentence ? null : numSentences,
     };
-    console.log(summaryOptions);
+    const summary = await summarizeMedia(
+      collectionId,
+      media.id,
+      mediaType,
+      summaryConfig
+    );
+    console.log(summary);
   };
 
   const handleTabChange = (e, value) => {
@@ -136,13 +142,13 @@ export default function SummaryContent({ media }) {
   const getModelType = () => {
     switch (modelType) {
       case 1:
-        return "B";
+        return "Bert";
       case 2:
-        return "G";
+        return "GPT-2";
       case 3:
-        return "X";
+        return "XLNet";
       default:
-        return "B";
+        return "Bert";
     }
   };
 
@@ -281,7 +287,7 @@ export default function SummaryContent({ media }) {
         maxWidth="xs"
       >
         <DialogTitle>
-          <Typography variant="h5">Summarization Information</Typography>
+          <Typography variant="h5">Summarization Configuration</Typography>
         </DialogTitle>
         <Divider variant="middle" classes={{ root: classes.divider }} />
         <DialogContent>
@@ -365,3 +371,13 @@ export default function SummaryContent({ media }) {
     </Grid>
   );
 }
+
+function mapStateToProps(state) {
+  return {};
+}
+
+const mapDispatchToProps = {
+  summarizeMedia,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(SummaryContent);

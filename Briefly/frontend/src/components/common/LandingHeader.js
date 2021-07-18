@@ -138,7 +138,14 @@ function ElevationScroll(props) {
   });
 }
 
-function LandingHeader({ history, user, accessToken, login, logout, scrollIntoView }) {
+function LandingHeader({
+  history,
+  user,
+  accessToken,
+  login,
+  logout,
+  scrollIntoView,
+}) {
   // styling utilities
   const classes = useStyles();
   const theme = useTheme();
@@ -154,7 +161,7 @@ function LandingHeader({ history, user, accessToken, login, logout, scrollIntoVi
 
   // json array of objects used for mapping
   const tabs = [
-    { name: "Introduction", link: "/", icon: <IntroIcon />},
+    { name: "Introduction", link: "/", icon: <IntroIcon /> },
     { name: "Demo", link: "/", icon: <DemoIcon /> },
     { name: "Team", link: "/", icon: <TeamIcon /> },
     { name: "About Us", link: "/", icon: <AboutIcon /> },
@@ -278,13 +285,12 @@ function LandingHeader({ history, user, accessToken, login, logout, scrollIntoVi
         </Grid>
       </Grid>
       {accountMenus.map((menu, i) => (
-        <React.Fragment>
+        <React.Fragment key={`accountMenus-landing-${i}`}>
           {menu.label === "Logout" ? (
-            <div key={`account-margin-${i}`} style={{ marginTop: "1.25rem" }} />
+            <div style={{ marginTop: "1.25rem" }} />
           ) : undefined}
           {menu.label === "Logout" ? (
             <GoogleLogout
-              key={`account-logout-${i}`}
               clientId="372223287259-nit3rukskraic3obnog1v3n3mpqn3ab7.apps.googleusercontent.com"
               buttonText="Sign Out"
               onLogoutSuccess={logout}
@@ -300,7 +306,6 @@ function LandingHeader({ history, user, accessToken, login, logout, scrollIntoVi
             ></GoogleLogout>
           ) : (
             <IconTextButton
-              key={`account-${menu.label}-${i}`}
               icon={menu.icon}
               label={menu.label}
               color={menu.color}
@@ -347,7 +352,9 @@ function LandingHeader({ history, user, accessToken, login, logout, scrollIntoVi
           {tabs.map((tab, i) => (
             <ListItem
               key={`ListItem-${tab.name}${i}`}
-              onClick={() => { scrollIntoView(i)}}
+              onClick={() => {
+                scrollIntoView(i);
+              }}
               divider
               button
               style={{ height: "5rem" }}
@@ -356,11 +363,7 @@ function LandingHeader({ history, user, accessToken, login, logout, scrollIntoVi
                 {tab.icon}
               </ListItemIcon>
               <ListItemText disableTypography>
-
-
                 <Typography variant="tab" className={classes.listItemText}>
-
-                  
                   {tab.name}
                 </Typography>
               </ListItemText>
@@ -392,7 +395,7 @@ function LandingHeader({ history, user, accessToken, login, logout, scrollIntoVi
                       className={classes.logoContainer}
                       component={Link}
                       to="/"
-                      onClick={()=>scrollIntoView(5)}
+                      onClick={() => scrollIntoView(5)}
                     >
                       <img
                         src={logo}
@@ -415,7 +418,7 @@ function LandingHeader({ history, user, accessToken, login, logout, scrollIntoVi
                             component={Link}
                             className={classes.tab}
                             onClick={() => scrollIntoView(i)}
-                            to='/'
+                            to="/"
                             label={tab.name}
                             disableRipple
                           ></Tab>

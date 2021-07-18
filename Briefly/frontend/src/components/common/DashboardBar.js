@@ -310,13 +310,12 @@ function DashboardBar({
         </Grid>
       </Grid>
       {accountMenus.map((menu, i) => (
-        <React.Fragment>
+        <React.Fragment key={`accountMenus-dashboard-${i}`}>
           {menu.label === "Logout" ? (
-            <div key={`space-${i}`} style={{ marginTop: "1.25rem" }} />
+            <div style={{ marginTop: "1.25rem" }} />
           ) : undefined}
           {menu.label === "Logout" ? (
             <GoogleLogout
-              key={`account-logout-${i}`}
               clientId="372223287259-nit3rukskraic3obnog1v3n3mpqn3ab7.apps.googleusercontent.com"
               buttonText="Sign Out"
               onLogoutSuccess={logout}
@@ -332,7 +331,6 @@ function DashboardBar({
             ></GoogleLogout>
           ) : (
             <IconTextButton
-              key={`account-button-${i}`}
               icon={menu.icon}
               label={menu.label}
               color={menu.color}

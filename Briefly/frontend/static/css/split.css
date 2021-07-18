@@ -16,8 +16,8 @@
 }
 
 .Resizer.horizontal {
-  height: 20px;
-  margin: -5px 0;
+  height: 15px;
+  margin: 0px;
   cursor: row-resize;
   width: 100%;
 }
@@ -29,7 +29,7 @@
 
 .Resizer.vertical {
   width: 15px;
-  margin: 0 -5px;
+  margin: 0px;
   cursor: col-resize;
 }
 
