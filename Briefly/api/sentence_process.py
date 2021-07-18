@@ -54,6 +54,7 @@ class SentenceHandler(object):
         :return: Returns a list of sentences.
         """
         doc = self.nlp(body)
+        #print(doc)
         return self.sentence_processor(doc, min_length, max_length)
 
     def __call__(self, body: str,

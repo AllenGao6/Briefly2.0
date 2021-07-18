@@ -2,7 +2,7 @@ import time
 import boto3
 import json
 import datetime
-from .sentence_process import SentenceHandler
+from sentence_process import SentenceHandler
 import random
 # from django.conf import settings
 
@@ -142,53 +142,49 @@ def read_output(data):
 
     #process the sentence and split them 
     sentence_handler = SentenceHandler()
-    sentences = sentence_handler(complete_transcript, 40, 600)
+    sentences = sentence_handler(complete_transcript, 5, 600)
     word_count = get_sentence_words_count(sentences)
     # print(len(' '.join(sentences).split(' ')))
     #constant to track progress
     couter = 0
     total_sentence = len(sentences)
     sentence_processed = 0
+    id = 1
+
+    #get the timestamp of the last word to estimate for the percentage timestamp
+    total_time = 0
+    for i in range(-1, -10, -1):
+        print(items[i])
+        if items[i]['type'] != 'punctuation':
+            total_time = items[i]['end_time']
+            break
     # loop through all elements
     for item in items:
-        content = item['alternatives'][0]['content']
+        #content = item['alternatives'][0]['content']
 
         #skip the punctuation mark
         if item['type'] != 'punctuation':
             #if the word mark exist
             if couter in word_count:
-                lines.append({'line': word_count[couter],'time': item['end_time']})
+                lines.append({'id': id, 'sentence': word_count[couter],'time': item['end_time'] })
                 sentence_processed += 1
+                id += 1
             couter += 1
 
-        # # if it's starting time
-        # if item['type'] == 'punctuation' and content == '.' and len(line) > 40:
-        #     line = line + content
-        #     lines.append({'line':line, 'time':time})
-        #     time = endtime
-        #     line = ''
-        # else:
-        #     if item['type'] != 'punctuation':
-        #         line = line + ' ' + content
-        #         endtime = item['start_time']
-        #     else:
-        #         line = line + content
-        
     if sentence_processed < total_sentence:
         # usually this won't be reached, will implement more safety later
-        print("alert!!")
+        print("alert!! timestamp error, please check speech_to_text file read output function")
 
     # sort the results by the time
-    sorted_lines = sorted(lines,key=lambda k: float(k['time']))
+    sorted_transcript = sorted(lines,key=lambda k: float(k['time']))
 
-    # write into the .txt file
-    audio_script_timed = {}
-    for line_data in sorted_lines:
-        timestamp = '[' + str(datetime.timedelta(seconds=int(round(float(line_data['time']))))) + ']'
-        audio_script_timed[line_data['line']] = [timestamp, float(line_data['time'])]
-    print(audio_script_timed)
+    # add percentage time and display timestamp in [xx:xx:xx] format
+    for line_data in sorted_transcript:
+        line_data['displayed_time'] = '[' + str(datetime.timedelta(seconds=int(round(float(line_data['time']))))) + ']'
+        line_data['time'] = float(line_data['time']) / float(total_time)
+    #print(audio_script_timed)
     
-    return audio_script_timed, complete_transcript, len(sorted_lines)
+    return sorted_transcript, complete_transcript, len(sorted_transcript)
 
 
 from summarizer import Summarizer, TransformerSummarizer
@@ -227,19 +223,23 @@ def summarize(body_transcript, audio_text_timed, num_sentence=None, max_sentence
 
     # split the result into timestamped pieces
     sentence_dict = {}
+    for sentence in audio_text_timed:
+        sentence_dict[sentence['sentence']] = sentence
+
+    summary_output = []
+    for sentence in sentence_handler(result, 5, 600):
+        summary_output.append(sentence_dict[sentence])
     
-    for sentence in sentence_handler(result, 40, 600):
-        timestamp, time_in_sec = audio_text_timed[sentence]
-        sentence_dict[sentence] = [time_in_sec, timestamp]
-    
-    return sentence_dict
+    return summary_output
 
 
 #url = amazon_transcribe('sample.mp4', 'Collection1', 9)
 
-# data = load_json_output('s3://briefly41/static/Collection1/video/9/sample.json')
-# audio_script_timed , complete_transcript = read_output(data)
-# result = summarize(complete_transcript, audio_script_timed, num_sentence=None, max_sentence=20, model='XLNet')
+# data = load_json_output('s3://briefly41/static/Collection5/video/20/video20.json')
+# x, y, z = read_output(data)
+# print('')
+# #print(x) 
+# result = summarize(y, x, num_sentence=None, max_sentence=20, model='XLNet')
 # print(result)
 
 
