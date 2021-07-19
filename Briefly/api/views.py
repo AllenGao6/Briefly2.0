@@ -538,7 +538,7 @@ class AudioViewSet(viewsets.ModelViewSet):
                 video.num_sentences = num_sentence
                 video.summarization = dumps(summary)
                 video.is_summarized = True
-                ret = video.save()
+                video.save()
                 
                 print(f"Individual {model} summarization  time spent: {time()-t1:.2f}")
                 print(model)
