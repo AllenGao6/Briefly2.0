@@ -202,7 +202,8 @@ def summarize(body_transcript, audio_text_timed, num_sentence=None, max_sentence
         if num_sentence == None:
             num_sentence = Bert.calculate_optimal_k(body_transcript, k_max=max_sentence)
 
-        result = Bert(body_transcript, num_sentences=min(num_sentence, max_sentence))
+        num_sentence = min(num_sentence, max_sentence)
+        result = Bert(body_transcript, num_sentences=num_sentence)
     
     else:
         if model == 'GPT-2':
@@ -211,15 +212,17 @@ def summarize(body_transcript, audio_text_timed, num_sentence=None, max_sentence
             if num_sentence == None:
                 num_sentence = GPT2_model.calculate_optimal_k(body_transcript, k_max=max_sentence)
             
-            result = GPT2_model(body_transcript, num_sentences=min(num_sentence, max_sentence))
+            num_sentence = min(num_sentence, max_sentence)
+            result = GPT2_model(body_transcript, num_sentences=num_sentence)
             
         elif model == 'XLNet':
             XLNet = TransformerSummarizer(transformer_type="XLNet",transformer_model_key="xlnet-base-cased")
             #compute optimal split
             if num_sentence == None:
                 num_sentence = XLNet.calculate_optimal_k(body_transcript, k_max=max_sentence)
-
-            result = XLNet(body_transcript, num_sentences=min(num_sentence, max_sentence))
+            
+            num_sentence = min(num_sentence, max_sentence)
+            result = XLNet(body_transcript, num_sentences=num_sentence)
 
     # split the result into timestamped pieces
     sentence_dict = {}
@@ -230,7 +233,7 @@ def summarize(body_transcript, audio_text_timed, num_sentence=None, max_sentence
     for sentence in sentence_handler(result, 5, 600):
         summary_output.append(sentence_dict[sentence])
     
-    return summary_output
+    return summary_output,num_sentence
 
 # implmenting abstract summary for later potential use
 from transformers import pipeline

@@ -13,7 +13,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
-from Briefly import settings
+from django.conf import settings
+
 import boto3
 from .permissions import CollectionUserPermission,VideoUserPermission, AudioUserPermission
 from django.db.models import Q
@@ -86,9 +87,18 @@ class VideoViewSet(viewsets.ModelViewSet):
         user = self.request.user
         fileSize = instance.fileSize
         
+        #delete the folder
         if instance.video:
+            prefix = instance.video.url.split("/")[3:-1]
+            prefix = "/".join(prefix)+"/"
+            
+            s3 = boto3.resource('s3',
+                aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                aws_secret_access_key= settings.AWS_SECRET_ACCESS_KEY)
+            bucket = s3.Bucket(settings.AWS_STORAGE_BUCKET_NAME)
+            bucket.objects.filter(Prefix=prefix).delete()
             instance.video.delete(save=False)
-
+            
         if fileSize:
             profile = UserProfile.objects.select_for_update().filter(user=user)[0]
             with transaction.atomic():
@@ -228,7 +238,7 @@ class VideoViewSet(viewsets.ModelViewSet):
             if num_sentence is not None:
                 num_sentence = int(num_sentence)
             max_sentence = int(request.data.get('max_sentence', 20))
-            summary = speech_to_text.summarize(video.audioText, loads(video.transcript), model=model, num_sentence=num_sentence, max_sentence=max_sentence)
+            summary, num_sentence = speech_to_text.summarize(video.audioText, loads(video.transcript), model=model, num_sentence=num_sentence, max_sentence=max_sentence)
             pprint(summary)
             with transaction.atomic():
                 video.model_type = model
@@ -380,9 +390,20 @@ class AudioViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         fileSize = instance.fileSize
         user = self.request.user
+        
+        #delete the folder
+        
         if instance.audio:
+            prefix = instance.audio.url.split("/")[3:-1]
+            prefix = "/".join(prefix)+"/"
+            
+            s3 = boto3.resource('s3',
+                aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                aws_secret_access_key= settings.AWS_SECRET_ACCESS_KEY)
+            bucket = s3.Bucket(settings.AWS_STORAGE_BUCKET_NAME)
+            bucket.objects.filter(Prefix=prefix).delete()
             instance.audio.delete(save=False)
-
+            
         if fileSize:
             profile = UserProfile.objects.select_for_update().filter(user=user)[0]
             with transaction.atomic():
@@ -440,42 +461,43 @@ class AudioViewSet(viewsets.ModelViewSet):
     Call this url to begin transcribe from Amazon
     URL: api/<int: collection_id>/audio/<int: audio_id>/transcribe_begin/
     '''
-    @action(methods=['GET'],detail=True, permission_classes=[IsAuthenticated])
+    @action(methods=['GET'],detail=True)
     def transcribe_begin(self, request, *args, **kwargs):
-        t1 = time()
         user = request.user
-        audio = Audio.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
-        if audio:
-            audio = audio[0]
+        # here video variable is just an audio, for the sake of convenience
+        video = Audio.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
+        if video:
+            video = video[0]
             
-            if not audio.transcript:
+            if not video.transcript:
                 try:
                     # code to perform summarization process
-                    audio_path = audio.audio.name.split('/')
-                    audio_name, audio_id, type, collection_name = audio_path[3], audio_path[2], audio_path[1],audio_path[0]
-                    
-                    transcribe = speech_to_text.amazon_transcribe(audio_name, collection_name, type, audio_id)
+                    t1 = time()   
+                    video_path = video.audio.name.split('/')
+                    video_name, video_id, type, collection_name = video_path[3], video_path[2],video_path[1], video_path[0]   
+                    transcribe = speech_to_text.amazon_transcribe(video_name, collection_name, type, video_id)
                     
                     if not transcribe:
                         return Response("Unknown failure during S3 transcribe", status=status.HTTP_400_BAD_REQUEST)
+                    #video.transcript = transcribe
                     data = speech_to_text.load_json_output(transcribe)
-                    transcript, audioText = speech_to_text.read_output(data)
-                    print("audio transcript: dev purpose only")
+                    transcript, audioText, sentences = speech_to_text.read_output(data)
+                    print(f"transcribe time spent: {time()-t1:.2f}")
+                    print("transcript: (for dev purpose only! delete before deploy)")
                     pprint(transcript)
-                    print("audio audioText: dev purpose only")
+                    print("audioText: (for dev purpose only! delete before deploy)")
                     pprint(audioText)
-                    audio.transcript = dumps(transcript)          #json field
-                    audio.audioText = audioText
-                    audio.save()
+                    video.transcript = dumps(transcript)          #json field
+                    video.audioText = audioText
+                    video.save()
                     print(f"transcribe time spent: {time()-t1:.2f}")
                 except:
                     return Response("Fail to transcribe", status=status.HTTP_400_BAD_REQUEST)
 
-            #self.summary_ready(audio)
+            #self.summary_ready(video)
             return Response("Success!")
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        
 
     '''
     Call this endpoint to start summarization with all models,
@@ -509,14 +531,15 @@ class AudioViewSet(viewsets.ModelViewSet):
             if num_sentence is not None:
                 num_sentence = int(num_sentence)
             max_sentence = int(request.data.get('max_sentence', 20))
-            summary = speech_to_text.summarize(video.audioText, loads(video.transcript), model=model, num_sentence=num_sentence, max_sentence=max_sentence)
+            summary, num_sentence = speech_to_text.summarize(video.audioText, loads(video.transcript), model=model, num_sentence=num_sentence, max_sentence=max_sentence)
             pprint(summary)
             with transaction.atomic():
                 video.model_type = model
                 video.num_sentences = num_sentence
                 video.summarization = dumps(summary)
                 video.is_summarized = True
-                video.save()
+                ret = video.save()
+                
                 print(f"Individual {model} summarization  time spent: {time()-t1:.2f}")
                 print(model)
                 return Response(summary, status=status.HTTP_200_OK)
