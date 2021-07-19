@@ -41,6 +41,18 @@ export const teamInfo = [
     headImage: head3,
     position: "Frontend Dev",
     description: dummyText,
+  },
+  {
+    name: "Hugo",
+    headImage: head4,
+    position: "Frontend Dev",
+    description: dummyText,
+  },
+  {
+    name: "Stanford",
+    headImage: head5,
+    position: "Frontend Dev",
+    description: dummyText,
   }
 ];
 

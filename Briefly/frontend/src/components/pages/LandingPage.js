@@ -22,6 +22,7 @@ import {
 export const useStyles = makeStyles((theme) => ({
   backgroundContainer: {
     backgroundColor: "#ecf0f1",
+    width:"100%"
   },
 }));
 

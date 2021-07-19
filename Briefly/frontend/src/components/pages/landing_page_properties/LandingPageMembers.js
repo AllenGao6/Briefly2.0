@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
         color: "#2980b9",
     },
     teamContainer: {
-        width: "87%",
+        width: "60%",
     },
     teamMemberStrip: {
         marginBottom: "50px",
@@ -46,9 +46,12 @@ const MemberInfoStrip = (props) => {
           align-items="flex-start"
           direction="column"
           container
-          style={{ width: `${cardWidth}px`,
-                   marginLeft: "10px",
-                   marginRight: "10px"
+          style={{width: `${cardWidth}px`,
+                  marginLeft: "10px",
+                  marginRight: "10px",
+                  marginBottom: "20px",
+                  overflow: 'visible',
+                  whiteSpace: 'initial'
           }}
         >
           <Avatar
@@ -138,7 +141,9 @@ export const MemberSection = () => {
             id="team"
            
         >
-            <Grid className={classes.teamContainer}>
+            <Grid
+              styles={{width: '87%'}}  
+            >
                 <Typography
                     className={classes.captionMargins}
                     variant="h2"
@@ -146,11 +151,16 @@ export const MemberSection = () => {
                 >
                     Team
                 </Typography>
-                <Grid container align-items="flex-start">
-                    {teamInfo.map((member, idx) => 
-                        <MemberInfoStrip key={idx} {...member}/>
-                    )}
-                </Grid>
+                <Grid
+                  container
+                  alignItems='center'
+                  justify='center'
+                  className='scrollmenu'
+                >
+                  {teamInfo.map((member, idx) => 
+                    <MemberInfoStrip key={idx} {...member}/>
+                  )}
+                </Grid> 
             </Grid>
         </Grid>
     )
