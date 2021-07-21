@@ -3,7 +3,9 @@ import { useTheme, useMediaQuery, Drawer } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { darken, lighten } from "@material-ui/core/styles";
 import SidebarBackground from "../../assets/background/sidebar.jpg";
-import dashboardBackground from "../../assets/background/dashboard.jpg";
+import dashboardBackground_dark from "../../assets/background/dashboard2.jpg";
+import dashboardBackground_light from "../../assets/background/dashboard.jpg";
+
 import clsx from "clsx";
 import {
   Typography,
@@ -60,8 +62,12 @@ const useStyles = makeStyles((theme) => ({
     //     : lighten("#2481F4", 0.2),
     height: "2.8rem",
     padding: "1rem",
-    // color: "white",
+    color: "blue",
     fontSize: "1.25rem",
+  },
+  video: {
+    color: "black",
+    fontSize: "1.2rem",
   },
 }));
 
@@ -85,12 +91,15 @@ export default function MediaScrollbar(props) {
       <List
         disablePadding
         style={{
-          backgroundImage: `url(${dashboardBackground})`,
+          backgroundImage: `url(${theme.palette.type === "dark"
+                                ? dashboardBackground_dark
+                                : dashboardBackground_light})`,
           backgroundRepeat: "no-repeat",
           backgroundSize: "cover",
           height: "100%",
         }}
       >
+         <React.Fragment style={{position: 'sticky', top: 0}}>
         <ListItem
           className={clsx(classes.item, classes.itemCategory)}
           style={{ textAlign: "center", height: 69 }}
@@ -129,18 +138,21 @@ export default function MediaScrollbar(props) {
             }
             onChange={(event) => props.setSearch(event.target.value)}
           >
-      </InputBase>
-        </ListItem>
-        <Divider variant="middle" className={classes.divider} />
+           </InputBase>
+          </ListItem>
+         <Divider variant="middle" className={classes.divider} />
+        </React.Fragment>
+
+        <React.Fragment style={{overflow_y: 'scroll'}}>
         {media.map((item, index) => (
-          <ListItem key={index} onClick={() => props.history.push(`/dashboard/${item.collection}/${media_type}/${item.id}`)} button>
+          <ListItem  key={index} onClick={() => props.history.push(`/dashboard/${item.collection}/${media_type}/${item.id}`)} button>
             <ListItemAvatar>
                 {media_type === 'video' ? <VideoLibraryIcon /> : (media_type === 'audio' ? <AudiotrackIcon /> : <DescriptionIcon />)}
             </ListItemAvatar>
             <ListItemText primary={item.title} secondary={item.created} />
           </ListItem>
       ))}
-    
+      </React.Fragment>
       </List>
       
     </Drawer>

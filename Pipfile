@@ -26,6 +26,8 @@ torch = "*"
 spacy = "*"
 bert-extractive-summarizer = "==0.7.1"
 transformers = "*"
+python-dotenv = "*"
+nltk = "*"
 
 [dev-packages]
 
