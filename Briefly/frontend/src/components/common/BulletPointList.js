@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
 import BulletPoint from "./BulletPoint";
@@ -17,15 +17,22 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function BulletPointList({ transcripts, getScreenshot }) {
+export default function BulletPointList({
+  transcripts,
+  getScreenshot,
+  onTranscriptChange,
+  onTranscriptDelete,
+}) {
   const classes = useStyles();
 
   return (
     <List className={classes.root} disablePadding>
-      {[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99].map((time, i) => (
+      {transcripts.map((transcript, i) => (
         <BulletPoint
-          key={`$bullet-point-${time}-${i}`}
-          time={time}
+          key={`$bullet-point-${transcript.id}-${i}`}
+          transcript={transcript}
+          onTranscriptChange={onTranscriptChange}
+          onTranscriptDelete={onTranscriptDelete}
           getScreenshot={getScreenshot}
         />
       ))}

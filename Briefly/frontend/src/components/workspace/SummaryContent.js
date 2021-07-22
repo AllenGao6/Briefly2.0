@@ -107,6 +107,76 @@ function SummaryContent({
   const [modelType, setModelType] = useState(0);
   const [dev, setDev] = useState(false);
 
+  // fake data
+  const [transcripts, setTranscripts] = useState([
+    {
+      id: 1,
+      displayed_time: "00:01:24",
+      time: 0.2,
+      sentence:
+        "Briefly will win the challenge. Will win the challenge. Win the challenge. The challenge. Challenge. <null>. Briefly will win the challenge. Will win the challenge. Win the challenge.",
+    },
+    {
+      id: 2,
+      displayed_time: "00:02:24",
+      time: 0.4,
+      sentence:
+        "A friend function is an independent function which has access to the variables and methods of its befriended class.",
+    },
+    {
+      id: 3,
+      displayed_time: "00:03:24",
+      time: 0.6,
+      sentence:
+        "To create a friend function for a class, it must be declared in the class along with the friend keyword.",
+    },
+    {
+      id: 4,
+      displayed_time: "00:04:24",
+      time: 0.8,
+      sentence:
+        "The setRadius() function is completely independent of the Ball class, yet it has access to all the private variables.",
+    },
+    {
+      id: 5,
+      displayed_time: "00:05:24",
+      time: 0.9,
+      sentence:
+        "Now, we'll take a look at a special category of functions called friends.",
+    },
+  ]);
+
+  // fake edit API
+  const handleTranscriptChange = (transcript, summary) => {
+    const filteredTranscripts = transcripts.filter(
+      (item) => item.id !== transcript.id
+    );
+    const newTranscripts = [
+      ...filteredTranscripts,
+      { ...transcript, sentence: summary.trim() },
+    ];
+    newTranscripts.sort((a, b) => a.id - b.id);
+    setTranscripts(newTranscripts);
+  };
+
+  // fake delete API
+  const handleTranscriptDelete = (transcript) => {
+    const filteredTranscripts = transcripts.filter(
+      (item) => item.id !== transcript.id
+    );
+    setTranscripts(filteredTranscripts);
+  };
+
+  // fake reset API
+  const handleTranscriptReset = () => {
+    setTranscripts([]);
+  };
+
+  // fake add API
+  const handleAddTranscript = () => {
+    console.log("add");
+  };
+
   const summarize = async () => {
     const summaryConfig = {
       model: getModelType(),
@@ -135,14 +205,6 @@ function SummaryContent({
 
   const handleClose = () => {
     setOpen(false);
-  };
-
-  const handleReset = () => {
-    console.log("reset");
-  };
-
-  const handleAddBulletPoint = () => {
-    console.log("add bullet points");
   };
 
   const getModelType = () => {
@@ -235,10 +297,10 @@ function SummaryContent({
                   </Grid>
                 </Grid>
                 <Grid item>
-                  <IconButton onClick={handleReset}>
+                  <IconButton onClick={handleTranscriptReset}>
                     <ResetIcon className={classes.icon} />
                   </IconButton>
-                  <IconButton onClick={handleAddBulletPoint}>
+                  <IconButton onClick={handleAddTranscript}>
                     <AddIcon className={classes.icon} />
                   </IconButton>
                 </Grid>
@@ -253,7 +315,12 @@ function SummaryContent({
                 padding: 0,
               }}
             >
-              <BulletPointList getScreenshot={getScreenshot} />
+              <BulletPointList
+                transcripts={transcripts}
+                getScreenshot={getScreenshot}
+                onTranscriptChange={handleTranscriptChange}
+                onTranscriptDelete={handleTranscriptDelete}
+              />
             </Paper>
           </Grid>
         </Grid>
