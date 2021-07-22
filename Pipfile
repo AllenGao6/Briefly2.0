@@ -28,6 +28,8 @@ bert-extractive-summarizer = "==0.7.1"
 transformers = "*"
 python-dotenv = "*"
 nltk = "*"
+sentencepiece = "*"
+gunicorn = "*"
 
 [dev-packages]
 

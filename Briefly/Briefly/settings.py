@@ -27,7 +27,7 @@ SECRET_KEY = 'd!^in%v44tknzw=8b5^*=i#=_3sc=3nqt6#=(okywu2-p+^gly'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost']
+ALLOWED_HOSTS = ['localhost', "briefly-ai.com", "www.briefly-ai.com", "143.244.190.3"]
 
 
 # Application definition
