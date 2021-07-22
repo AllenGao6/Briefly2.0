@@ -1,23 +1,30 @@
 import React, { useState, useEffect, useRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
 import { useTheme } from "@material-ui/styles";
-import ListItemAvatar from "@material-ui/core/ListItemAvatar";
-import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
-import ListItemText from "@material-ui/core/ListItemText";
-import Avatar from "@material-ui/core/Avatar";
+import {
+  InputBase,
+  FormHelperText,
+  FormControl,
+  Collapse,
+  Divider,
+  Typography,
+  Grid,
+  Button,
+  useMediaQuery,
+  ListItem,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+} from "@material-ui/core";
+import { darken } from "@material-ui/core/styles";
+
 import IconButton from "@material-ui/core/IconButton";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import { Typography, Grid, Button } from "@material-ui/core";
-import { Divider } from "@material-ui/core";
-import Collapse from "@material-ui/core/Collapse";
-import { darken, lighten } from "@material-ui/core/styles";
-import defaultImage from "../../assets/dummy/book.png";
+import PublishIcon from "@material-ui/icons/Publish";
 
 import { connect } from "react-redux";
 import { seekTo } from "../../redux/actions/player_actions";
@@ -59,26 +66,62 @@ const useStyles = makeStyles((theme) => ({
         : theme.palette.common.blue,
     fontSize: "1.75rem",
   },
+  summaryText: {
+    border: "1px solid",
+    borderRadius: 5,
+    borderColor:
+      theme.palette.type === "dark"
+        ? theme.palette.common.orange
+        : theme.palette.common.blue,
+    padding: 5,
+  },
+  deleteButton: {
+    color: theme.palette.common.red,
+  },
+  editButton: {
+    color: theme.palette.common.blue,
+  },
 }));
 
-function BulletPoint({ transcript, time, seekTo, getScreenshot }) {
+function BulletPoint({
+  transcript,
+  onTranscriptChange,
+  onTranscriptDelete,
+  seekTo,
+  getScreenshot,
+}) {
   const classes = useStyles();
   const theme = useTheme();
-  const [open, setOpen] = useState(false);
+  // reference
   const imageRef = useRef(null);
   const canvasRef = useRef(null);
+  // constant
+  const time = transcript.time;
+  // local states
+  const [open, setOpen] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [summary, setSummary] = useState(transcript.sentence);
+  const [editable, setEditable] = useState(false);
 
-  const handleClick = () => {
+  const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
+  const matchesDark = theme.palette.type === "dark";
+
+  const handleToggleScreenshot = () => {
     setOpen(!open);
     if (imageRef.current === null) getScreenshot(time, imageRef, canvasRef);
   };
 
-  transcript = {
-    id: 1,
-    displayed_time: "00:05:24",
-    time: 0.2,
-    sentence:
-      "Briefly will win the challenge. Will win the challenge. Win the challenge. The challenge. Challenge. <null>. Briefly will win the challenge. Will win the challenge. Win the challenge.",
+  const handleDelete = () => {
+    onTranscriptDelete(transcript);
+  };
+
+  const handleEdit = () => {
+    if (editable) handleSummaryContentChange();
+    setEditable(!editable);
+  };
+
+  const handleSummaryContentChange = () => {
+    onTranscriptChange(transcript, summary);
   };
 
   return (
@@ -96,24 +139,52 @@ function BulletPoint({ transcript, time, seekTo, getScreenshot }) {
               </Button>
             </Grid>
             <Grid item>
-              <IconButton>
-                <DeleteIcon style={{ color: theme.palette.common.red }} />
+              <IconButton
+                onClick={() => setOpenDialog(true)}
+                className={classes.deleteButton}
+              >
+                <DeleteIcon />
               </IconButton>
-              <IconButton>
-                <EditIcon style={{ color: theme.palette.common.blue }} />
+              <IconButton
+                onClick={handleEdit}
+                className={classes.editButton}
+                disabled={summary.trim().length === 0}
+              >
+                {editable ? <PublishIcon /> : <EditIcon />}
               </IconButton>
             </Grid>
           </Grid>
-          <Grid item style={{ paddingTop: 5 }}>
-            <Typography variant="h6" className={classes.text}>
-              {transcript.sentence}
-            </Typography>
+          <Grid item style={{ paddingTop: 5, lineHeight: 0.5 }}>
+            {editable ? (
+              <FormControl fullWidth>
+                <InputBase
+                  aria-describedby="summary-helper-text"
+                  value={summary}
+                  fullWidth
+                  multiline
+                  onChange={(e) => setSummary(e.currentTarget.value)}
+                  className={classes.summaryText}
+                />
+                {summary.trim().length === 0 ? (
+                  <FormHelperText
+                    id="summary-helper-text"
+                    style={{ color: theme.palette.common.red }}
+                  >
+                    Summary content must not be empty!
+                  </FormHelperText>
+                ) : undefined}
+              </FormControl>
+            ) : (
+              <Typography variant="h6" className={classes.text}>
+                {transcript.sentence}
+              </Typography>
+            )}
           </Grid>
         </Grid>
       </ListItem>
       <Grid container justify="center">
         <IconButton
-          onClick={handleClick}
+          onClick={handleToggleScreenshot}
           style={{ padding: 0, paddingBottom: 5 }}
         >
           {open ? (
@@ -142,6 +213,46 @@ function BulletPoint({ transcript, time, seekTo, getScreenshot }) {
       </Collapse>
       <Divider variant="middle" className={classes.divider} />
       <canvas ref={canvasRef} style={{ display: "none" }} />
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        fullWidth
+        fullScreen={matchesXS}
+        maxWidth="sm"
+      >
+        <DialogTitle style={{ paddingBottom: 8 }}>
+          <Typography variant="h5">Confirmation</Typography>
+        </DialogTitle>
+        <Divider variant="middle" classes={{ root: classes.divider }} />
+        <DialogContent style={{ height: 50 }}>
+          <Typography
+            variant="h6"
+            style={{
+              fontSize: "1.2rem",
+              color: matchesDark ? "white" : theme.palette.common.grey,
+            }}
+          >
+            Are you sure you want to delete this summarized point?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setOpenDialog(false)}
+            color={matchesDark ? "secondary" : "primary"}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={() => {
+              setOpenDialog(false);
+              onTranscriptDelete(transcript);
+            }}
+            style={{ color: theme.palette.common.red }}
+          >
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
     </React.Fragment>
   );
 }

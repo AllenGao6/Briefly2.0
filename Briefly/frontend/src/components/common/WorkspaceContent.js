@@ -64,7 +64,6 @@ export default function WorkspaceContent({
   const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
 
   const handleScreenshot = (time, imageRef, canvasRef) => {
-    console.log("ASDA");
     const player = invisiblePlayerRef.current;
     player.seekTo(time);
     // store event listener function into a global variable
@@ -151,37 +150,3 @@ export default function WorkspaceContent({
     </div>
   );
 }
-
-/*
-<Grid container style={{ marginTop: 20 }} spacing={3}>
-  {bookmarks.map((bookmark, i) => (
-    <Grid item key={i}>
-      <Paper onClick={() => playerRef.current.seekTo(bookmark.time)}>
-        <img crossOrigin="anonymous" src={bookmark.image} />
-        <Typography>Bookmark at {bookmark.display}</Typography>
-      </Paper>
-    </Grid>
-  ))}<canvas ref={canvasRef} />
-</Grid>
-
-  <input value={time} onChange={(e) => setTime(e.currentTarget.value)} />
-      <Button
-        variant="contained"
-        onClick={(e) => handleScreenshot(time, imageRef)}
-      >
-        Click
-      </Button>
-      <img ref={imageRef} alt="test image" style={{ objectFit: "cover" }} />
-
-      <canvas ref={canvasRef} />
-*/
-
-// const populateScreenshot = () => {
-//   return [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9].map((time) =>
-//     handleScreenshot(time)
-//   );
-// };
-
-// useEffect(() => {
-//   setImages(populateScreenshot());
-// }, [mediaRef.current]);
