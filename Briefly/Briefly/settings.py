@@ -211,3 +211,11 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # total maximum storage size for each user in byte
 MAX_SIZE_PER_USER = 2*1024*1024*1024  # 1024*1024*30
+
+CORS_ALLOWED_ORIGINS = [
+    "https://www.briefly-ai.com",
+    "https://briefly-ai.com",
+    "http://www.briefly-ai.com",
+    "http://briefly-ai.com",
+    "http://143.244.190.3",
+]
