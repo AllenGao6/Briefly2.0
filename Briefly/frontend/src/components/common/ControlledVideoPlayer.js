@@ -244,7 +244,7 @@ function ControlledVideoPlayer(
   const id = open ? "playbackrate-popover" : undefined;
 
   return (
-    <Container>
+    <Container style={{ maxWidth: 880 }}>
       <Grid
         ref={playerContainerRef}
         container

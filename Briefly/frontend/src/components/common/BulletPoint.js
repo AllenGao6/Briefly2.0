@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 
 import List from "@material-ui/core/List";
@@ -61,13 +61,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function BulletPoint({ transcript, time, seekTo }) {
+function BulletPoint({ transcript, time, seekTo, getScreenshot }) {
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = useState(false);
+  const imageRef = useRef(null);
+  const canvasRef = useRef(null);
 
   const handleClick = () => {
     setOpen(!open);
+    if (imageRef.current === null) getScreenshot(time, imageRef, canvasRef);
   };
 
   transcript = {
@@ -129,7 +132,7 @@ function BulletPoint({ transcript, time, seekTo }) {
         >
           <Grid item>
             <img
-              src={defaultImage}
+              ref={imageRef}
               alt="default"
               crossOrigin="anonymous"
               style={{ objectFit: "cover", width: "100%", borderRadius: 10 }}
@@ -138,6 +141,7 @@ function BulletPoint({ transcript, time, seekTo }) {
         </Grid>
       </Collapse>
       <Divider variant="middle" className={classes.divider} />
+      <canvas ref={canvasRef} style={{ display: "none" }} />
     </React.Fragment>
   );
 }

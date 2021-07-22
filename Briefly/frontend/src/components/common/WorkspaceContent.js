@@ -6,6 +6,7 @@ import {
   useMediaQuery,
   useTheme,
   useScrollTrigger,
+  Button,
 } from "@material-ui/core";
 import clsx from "clsx";
 import { darken, lighten } from "@material-ui/core/styles";
@@ -15,6 +16,7 @@ import "../../../static/css/split.css"; // do not delete!
 import SummaryContent from "../workspace/SummaryContent";
 import MediaDisplay from "../workspace/MediaDisplay";
 import Transcripts from "../workspace/Transcripts";
+import ReactPlayer from "react-player";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -52,62 +54,70 @@ export default function WorkspaceContent({
 }) {
   const theme = useTheme();
   const classes = useStyles();
-  const [played, setPlayed] = useState(0);
   const mediaRef = useRef(null);
-  const canvasRef = useRef(null);
-  // const [images, setImages] = useState([]);
+  const invisiblePlayerRef = useRef(null);
+
+  let getScreenshotFunc = null;
 
   const matchesDark = theme.palette.type === "dark";
   const matchesSM = useMediaQuery(theme.breakpoints.down("sm"));
   const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
 
-  const handleSeeking = (time) => {
-    setPlayed(parseFloat(time));
-    mediaRef.current.seekTo(time);
+  const handleScreenshot = (time, imageRef, canvasRef) => {
+    console.log("ASDA");
+    const player = invisiblePlayerRef.current;
+    player.seekTo(time);
+    // store event listener function into a global variable
+    getScreenshotFunc = () => handleSeeked(imageRef, canvasRef);
+    player.getInternalPlayer().addEventListener("seeked", getScreenshotFunc);
   };
 
-  // const populateScreenshot = () => {
-  //   return [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9].map((time) =>
-  //     handleScreenshot(time)
-  //   );
-  // };
+  // player.seekTo() is async, so we have to create a calback function to create screenshot
+  const handleSeeked = (imageRef, canvasRef) => {
+    const canvas = canvasRef.current;
+    const image = imageRef.current;
+    const player = invisiblePlayerRef.current;
 
-  // useEffect(() => {
-  //   setImages(populateScreenshot());
-  // }, [mediaRef.current]);
+    canvas.width = player.getInternalPlayer().videoWidth;
+    canvas.height = player.getInternalPlayer().videoHeight;
 
-  // const handleScreenshot = (time) => {
-  //   const canvas = canvasRef.current;
-  //   const player = mediaRef.current;
-  //   if (!player) return null;
+    canvas
+      .getContext("2d")
+      .drawImage(player.getInternalPlayer(), 0, 0, canvas.width, canvas.height);
 
-  //   // seek to this time
-  //   player.seekTo(time);
+    image.src = canvas.toDataURL("image/png");
+    // canvas.toBlob((blob) => {
+    //   image.src = URL.createObjectURL(blob);
+    // });
 
-  //   canvas.width = 160;
-  //   canvas.height = 90;
+    // reset width and height back to zero
+    canvas.width = 0;
+    canvas.height = 0;
 
-  //   canvas
-  //     .getContext("2d")
-  //     .drawImage(player.getInternalPlayer(), 0, 0, canvas.width, canvas.height);
-  //   const imageUrl = canvas.toDataURL();
+    // remove event listener to prevent other screenshot been updated (important)
+    player.getInternalPlayer().removeEventListener("seeked", getScreenshotFunc);
+    getScreenshotFunc = null;
+  };
 
-  //   // reset width and height back to zero
-  //   canvas.width = 0;
-  //   canvas.height = 0;
-  //   // re-seek the original time
-  //   // player.seekTo(0);
-  //   console.log(imageUrl);
-
-  //   return imageUrl;
-  // };
-
+  if (!media) return <div></div>;
   return (
     <div
       className={clsx(classes.root, {
         [classes.contentShift]: open && !matchesXS,
       })}
     >
+      <ReactPlayer
+        ref={invisiblePlayerRef}
+        url={media[mediaType]}
+        style={{ display: "none" }}
+        config={{
+          file: {
+            attributes: {
+              crossOrigin: "anonymous",
+            },
+          },
+        }}
+      />
       <SplitPane
         split="vertical"
         defaultSize="50%"
@@ -135,23 +145,43 @@ export default function WorkspaceContent({
           media={media}
           mediaType={mediaType}
           collectionId={collectionId}
-          setPlayed={handleSeeking}
+          getScreenshot={handleScreenshot}
         />
       </SplitPane>
-      <canvas ref={canvasRef} />
     </div>
   );
 }
 
-{
-  /*<Grid container style={{ marginTop: 20 }} spacing={3}>
-        {bookmarks.map((bookmark, i) => (
-          <Grid item key={i}>
-            <Paper onClick={() => playerRef.current.seekTo(bookmark.time)}>
-              <img crossOrigin="anonymous" src={bookmark.image} />
-              <Typography>Bookmark at {bookmark.display}</Typography>
-            </Paper>
-          </Grid>
-        ))}<canvas ref={canvasRef} />
-      </Grid>*/
-}
+/*
+<Grid container style={{ marginTop: 20 }} spacing={3}>
+  {bookmarks.map((bookmark, i) => (
+    <Grid item key={i}>
+      <Paper onClick={() => playerRef.current.seekTo(bookmark.time)}>
+        <img crossOrigin="anonymous" src={bookmark.image} />
+        <Typography>Bookmark at {bookmark.display}</Typography>
+      </Paper>
+    </Grid>
+  ))}<canvas ref={canvasRef} />
+</Grid>
+
+  <input value={time} onChange={(e) => setTime(e.currentTarget.value)} />
+      <Button
+        variant="contained"
+        onClick={(e) => handleScreenshot(time, imageRef)}
+      >
+        Click
+      </Button>
+      <img ref={imageRef} alt="test image" style={{ objectFit: "cover" }} />
+
+      <canvas ref={canvasRef} />
+*/
+
+// const populateScreenshot = () => {
+//   return [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9].map((time) =>
+//     handleScreenshot(time)
+//   );
+// };
+
+// useEffect(() => {
+//   setImages(populateScreenshot());
+// }, [mediaRef.current]);

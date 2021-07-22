@@ -93,7 +93,7 @@ function SummaryContent({
   mediaType,
   collectionId,
   summarizeMedia,
-  setPlayed,
+  getScreenshot,
 }) {
   const classes = useStyles();
   const theme = useTheme();
@@ -253,7 +253,7 @@ function SummaryContent({
                 padding: 0,
               }}
             >
-              <BulletPointList setPlayed={setPlayed} />
+              <BulletPointList getScreenshot={getScreenshot} />
             </Paper>
           </Grid>
         </Grid>
