@@ -14,7 +14,7 @@ from rest_framework.decorators import action
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from django.conf import settings
-
+from django.http import HttpRequest
 import boto3
 from .permissions import CollectionUserPermission,VideoUserPermission, AudioUserPermission
 from django.db.models import Q
@@ -331,12 +331,75 @@ class CollectionViewSet(viewsets.ModelViewSet):
             original_collection.image.delete(save=False)
         return super().perform_update(serializer)
     
+    def custom_video_destroy(self, instance):
+        #storage back
+        user = self.request.user
+        fileSize = instance.fileSize
+        
+        #delete the folder
+        if instance.video:
+            prefix = instance.video.url.split("/")[3:-1]
+            prefix = "/".join(prefix)+"/"
+            
+            s3 = boto3.resource('s3',
+                aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                aws_secret_access_key= settings.AWS_SECRET_ACCESS_KEY)
+            bucket = s3.Bucket(settings.AWS_STORAGE_BUCKET_NAME)
+            bucket.objects.filter(Prefix=prefix).delete()
+            instance.video.delete(save=False)
+            
+        if fileSize:
+            profile = UserProfile.objects.select_for_update().filter(user=user)[0]
+            with transaction.atomic():
+                print(f"destroying before: remaining: {profile.remaining_size}")
+                profile.remaining_size += fileSize
+                profile.save()
+                print(f"destroying after: remaining: {profile.remaining_size}")
+        instance.delete()
+        
+    def custom_audio_destroy(self, instance):
+        fileSize = instance.fileSize
+        user = self.request.user
+        
+        #delete the folder
+        
+        if instance.audio:
+            prefix = instance.audio.url.split("/")[3:-1]
+            prefix = "/".join(prefix)+"/"
+            
+            s3 = boto3.resource('s3',
+                aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                aws_secret_access_key= settings.AWS_SECRET_ACCESS_KEY)
+            bucket = s3.Bucket(settings.AWS_STORAGE_BUCKET_NAME)
+            bucket.objects.filter(Prefix=prefix).delete()
+            instance.audio.delete(save=False)
+            
+        if fileSize:
+            profile = UserProfile.objects.select_for_update().filter(user=user)[0]
+            with transaction.atomic():
+                print(f"destroying before: remaining: {profile.remaining_size}")
+                profile.remaining_size += fileSize
+                profile.save()
+                print(f"destroying after: remaining: {profile.remaining_size}")
+        instance.delete()
+    
     def perform_destroy(self, instance):
+        audios = instance.audio_set.all()
+        videos = instance.video_set.all()
+        
+        if audios:
+            for a in audios:
+                self.custom_audio_destroy(a)
+        if videos:
+            for v in videos:
+                self.custom_video_destroy(v)
+        
         instance.image.delete(save=False)
         super().perform_destroy(instance)
 
     def destroy(self, request, *args, **kwargs):
         id = self.get_object().pk
+        instance = self.get_object()
         super().destroy(request,*args, **kwargs)
         print(f"\nID{id}")
         return Response({'collection_id':id}, status=status.HTTP_202_ACCEPTED)
