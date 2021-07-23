@@ -119,7 +119,7 @@ export default function WorkspaceContent({
       />
       <SplitPane
         split="vertical"
-        defaultSize="50%"
+        defaultSize="40%"
         style={{
           height: "-moz-calc(100vh - 69px)",
           height: "-webkit-calc(100vh - 69px)",
@@ -131,7 +131,7 @@ export default function WorkspaceContent({
       >
         <SplitPane
           split="horizontal"
-          defaultSize="90%"
+          defaultSize="50%"
           className={classes.splitPane}
           primary="first"
           minSize={1}

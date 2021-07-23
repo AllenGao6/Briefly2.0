@@ -15,12 +15,29 @@ transcribe = boto3.client('transcribe', region_name='us-west-1', aws_access_key_
 s3 = boto3.resource('s3', region_name='us-west-1', aws_access_key_id=AWS_ACCESS_KEY_ID,
          aws_secret_access_key= AWS_SECRET_ACCESS_KEY)
 
+
+def clear_all_job(type='COMPLETED'):
+    '''
+        remove all jobs in amazon transcribe to avoid conflid
+        WARNING: this will remove everything! including those are processing, only use this
+        function as a development tool
+        Status='QUEUED'|'IN_PROGRESS'|'FAILED'|'COMPLETED',
+    '''
+    All_jobs = transcribe.list_transcription_jobs(Status=type, MaxResults=100)
+    print(All_jobs)
+    while len(All_jobs['TranscriptionJobSummaries']) != 0:
+        for job in All_jobs['TranscriptionJobSummaries']:
+            res = transcribe.delete_transcription_job(TranscriptionJobName=job['TranscriptionJobName'])
+            print(res)
+        All_jobs = transcribe.list_transcription_jobs(MaxResults=100)
+
 def random_job_name_generator():
     rand_dig = 6
     extender = "-"
     for i in range(rand_dig):
         extender += str(random.randint(0,9))
     return extender
+
 def check_job_name(job_name):
     '''
         delete duplicate trancribe job, avoid conflict
@@ -91,7 +108,7 @@ def amazon_transcribe(audio_file_name, collection_name, type, video_id,  max_spe
             LanguageCode='en-US',
             OutputBucketName= AWS_STORAGE_BUCKET_NAME ,
             OutputKey= target_key,
-        )    
+        )
     
     while True:
         result = transcribe.get_transcription_job(TranscriptionJobName=job_name)
@@ -100,6 +117,9 @@ def amazon_transcribe(audio_file_name, collection_name, type, video_id,  max_spe
         time.sleep(10)
         print('transcribing...')
     #return the output json bucket key if success, so the data could be directly downloaded from s3 bucket
+    # delete an transcription job after finished
+    response = transcribe.delete_transcription_job(TranscriptionJobName='string')
+    print(response)
     if result['TranscriptionJob']['TranscriptionJobStatus'] == 'COMPLETED':
         return result['TranscriptionJob']['Transcript']['TranscriptFileUri']
     return None
@@ -250,7 +270,7 @@ def abstract_summary(body, gap_size=900):
                                             do_sample=False)[0]['summary_text']
             break
         else:
-            print(' '.join(tokenized_body[doc_mark: doc_mark + gap_size]))
+            #print(' '.join(tokenized_body[doc_mark: doc_mark + gap_size]))
             Complete_summary += summarizer(' '.join(tokenized_body[doc_mark: doc_mark + 500]), max_length=100, min_length=5, 
                                             do_sample=False)[0]['summary_text']
             doc_mark += gap_size
@@ -258,13 +278,18 @@ def abstract_summary(body, gap_size=900):
     # trained on c4 common crawl web corpus only for tensor flow
     #summarizer = pipeline("summarization", model="t5-base", tokenizer="t5-base", framework="tf")
     return Complete_summary
+
+
 #url = amazon_transcribe('sample.mp4', 'Collection1', 9)
 
-# data = load_json_output('s3://briefly41/static/Collection5/video/20/video20.json')
+# data = load_json_output('s3://briefly41/static/Collection2/video/7/video7.json')
 # x, y, z = read_output(data)
 # # print('')
-# print(y)
+# # print(y)
 # result_abs = abstract_summary(y)
+# print(y)
+# print('')
+# print(result_abs)
 # print(result_abs)
 # result = summarize(y, x, num_sentence=None, max_sentence=20, model='XLNet')
 # print(result)

@@ -537,6 +537,7 @@ class AudioViewSet(viewsets.ModelViewSet):
         user = request.user
         # here video variable is just an audio, for the sake of convenience
         video = Audio.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
+
         if video:
             video = video[0]
             
@@ -547,7 +548,7 @@ class AudioViewSet(viewsets.ModelViewSet):
                     video_path = video.audio.name.split('/')
                     video_name, video_id, type, collection_name = video_path[3], video_path[2],video_path[1], video_path[0]   
                     transcribe = speech_to_text.amazon_transcribe(video_name, collection_name, type, video_id)
-                    
+                    print('2')
                     if not transcribe:
                         return Response("Unknown failure during S3 transcribe", status=status.HTTP_400_BAD_REQUEST)
                     #video.transcript = transcribe
