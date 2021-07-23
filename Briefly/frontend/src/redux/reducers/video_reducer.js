@@ -83,6 +83,17 @@ export default function videoReducer(state = initialState, action) {
         ...state,
         isDeleting: false,
       };
+    case type.RESET_VIDEO_SUMMARY_SUCCESS:
+      toast.success("😎 Your video summary has been reset!");
+      return {
+        ...state,
+        videos: [...state.videos].filter(
+          (video) => video.id !== action.videoId
+        ),
+      };
+    case type.RESET_VIDEO_SUMMARY_FAILURE:
+      toast.error("Fail to reset video summary.");
+      return state;
     default:
       return state;
   }

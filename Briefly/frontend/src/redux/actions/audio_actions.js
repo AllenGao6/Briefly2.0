@@ -102,3 +102,20 @@ export const deleteAudios = (id, list_id) => (dispatch) => {
       console.log(err);
     });
 };
+
+export const resetAudioSummarization = (id, audioId) => (dispatch) => {
+  return axios
+    .get(`${COLLECTIONS_BASE_URL}${id}/audio/${audioId}/reset/`)
+    .then((res) => {
+      dispatch({
+        type: type.RESET_AUDIO_SUMMARY_SUCCESS,
+        audioId: audioId,
+      });
+    })
+    .catch((err) => {
+      dispatch({
+        type: type.RESET_AUDIO_SUMMARY_FAILURE,
+      });
+      console.log(err);
+    });
+};

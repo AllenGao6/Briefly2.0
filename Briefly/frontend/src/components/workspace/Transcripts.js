@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import { makeStyles, useTheme } from "@material-ui/styles";
 import Divider from "@material-ui/core/Divider";
 import {
@@ -12,13 +12,12 @@ import {
 } from "@material-ui/core";
 import SearchOutlinedIcon from "@material-ui/icons/SearchOutlined";
 
-
 const useStyles = makeStyles((theme) => ({
   divider: {
     background: "black",
   },
   search: {
-    width: '100%',
+    width: "100%",
     // background:
     //   theme.palette.type === "dark"
     //     ? theme.palette.primary.main
@@ -39,13 +38,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-
-
 export default function Transcripts() {
   const classes = useStyles();
   const theme = useTheme();
-  const [search, setSearch] = useState('');
-
+  const [search, setSearch] = useState("");
 
   return (
     <Grid
@@ -60,44 +56,46 @@ export default function Transcripts() {
       }}
     >
       <Grid item container style={{ height: 40 }}>
-      <InputBase
-            style={{ marginLeft: "1rem", verticalAlign: "center" }}
-            placeholder="Search Transcript..."
-            id="search"
-            variant="outlined"
-            value={search}
-            fullWidth
-            size="medium"
-            classes={{ root: classes.search }}
-            startAdornment={
-              <InputAdornment position="start">
-                <SearchOutlinedIcon
-                  style={{ fontSize: "1.5rem" }}
-                />
-              </InputAdornment>
-            }
-            onChange={(event) => setSearch(event.target.value)}
-          >
-           </InputBase>
+        <InputBase
+          style={{
+            marginLeft: "1rem",
+            verticalAlign: "center",
+            paddingLeft: 0,
+            fontSize: "1rem",
+          }}
+          placeholder="Search Transcript..."
+          id="search"
+          variant="outlined"
+          value={search}
+          fullWidth
+          size="medium"
+          classes={{ root: classes.search }}
+          startAdornment={
+            <InputAdornment position="start">
+              <SearchOutlinedIcon style={{ fontSize: "1.2rem" }} />
+            </InputAdornment>
+          }
+          onChange={(event) => setSearch(event.target.value)}
+        ></InputBase>
       </Grid>
       <Divider variant="middle" className={classes.divider} />
       <Grid item>
-          <Paper
-              className={classes.cardOutline}
-              style={{
-                marginTop: 10,
-                padding: 0,
-              }}
-           >
-              <Typography> There will be transcript here</Typography>
-              {/* <BulletPointList
+        <Paper
+          className={classes.cardOutline}
+          style={{
+            marginTop: 10,
+            padding: 0,
+          }}
+        >
+          <Typography> There will be transcript here</Typography>
+          {/* <BulletPointList
                 transcripts={transcripts}
                 getScreenshot={getScreenshot}
                 onTranscriptChange={handleTranscriptChange}
                 onTranscriptDelete={handleTranscriptDelete}
               /> */}
-          </Paper>
-        </Grid>
+        </Paper>
+      </Grid>
     </Grid>
   );
 }

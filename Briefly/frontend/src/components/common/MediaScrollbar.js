@@ -23,11 +23,11 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import HomeIcon from "@material-ui/icons/Home";
 import SearchOutlinedIcon from "@material-ui/icons/SearchOutlined";
-import Avatar from '@material-ui/core/Avatar';
-import VideoLibraryIcon from '@material-ui/icons/VideoLibrary';
-import ListItemAvatar from '@material-ui/core/ListItemAvatar';
-import DescriptionIcon from '@material-ui/icons/Description';
-import AudiotrackIcon from '@material-ui/icons/Audiotrack';
+import Avatar from "@material-ui/core/Avatar";
+import VideoLibraryIcon from "@material-ui/icons/VideoLibrary";
+import ListItemAvatar from "@material-ui/core/ListItemAvatar";
+import DescriptionIcon from "@material-ui/icons/Description";
+import AudiotrackIcon from "@material-ui/icons/Audiotrack";
 
 const useStyles = makeStyles((theme) => ({
   drawerPaper: {
@@ -47,7 +47,7 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: theme.spacing(2),
     paddingBottom: theme.spacing(2),
   },
-   itemIcon: {
+  itemIcon: {
     minWidth: "auto",
     marginRight: theme.spacing(2),
   },
@@ -77,7 +77,7 @@ export default function MediaScrollbar(props) {
   const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
 
   const { ...other } = props; // important, don't delete!
-  const {media, media_type} = props;
+  const { media, media_type } = props;
 
   // console.log(props.media);
 
@@ -91,70 +91,93 @@ export default function MediaScrollbar(props) {
       <List
         disablePadding
         style={{
-          backgroundImage: `url(${theme.palette.type === "dark"
-                                ? dashboardBackground_dark
-                                : dashboardBackground_light})`,
+          backgroundImage: `url(${
+            theme.palette.type === "dark"
+              ? dashboardBackground_dark
+              : dashboardBackground_light
+          })`,
           backgroundRepeat: "no-repeat",
           backgroundSize: "cover",
           height: "100%",
         }}
       >
-         <React.Fragment style={{position: 'sticky', top: 0}}>
-        <ListItem
-          className={clsx(classes.item, classes.itemCategory)}
-          style={{ textAlign: "center", height: 69 }}
-        >
-          <Typography
-            variant="h4"
-            style={{ color: theme.palette.secondary.main }}
+        <React.Fragment style={{ position: "sticky", top: 0 }}>
+          <ListItem
+            className={clsx(classes.item, classes.itemCategory)}
+            style={{ textAlign: "center", height: 69 }}
           >
-            Briefly
-          </Typography>
-        </ListItem>
-        <ListItem className={clsx(classes.item, classes.itemCategory)} onClick={()=>{props.history.push(`/dashboard`)}} button>
-          <ListItemIcon className={classes.itemIcon}>
-            <HomeIcon style={{ color: "white" }} />
-          </ListItemIcon>
-          <Typography variant="h5" style={{ color: "white" }} >
-            Home
-          </Typography>
-        </ListItem>
-        <ListItem>
-          <InputBase
-            style={{ marginLeft: "1rem", verticalAlign: "center" }}
-            placeholder="Search..."
-            id="search"
-            variant="outlined"
-            value={props.search}
-            fullWidth
-            size="small"
-            classes={{ root: classes.search }}
-            startAdornment={
-              <InputAdornment position="start">
-                <SearchOutlinedIcon
-                  style={{ fontSize: "1.5rem" }}
-                />
-              </InputAdornment>
-            }
-            onChange={(event) => props.setSearch(event.target.value)}
-          >
-           </InputBase>
+            <Typography
+              variant="h4"
+              style={{ color: theme.palette.secondary.main }}
+            >
+              Briefly
+            </Typography>
           </ListItem>
-         <Divider variant="middle" className={classes.divider} />
+          <ListItem
+            className={clsx(classes.item, classes.itemCategory)}
+            onClick={() => {
+              props.history.push(`/dashboard`);
+            }}
+            button
+          >
+            <ListItemIcon className={classes.itemIcon}>
+              <HomeIcon style={{ color: "white" }} />
+            </ListItemIcon>
+            <Typography variant="h5" style={{ color: "white" }}>
+              Home
+            </Typography>
+          </ListItem>
+          <ListItem style={{ paddingBottom: 0, paddingLeft: 0 }}>
+            <InputBase
+              style={{
+                marginLeft: "1rem",
+                verticalAlign: "center",
+                paddingLeft: 0,
+                fontSize: "1rem",
+              }}
+              placeholder="Search..."
+              id="search"
+              variant="outlined"
+              value={props.search}
+              fullWidth
+              size="small"
+              classes={{ root: classes.search }}
+              startAdornment={
+                <InputAdornment position="start">
+                  <SearchOutlinedIcon style={{ fontSize: "1.2rem" }} />
+                </InputAdornment>
+              }
+              onChange={(event) => props.setSearch(event.target.value)}
+            ></InputBase>
+          </ListItem>
+          <Divider variant="middle" className={classes.divider} />
         </React.Fragment>
 
-        <React.Fragment style={{overflow_y: 'scroll'}}>
-        {media.map((item, index) => (
-          <ListItem  key={index} onClick={() => props.history.push(`/dashboard/${item.collection}/${media_type}/${item.id}`)} button>
-            <ListItemAvatar>
-                {media_type === 'video' ? <VideoLibraryIcon /> : (media_type === 'audio' ? <AudiotrackIcon /> : <DescriptionIcon />)}
-            </ListItemAvatar>
-            <ListItemText primary={item.title} secondary={item.created} />
-          </ListItem>
-      ))}
-      </React.Fragment>
+        <React.Fragment style={{ overflow_y: "scroll" }}>
+          {media.map((item, index) => (
+            <ListItem
+              key={index}
+              onClick={() =>
+                props.history.push(
+                  `/dashboard/${item.collection}/${media_type}/${item.id}`
+                )
+              }
+              button
+            >
+              <ListItemAvatar>
+                {media_type === "video" ? (
+                  <VideoLibraryIcon />
+                ) : media_type === "audio" ? (
+                  <AudiotrackIcon />
+                ) : (
+                  <DescriptionIcon />
+                )}
+              </ListItemAvatar>
+              <ListItemText primary={item.title} secondary={item.created} />
+            </ListItem>
+          ))}
+        </React.Fragment>
       </List>
-      
     </Drawer>
   );
 }

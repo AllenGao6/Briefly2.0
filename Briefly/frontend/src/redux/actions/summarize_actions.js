@@ -43,8 +43,9 @@ export const summarizeMedia =
         type: type.SUMMARIZE_SUCCESS,
         mediaType: mediaType,
         summary: response.data,
+        mediaId: mediaId,
       });
-      return response.data;
+      return true;
     } else {
       console.log(response);
       dispatch({

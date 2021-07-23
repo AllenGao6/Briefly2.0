@@ -135,7 +135,10 @@ function BulletPoint({
                 className={classes.timestampButton}
                 onClick={() => seekTo(time)}
               >
-                {transcript.displayed_time}
+                {transcript.displayed_time.slice(
+                  1,
+                  transcript.displayed_time.length - 1
+                )}
               </Button>
             </Grid>
             <Grid item>
@@ -245,7 +248,7 @@ function BulletPoint({
           <Button
             onClick={() => {
               setOpenDialog(false);
-              onTranscriptDelete(transcript);
+              handleDelete();
             }}
             style={{ color: theme.palette.common.red }}
           >

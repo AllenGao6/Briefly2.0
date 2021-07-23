@@ -11,6 +11,12 @@ export default function summarizeReducer(state = initialState, action) {
     case type.TRANSCRIBE_FAILURE:
       toast.error("Fail to transcribe your document.");
       return state;
+    case type.SUMMARIZE_SUCCESS:
+      toast.success("😎 Your document has been summarized!");
+      return state;
+    case type.SUMMARIZE_FAILURE:
+      toast.error("Fail to summarize your document.");
+      return state;
     default:
       return state;
   }

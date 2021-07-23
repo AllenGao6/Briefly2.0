@@ -103,3 +103,20 @@ export const deleteVideos = (id, list_id) => (dispatch) => {
       console.log(err);
     });
 };
+
+export const resetVideoSummarization = (id, videoId) => (dispatch) => {
+  return axios
+    .get(`${COLLECTIONS_BASE_URL}${id}/video/${videoId}/reset/`)
+    .then((res) => {
+      dispatch({
+        type: type.RESET_VIDEO_SUMMARY_SUCCESS,
+        videoId: videoId,
+      });
+    })
+    .catch((err) => {
+      dispatch({
+        type: type.RESET_VIDEO_SUMMARY_FAILURE,
+      });
+      console.log(err);
+    });
+};

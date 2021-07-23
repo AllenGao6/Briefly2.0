@@ -29,6 +29,16 @@ import AddIcon from "@material-ui/icons/AddBoxOutlined";
 import BulletPointList from "../common/BulletPointList";
 import { connect } from "react-redux";
 import { summarizeMedia } from "../../redux/actions/summarize_actions";
+import {
+  loadVideosInCollection,
+  updateVideoInCollection,
+  resetVideoSummarization,
+} from "../../redux/actions/video_actions";
+import {
+  loadAudiosInCollection,
+  updateAudioInCollection,
+  resetAudioSummarization,
+} from "../../redux/actions/audio_actions";
 
 const useStyles = makeStyles((theme) => {
   const matchesDark = theme.palette.type === "dark";
@@ -93,6 +103,12 @@ function SummaryContent({
   mediaType,
   collectionId,
   summarizeMedia,
+  loadVideosInCollection,
+  loadAudiosInCollection,
+  updateVideoInCollection,
+  updateAudioInCollection,
+  resetVideoSummarization,
+  resetAudioSummarization,
   getScreenshot,
 }) {
   const classes = useStyles();
@@ -105,76 +121,79 @@ function SummaryContent({
   const [numSentences, setNumSentences] = useState(5);
   const [optimalSentence, setOptimalSentence] = useState(false);
   const [modelType, setModelType] = useState(0);
-  const [dev, setDev] = useState(false);
 
-  // fake data
-  const [transcripts, setTranscripts] = useState([
-    {
-      id: 1,
-      displayed_time: "00:01:24",
-      time: 0.2,
-      sentence:
-        "Briefly will win the challenge. Will win the challenge. Win the challenge. The challenge. Challenge. <null>. Briefly will win the challenge. Will win the challenge. Win the challenge.",
-    },
-    {
-      id: 2,
-      displayed_time: "00:02:24",
-      time: 0.4,
-      sentence:
-        "A friend function is an independent function which has access to the variables and methods of its befriended class.",
-    },
-    {
-      id: 3,
-      displayed_time: "00:03:24",
-      time: 0.6,
-      sentence:
-        "To create a friend function for a class, it must be declared in the class along with the friend keyword.",
-    },
-    {
-      id: 4,
-      displayed_time: "00:04:24",
-      time: 0.8,
-      sentence:
-        "The setRadius() function is completely independent of the Ball class, yet it has access to all the private variables.",
-    },
-    {
-      id: 5,
-      displayed_time: "00:05:24",
-      time: 0.9,
-      sentence:
-        "Now, we'll take a look at a special category of functions called friends.",
-    },
-  ]);
+  const updateMediaInCollection = async (id, media, mediaId) => {
+    switch (mediaType) {
+      case "video":
+        await updateVideoInCollection(id, media, mediaId);
+        break;
+      case "audio":
+        await updateAudioInCollection(id, media, mediaId);
+        break;
+      case "text":
+      default:
+        break;
+    }
+  };
 
-  // fake edit API
+  const resetMediaSummarization = async (id, mediaId) => {
+    switch (mediaType) {
+      case "video":
+        await resetVideoSummarization(id, mediaId);
+        break;
+      case "audio":
+        await resetAudioSummarization(id, mediaId);
+        break;
+      case "text":
+      default:
+        break;
+    }
+  };
+
   const handleTranscriptChange = (transcript, summary) => {
-    const filteredTranscripts = transcripts.filter(
-      (item) => item.id !== transcript.id
-    );
+    const transcripts = JSON.parse(media.summarization);
     const newTranscripts = [
-      ...filteredTranscripts,
+      ...transcripts.filter((item) => item.id !== transcript.id),
       { ...transcript, sentence: summary.trim() },
     ];
-    newTranscripts.sort((a, b) => a.id - b.id);
-    setTranscripts(newTranscripts);
+    const newMedia = {
+      summarization: JSON.stringify(newTranscripts),
+    };
+    updateMediaInCollection(collectionId, newMedia, media.id);
   };
 
-  // fake delete API
   const handleTranscriptDelete = (transcript) => {
-    const filteredTranscripts = transcripts.filter(
+    const transcripts = JSON.parse(media.summarization);
+    const newTranscripts = transcripts.filter(
       (item) => item.id !== transcript.id
     );
-    setTranscripts(filteredTranscripts);
+    const newMedia = {
+      summarization: JSON.stringify(newTranscripts),
+    };
+    updateMediaInCollection(collectionId, newMedia, media.id);
+    console.log("handleTranscriptDelete");
   };
 
-  // fake reset API
   const handleTranscriptReset = () => {
-    setTranscripts([]);
+    resetMediaSummarization(collectionId, media.id);
   };
 
-  // fake add API
-  const handleAddTranscript = () => {
-    console.log("add");
+  const handleAddTranscript = (time, display_time, sentence) => {
+    const transcripts = JSON.parse(media.summarization);
+    let id = 0;
+    transcripts.forEach((transcript) => {
+      if (transcript.id >= id) id = transcript.id + 1;
+    });
+    transcripts.push({
+      id: id,
+      sentence: sentence,
+      time: time,
+      display_time: `[${display_time}]`,
+    });
+    const newMedia = {
+      summarization: JSON.stringify(transcripts),
+    };
+    updateMediaInCollection(collectionId, newMedia, media.id);
   };
 
   const summarize = async () => {
@@ -188,7 +207,19 @@ function SummaryContent({
       mediaType,
       summaryConfig
     );
-    console.log(summary);
+    if (summary) {
+      switch (mediaType) {
+        case "video":
+          loadVideosInCollection(collectionId);
+          break;
+        case "audio":
+          loadAudiosInCollection(collectionId);
+          break;
+        case "text":
+        default:
+          break;
+      }
+    }
   };
 
   const handleTabChange = (e, value) => {
@@ -220,13 +251,8 @@ function SummaryContent({
     }
   };
 
-  const Summary = (media) => {
-    media = {
-      ...media,
-      model_type: "BERT",
-      num_sentences: 10,
-    };
-    if (!dev && !media.is_summarized) {
+  const Summary = () => {
+    if (!media.is_summarized) {
       return (
         <React.Fragment>
           <Grid item>
@@ -246,16 +272,6 @@ function SummaryContent({
               onClick={handleClickOpen}
             >
               Start Summarization
-            </Button>
-          </Grid>
-          <Grid item style={{ marginTop: "1.5rem" }}>
-            <Button
-              variant="contained"
-              color={matchesDark ? "secondary" : "primary"}
-              style={{ color: "white" }}
-              onClick={() => setDev(true)}
-            >
-              See Bullet Points (dev mode)
             </Button>
           </Grid>
         </React.Fragment>
@@ -316,7 +332,7 @@ function SummaryContent({
               }}
             >
               <BulletPointList
-                transcripts={transcripts}
+                transcripts={JSON.parse(media.summarization)}
                 getScreenshot={getScreenshot}
                 onTranscriptChange={handleTranscriptChange}
                 onTranscriptDelete={handleTranscriptDelete}
@@ -346,7 +362,7 @@ function SummaryContent({
         item
         container
         className={classes.sectionContainer}
-        justify={dev ? "flex-start" : "center"}
+        justify={"center"}
         alignItems="center"
         direction="column"
       >
@@ -451,6 +467,12 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = {
   summarizeMedia,
+  loadVideosInCollection,
+  loadAudiosInCollection,
+  updateVideoInCollection,
+  updateAudioInCollection,
+  resetVideoSummarization,
+  resetAudioSummarization,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SummaryContent);

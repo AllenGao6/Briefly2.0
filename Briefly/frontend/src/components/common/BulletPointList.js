@@ -27,15 +27,17 @@ export default function BulletPointList({
 
   return (
     <List className={classes.root} disablePadding>
-      {transcripts.map((transcript, i) => (
-        <BulletPoint
-          key={`$bullet-point-${transcript.id}-${i}`}
-          transcript={transcript}
-          onTranscriptChange={onTranscriptChange}
-          onTranscriptDelete={onTranscriptDelete}
-          getScreenshot={getScreenshot}
-        />
-      ))}
+      {transcripts
+        .sort((a, b) => a.time - b.time)
+        .map((transcript, i) => (
+          <BulletPoint
+            key={`$bullet-point-${transcript.id}-${i}`}
+            transcript={transcript}
+            onTranscriptChange={onTranscriptChange}
+            onTranscriptDelete={onTranscriptDelete}
+            getScreenshot={getScreenshot}
+          />
+        ))}
     </List>
   );
 }

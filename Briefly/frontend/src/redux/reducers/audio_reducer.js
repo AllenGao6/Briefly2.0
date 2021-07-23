@@ -83,6 +83,17 @@ export default function audioReducer(state = initialState, action) {
         ...state,
         isDeleting: false,
       };
+    case type.RESET_AUDIO_SUMMARY_SUCCESS:
+      toast.success("😎 Your audio summary has been reset!");
+      return {
+        ...state,
+        audios: [...state.audios].filter(
+          (audio) => audio.id !== action.audioId
+        ),
+      };
+    case type.RESET_AUDIO_SUMMARY_FAILURE:
+      toast.error("Fail to reset audio summary.");
+      return state;
     default:
       return state;
   }
