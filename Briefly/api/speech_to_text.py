@@ -118,7 +118,7 @@ def amazon_transcribe(audio_file_name, collection_name, type, video_id,  max_spe
         print('transcribing...')
     #return the output json bucket key if success, so the data could be directly downloaded from s3 bucket
     # delete an transcription job after finished
-    response = transcribe.delete_transcription_job(TranscriptionJobName='string')
+    response = transcribe.delete_transcription_job(TranscriptionJobName=job_name)
     print(response)
     if result['TranscriptionJob']['TranscriptionJobStatus'] == 'COMPLETED':
         return result['TranscriptionJob']['Transcript']['TranscriptFileUri']
