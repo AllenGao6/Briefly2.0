@@ -11,8 +11,11 @@ import {
   InputBase,
 } from "@material-ui/core";
 import SearchOutlinedIcon from "@material-ui/icons/SearchOutlined";
+import TranscriptList from "../common/TranscriptList";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme) => {
+  const matchesDark = theme.palette.type === "dark";
+  return{
   divider: {
     background: "black",
   },
@@ -28,33 +31,44 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "1.25rem",
   },
   cardOutline: {
-    width: "95%",
+    width: "97%",
     height: "100%",
-    marginLeft: "2.5%",
+    marginLeft: "1.5%",
     paddingLeft: 15,
     paddingRight: 15,
     paddingTop: 5,
     paddingBottom: 5,
   },
-}));
+  transcriptStatus: {
+    padding: 10,
+    borderRadius: 15,
+  },
+  sectionContainer: {
+    background: matchesDark
+      ? theme.palette.primary.main
+      : theme.palette.common.cloud,
+    height: "-moz-calc(100vh - 99px - 48px)",
+    height: "-webkit-calc(100vh - 99px - 48px)",
+  },
+}});
 
 export default function Transcripts() {
   const classes = useStyles();
   const theme = useTheme();
   const [search, setSearch] = useState("");
+  const matchesDark = theme.palette.type === "dark";
+
 
   return (
-    <Grid
-      container
-      direction="column"
-      style={{
-        zIndex: 1,
-        background: "white",
-        position: "absolute",
-        top: 0,
-        bottom: 0,
-      }}
-    >
+   <div style={{
+    zIndex: 1,
+    background: "white",
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    width: "100%"
+  }}>
+      <Grid container direction="column" style={{ minWidth: 300 }}>
       <Grid item container style={{ height: 40 }}>
         <InputBase
           style={{
@@ -79,7 +93,28 @@ export default function Transcripts() {
         ></InputBase>
       </Grid>
       <Divider variant="middle" className={classes.divider} />
-      <Grid item>
+      <Grid
+        item
+        container
+        direction="column"
+        style={{width: "100%"}}
+      >
+        <Paper
+          className={classes.cardOutline}
+          style={{
+            marginTop: 10,
+            padding: 0,
+          }}
+        >
+          <TranscriptList audioText={1}/>
+        </Paper>
+      </Grid>
+    </Grid>
+    </div>
+  );
+}
+
+/* <Grid direction="column" item>
         <Paper
           className={classes.cardOutline}
           style={{
@@ -88,14 +123,6 @@ export default function Transcripts() {
           }}
         >
           <Typography> There will be transcript here</Typography>
-          {/* <BulletPointList
-                transcripts={transcripts}
-                getScreenshot={getScreenshot}
-                onTranscriptChange={handleTranscriptChange}
-                onTranscriptDelete={handleTranscriptDelete}
-              /> */}
+          <TranscriptList audioText={1}/>
         </Paper>
-      </Grid>
-    </Grid>
-  );
-}
+      </Grid> */

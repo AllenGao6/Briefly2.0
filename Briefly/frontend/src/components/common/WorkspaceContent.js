@@ -132,7 +132,7 @@ export default function WorkspaceContent({
         <SplitPane
           split="horizontal"
           defaultSize="50%"
-          className={classes.splitPane}
+          //className={classes.splitPane}
           primary="first"
           minSize={1}
           maxSize={-46}

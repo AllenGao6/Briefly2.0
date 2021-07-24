@@ -101,7 +101,7 @@ export default function MediaScrollbar(props) {
           height: "100%",
         }}
       >
-        <React.Fragment style={{ position: "sticky", top: 0 }}>
+        <React.Fragment>
           <ListItem
             className={clsx(classes.item, classes.itemCategory)}
             style={{ textAlign: "center", height: 69 }}
@@ -153,7 +153,7 @@ export default function MediaScrollbar(props) {
           <Divider variant="middle" className={classes.divider} />
         </React.Fragment>
 
-        <React.Fragment style={{ overflow_y: "scroll" }}>
+        <React.Fragment>
           {media.map((item, index) => (
             <ListItem
               key={index}
