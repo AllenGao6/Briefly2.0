@@ -8,14 +8,17 @@ import {
     ListItem,
     List,
   } from "@material-ui/core";
-  import { darken } from "@material-ui/core/styles";
+import { darken } from "@material-ui/core/styles";
 
+import { connect } from "react-redux";
+import { seekTo } from "../../redux/actions/player_actions";
+  
 
 const useStyles = makeStyles((theme) => ({
     root: {
       overflow: "auto",
-      height: "-moz-calc(100vh - 99px - 48px - 60px - 30px)",
-      height: "-webkit-calc(100vh - 99px - 48px - 60px - 30px)",
+      height: "-moz-calc(38vh)",
+      height: "-webkit-calc(38vh)",
     },
     demo: {
       backgroundColor: theme.palette.background.paper,
@@ -37,44 +40,55 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     divider: {
-        background: "black",
+        background: theme.palette.type === "dark" ? "white" : "black",
         width: '95%',
       },
   }));
 
-export default function TranscriptList({ audioText }){
+function TranscriptList({ audioText, seekTo }){
     const classes = useStyles();
     const theme = useTheme();
-
+    // console.log(audioText);
     
     return (
         <List className={classes.root} >
-            <ListItem dense={true}>
-                <Grid
-                    container
-                    direction="row"
-                >
-                    <Grid container justify="flex-end" alignItems="center">
-                        <Grid item>
-                            <Button
-                                variant="contained"
-                                className={classes.timestampButton}
-                                onClick={() => alert('dclicked!')}
-                            >
-                                timestamp
-                            </Button>
+            {audioText
+            .sort((a, b) => a.time - b.time)
+            .map((audio_text, i) =>(
+                <ListItem key={audio_text.id} dense={true}>
+                    <Grid
+                        container
+                        direction="row"
+                    >
+                        <Grid container justify="flex-end" alignItems="center">
+                            <Grid item>
+                                <Button
+                                    variant="contained"
+                                    className={classes.timestampButton}
+                                    onClick={() => seekTo(audio_text.time)}
+                                >
+                                    {audio_text.displayed_time}
+                                </Button>
+                            </Grid>
                         </Grid>
+                        <Grid item>
+                            <Typography variant="h6" className={classes.text}>
+                                {audio_text.sentence}
+                            </Typography>
+                        </Grid>
+                        <Divider variant="middle" className={classes.divider} />
                     </Grid>
-                    <Grid item>
-                        <Typography variant="h6" className={classes.text}>
-                            this will be our transcriptions
-                        </Typography>
-                    </Grid>
-                    <Divider variant="middle" className={classes.divider} />
-
-                </Grid>
-            </ListItem>
-
+                </ListItem>
+            ))}
         </List>
     )
 }
+function mapStateToProps(state) {
+    return {};
+  }
+  
+const mapDispatchToProps = {
+    seekTo,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(TranscriptList);

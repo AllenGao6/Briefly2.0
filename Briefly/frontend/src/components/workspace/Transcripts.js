@@ -27,7 +27,9 @@ const useStyles = makeStyles((theme) => {
     //     : lighten("#2481F4", 0.2),
     height: "2.8rem",
     padding: "1rem",
-    color: "blue",
+    color: theme.palette.type === "dark"
+      ? theme.palette.common.white
+      : "blue",
     fontSize: "1.25rem",
   },
   cardOutline: {
@@ -52,13 +54,40 @@ const useStyles = makeStyles((theme) => {
   },
 }});
 
-export default function Transcripts() {
+export default function Transcripts({ media }) {
   const classes = useStyles();
   const theme = useTheme();
   const [search, setSearch] = useState("");
-  const matchesDark = theme.palette.type === "dark";
 
+  const process_audioText = (audioText) =>{
+    let new_audioText = [];
+    let temp_text = null;
+    for(let i = 0; i < audioText.length; i++){
+        if(audioText[i].sentence.split(" ").length < 25){
+            if(temp_text === null){
+                temp_text = audioText[i];
+            }else{
+                temp_text.sentence += " " + audioText[i].sentence;
+                if(temp_text.sentence.split(" ").length >= 25){
+                    new_audioText.push(temp_text);
+                    temp_text = null;
+                }
+            }        
+        }else
+            new_audioText.push(audioText[i]);
+    }
+    if(temp_text !== null)
+        new_audioText.push(temp_text);
+    return new_audioText;
+  }
 
+  const filter_media = (text) => {
+    return text.filter((item) =>
+      item.sentence.toLowerCase().includes(search.toLowerCase())
+    );
+  };
+
+  const text_script = process_audioText(JSON.parse(media.transcript));
   return (
    <div style={{
     zIndex: 1,
@@ -66,7 +95,11 @@ export default function Transcripts() {
     position: "absolute",
     top: 0,
     bottom: 0,
-    width: "100%"
+    width: "100%",
+    background:
+      theme.palette.type === "dark"
+        ? theme.palette.common.grey
+        : theme.palette.common.cloud,
   }}>
       <Grid container direction="column" style={{ minWidth: 300 }}>
       <Grid item container style={{ height: 40 }}>
@@ -76,6 +109,7 @@ export default function Transcripts() {
             verticalAlign: "center",
             paddingLeft: 0,
             fontSize: "1rem",
+            
           }}
           placeholder="Search Transcript..."
           id="search"
@@ -97,7 +131,7 @@ export default function Transcripts() {
         item
         container
         direction="column"
-        style={{width: "100%"}}
+        style={{width: "100%", height:"100%"}}
       >
         <Paper
           className={classes.cardOutline}
@@ -106,23 +140,10 @@ export default function Transcripts() {
             padding: 0,
           }}
         >
-          <TranscriptList audioText={1}/>
+          <TranscriptList audioText={filter_media(text_script)}/>
         </Paper>
       </Grid>
     </Grid>
     </div>
   );
 }
-
-/* <Grid direction="column" item>
-        <Paper
-          className={classes.cardOutline}
-          style={{
-            marginTop: 10,
-            padding: 0,
-          }}
-        >
-          <Typography> There will be transcript here</Typography>
-          <TranscriptList audioText={1}/>
-        </Paper>
-      </Grid> */

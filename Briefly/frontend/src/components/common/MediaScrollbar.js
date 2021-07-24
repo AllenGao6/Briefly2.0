@@ -62,8 +62,9 @@ const useStyles = makeStyles((theme) => ({
     //     : lighten("#2481F4", 0.2),
     height: "2.8rem",
     padding: "1rem",
-    color: "blue",
-    fontSize: "1.25rem",
+    color: theme.palette.type === "dark"
+    ? theme.palette.common.white
+    : theme.palette.common.blue,
   },
   video: {
     color: "black",
