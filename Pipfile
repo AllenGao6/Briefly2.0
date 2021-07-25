@@ -30,6 +30,7 @@ python-dotenv = "*"
 nltk = "*"
 sentencepiece = "*"
 gunicorn = "*"
+protobuf = "*"
 
 [dev-packages]
 

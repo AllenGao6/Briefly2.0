@@ -2,7 +2,7 @@ import time
 import boto3
 import json
 import datetime
-from .sentence_process import SentenceHandler
+from sentence_process import SentenceHandler
 import random
 # from django.conf import settings
 
@@ -284,8 +284,10 @@ def abstract_summary(body, gap_size=900):
 
 # data = load_json_output('s3://briefly41/static/Collection2/video/7/video7.json')
 # x, y, z = read_output(data)
-# # print('')
-# # print(y)
+# result = summarize(y, x, num_sentence=None, max_sentence=20, model='XLNet')
+# print(result)
+# print('')
+# print(y)
 # result_abs = abstract_summary(y)
 # print(y)
 # print('')

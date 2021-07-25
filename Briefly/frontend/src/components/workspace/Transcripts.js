@@ -45,11 +45,9 @@ const useStyles = makeStyles((theme) => {
       borderRadius: 15,
     },
     sectionContainer: {
-      background: matchesDark
-        ? theme.palette.primary.main
-        : theme.palette.common.cloud,
-      height: "-moz-calc(100vh - 99px - 48px)",
-      height: "-webkit-calc(100vh - 99px - 48px)",
+      top: 10,
+      bottom: 100,
+      position: 'relative',
     },
   };
 });
@@ -90,18 +88,24 @@ export default function Transcripts({ media }) {
     <div
       style={{
         zIndex: 1,
-        background: "white",
         position: "absolute",
         top: 0,
         bottom: 0,
         width: "100%",
+        height: "95%",
         background:
           theme.palette.type === "dark"
             ? theme.palette.common.grey
             : theme.palette.common.cloud,
       }}
     >
-      <Grid container direction="column" style={{ minWidth: 300 }}>
+      <Grid  
+        container
+        className={classes.sectionContainer}
+        justify={"center"}
+        alignItems="stretch"
+        direction="column"
+      >
         <Grid item container style={{ height: 40 }}>
           <InputBase
             style={{
@@ -130,13 +134,14 @@ export default function Transcripts({ media }) {
           item
           container
           direction="column"
-          style={{ width: "100%", height: "100%" }}
+          style={{ width: "100%", height: 'calc(100vh - 99px - 48px)' }}
         >
           <Paper
             className={classes.cardOutline}
             style={{
               marginTop: 10,
               padding: 0,
+              height: "100%",
             }}
           >
             <TranscriptList audioText={filter_media(text_script)} />
