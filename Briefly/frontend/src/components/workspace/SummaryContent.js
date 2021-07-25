@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   Grid,
   Tabs,
@@ -27,6 +27,7 @@ import EmptyIcon from "@material-ui/icons/HourglassEmpty";
 import ResetIcon from "@material-ui/icons/Cached";
 import AddIcon from "@material-ui/icons/AddBoxOutlined";
 import BulletPointList from "../common/BulletPointList";
+import ControlledVideoPlayer from "../common/ControlledVideoPlayer";
 import { connect } from "react-redux";
 import { summarizeMedia } from "../../redux/actions/summarize_actions";
 import {
@@ -39,6 +40,22 @@ import {
   updateAudioInCollection,
   resetAudioSummarization,
 } from "../../redux/actions/audio_actions";
+
+const format = (seconds) => {
+  if (isNaN(seconds)) {
+    return "00:00";
+  }
+  const date = new Date(seconds * 1000);
+  const hh = date.getUTCHours().toString().padStart(2, "0");
+  const mm = date.getUTCMinutes().toString().padStart(2, "0");
+  const ss = date.getUTCSeconds().toString().padStart(2, "0");
+
+  if (hh) {
+    return `${hh}:${mm}:${ss}`;
+  }
+
+  return `00:${mm}:${ss}`;
+};
 
 const useStyles = makeStyles((theme) => {
   const matchesDark = theme.palette.type === "dark";
@@ -118,9 +135,14 @@ function SummaryContent({
 
   const [value, setValue] = useState(0);
   const [open, setOpen] = useState(false);
+  const [openAddDialog, setOpenAddDialog] = useState(false);
   const [numSentences, setNumSentences] = useState(5);
   const [optimalSentence, setOptimalSentence] = useState(false);
   const [modelType, setModelType] = useState(0);
+  const [played, setPlayed] = useState(0);
+  const [addContent, setAddContent] = useState("");
+
+  const mediaRef = useRef(null);
 
   const updateMediaInCollection = async (id, media, mediaId) => {
     switch (mediaType) {
@@ -178,22 +200,27 @@ function SummaryContent({
     resetMediaSummarization(collectionId, media.id);
   };
 
-  const handleAddTranscript = (time, display_time, sentence) => {
+  const handleAddTranscript = () => {
+    const displayed_time = format(
+      mediaRef.current ? mediaRef.current.getCurrentTime() : "00:00:00"
+    );
     const transcripts = JSON.parse(media.summarization);
     let id = 0;
     transcripts.forEach((transcript) => {
-      if (transcript.id >= id) id = transcript.id + 1;
+      id = Math.max(transcript.id + 1, id);
     });
     transcripts.push({
       id: id,
-      sentence: sentence,
-      time: time,
-      display_time: `[${display_time}]`,
+      sentence: addContent,
+      time: played,
+      displayed_time: `[${displayed_time}]`,
     });
     const newMedia = {
       summarization: JSON.stringify(transcripts),
     };
     updateMediaInCollection(collectionId, newMedia, media.id);
+    setAddContent("");
+    setPlayed(0);
   };
 
   const summarize = async () => {
@@ -316,7 +343,7 @@ function SummaryContent({
                   <IconButton onClick={handleTranscriptReset}>
                     <ResetIcon className={classes.icon} />
                   </IconButton>
-                  <IconButton onClick={handleAddTranscript}>
+                  <IconButton onClick={() => setOpenAddDialog(true)}>
                     <AddIcon className={classes.icon} />
                   </IconButton>
                 </Grid>
@@ -452,6 +479,64 @@ function SummaryContent({
             }}
             color={matchesDark ? "secondary" : "primary"}
             disabled={modelType === 0}
+          >
+            Ok
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={openAddDialog}
+        onClose={() => setOpenAddDialog(false)}
+        fullWidth
+        fullScreen={matchesXS}
+        maxWidth="md"
+      >
+        <DialogTitle>
+          <Typography variant="h5">Add Timestamped Bullet Point</Typography>
+        </DialogTitle>
+        <Divider variant="middle" classes={{ root: classes.divider }} />
+        <DialogContent>
+          <Grid container direction="column">
+            <Grid item container style={{ paddingLeft: 24, paddingRight: 24 }}>
+              <TextField
+                id="add-bulletpoint-text"
+                label="Content"
+                value={addContent}
+                placeholder="Write whatever important content here."
+                multiline
+                fullWidth
+                rows={5}
+                color={matchesDark ? "secondary" : "primary"}
+                onChange={(e) => setAddContent(e.target.value)}
+              />
+            </Grid>
+            <Grid item container justify="center">
+              {mediaType === "video" && (
+                <ControlledVideoPlayer
+                  mediaUrl={media.video}
+                  played={played}
+                  setPlayed={setPlayed}
+                  background={"white"}
+                  ref={mediaRef}
+                />
+              )}
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setOpenAddDialog(false)}
+            color={matchesDark ? "secondary" : "primary"}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={() => {
+              setOpenAddDialog(false);
+              handleAddTranscript();
+            }}
+            color={matchesDark ? "secondary" : "primary"}
+            disabled={addContent.length === 0}
           >
             Ok
           </Button>
