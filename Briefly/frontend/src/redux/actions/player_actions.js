@@ -6,3 +6,10 @@ export const seekTo = (time) => (dispatch) => {
     time: time,
   });
 };
+
+export const seeked = () => (dispatch) => {
+  dispatch({
+    type: type.PLAYER_SEEKING,
+    time: null,
+  });
+};

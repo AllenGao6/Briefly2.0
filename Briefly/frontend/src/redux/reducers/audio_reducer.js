@@ -87,8 +87,16 @@ export default function audioReducer(state = initialState, action) {
       toast.success("😎 Your audio summary has been reset!");
       return {
         ...state,
-        audios: [...state.audios].filter(
-          (audio) => audio.id !== action.audioId
+        audios: [...state.audios].filter((audio) =>
+          audio.id === action.audioId
+            ? {
+                ...audio,
+                is_summarized: false,
+                num_sentences: 0,
+                summarization: null,
+                model_type: null,
+              }
+            : audio
         ),
       };
     case type.RESET_AUDIO_SUMMARY_FAILURE:

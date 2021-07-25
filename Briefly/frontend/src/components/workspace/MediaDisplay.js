@@ -4,6 +4,7 @@ import { Grid, Divider, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { useTheme } from "@material-ui/styles";
 import { connect } from "react-redux";
+import { seeked } from "../../redux/actions/player_actions";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -31,14 +32,17 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function MediaDisplay({ media, mediaType, seekTime }, mediaRef) {
+function MediaDisplay({ media, mediaType, seekTime, seeked }, mediaRef) {
   const theme = useTheme();
   const classes = useStyles();
   const [played, setPlayed] = useState(0);
 
   useEffect(() => {
-    setPlayed(seekTime);
-    if (mediaRef.current) mediaRef.current.seekTo(seekTime);
+    if (seekTime !== null) {
+      setPlayed(seekTime);
+      if (mediaRef.current) mediaRef.current.seekTo(seekTime);
+      seeked();
+    }
   }, [seekTime]);
 
   if (!media) return <div className={classes.root}></div>;
@@ -65,7 +69,9 @@ function mapStateToProps(state) {
   };
 }
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = {
+  seeked,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps, null, {
   forwardRef: true,

@@ -307,7 +307,7 @@ function SummaryContent({
                         Bullet Points:
                       </Typography>
                       <Typography variant="h6" className={classes.specialText}>
-                        {media.num_sentences}
+                        {JSON.parse(media.summarization).length}
                       </Typography>
                     </Grid>
                   </Grid>
