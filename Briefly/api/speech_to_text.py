@@ -2,7 +2,7 @@ import time
 import boto3
 import json
 import datetime
-from sentence_process import SentenceHandler
+from .sentence_process import SentenceHandler
 import random
 # from django.conf import settings
 
