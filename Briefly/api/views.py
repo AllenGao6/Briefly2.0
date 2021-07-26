@@ -25,6 +25,8 @@ from pprint import pprint
 from json import dumps, loads
 from time import time
 
+from django.template.loader import render_to_string
+
 class VideoViewSet(viewsets.ModelViewSet):
 
     serializer_class = VideoSerializer
@@ -152,21 +154,6 @@ class VideoViewSet(viewsets.ModelViewSet):
     #     serializer = self.get_serializer_class()(newest)
     #     return Response(serializer.data)
     
-    '''
-    Description: when summary is ready, this will be automatically called to send notification email to user's email
-    '''
-    def summary_ready(self, video):
-        email_title = 'You Summarization Is Ready at Briefly-AI'
-        email_body = f"Hi {video.collection.owner.first_name},\n\n	Your {video.__class__.__name__}: {video.title} in {video.collection} is successfully summarized by our powerful Briefly-AI!\n	Please go to www.Briefly-AI.com and start your journey!\n\n	Briefly-AI team"
-        
-        mail = send_mail(
-            email_title,
-            email_body,
-            settings.EMAIL_HOST_USER,
-            [str(video.collection.owner.email)],
-            fail_silently=False
-        )
-        return mail
     
     '''
     Call this url to begin transcribe from Amazon
@@ -174,6 +161,7 @@ class VideoViewSet(viewsets.ModelViewSet):
     '''
     @action(methods=['GET'],detail=True)
     def transcribe_begin(self, request, *args, **kwargs):
+        print("recieved transcribe request")
         user = request.user
         video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
         if video:
@@ -199,17 +187,41 @@ class VideoViewSet(viewsets.ModelViewSet):
                     pprint(audioText)
                     video.transcript = dumps(transcript)          #json field
                     video.audioText = audioText
-                    video.save()
+                    
                     print(f"transcribe time spent: {time()-t1:.2f}")
+                    
+                    # call default_summarize
+                    self.default_summarize(video) 
+                    video.save()
+                    # call to send email
+                    send_email(video)
                 except:
                     return Response("Fail to transcribe", status=status.HTTP_400_BAD_REQUEST)
 
-            #self.summary_ready(video)
+            
             return Response("Success!")
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
     
+    def default_summarize(self, audio):
+        print("recieved default summarize request")
+        t1 = time()
+        try:
+            summary, num_sentence = speech_to_text.summarize(audio.audioText, loads(audio.transcript), model ="XLNet")
+            print("default\n")
+            pprint(summary)
+            audio.model_type = "XLNet"       # XLNet is fastest and uses less memory
+            audio.num_sentences = num_sentence
+            audio.summarization = dumps(summary)
+            audio.is_summarized = True
+            print(f"Default summarization  time spent: {time()-t1:.2f}")
+
+        except:
+            return Response("Fail to generate default summarization", status=status.HTTP_400_BAD_REQUEST)
     
+        
+        
+        
     '''
     Call this endpoint to start summarization with all models,
     This endpoint is avaliable if video.audioText is provided.
@@ -224,7 +236,8 @@ class VideoViewSet(viewsets.ModelViewSet):
     URL: api/<int: collection_id>/video/<int: video_id>/summary_begin/
     '''
     @action(methods=['POST'],detail=True)
-    def summary_begin(self, request, *args, **kwargs):  
+    def summary_begin(self, request, *args, **kwargs):
+        print("recieved summarize request")
         t1 = time()
         user = request.user
         video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
@@ -282,6 +295,7 @@ class VideoViewSet(viewsets.ModelViewSet):
     '''
     @action(methods=['POST'],detail=False, permission_classes=[IsAuthenticated])
     def delete_list_videos(self, request, *args, **kwargs):
+        print("recieved delete list videos request")
         user = request.user
         videos_to_delete = request.data.get('list_id', None)
         if not videos_to_delete:
@@ -298,6 +312,7 @@ class VideoViewSet(viewsets.ModelViewSet):
     
     @action(methods=['GET'],detail=True, permission_classes=[IsAuthenticated])
     def reset(self, request, *args, **kwargs):
+        print("recieved reset video request")
         user = request.user
         video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
         if not video:
@@ -534,6 +549,7 @@ class AudioViewSet(viewsets.ModelViewSet):
     '''
     @action(methods=['GET'],detail=True)
     def transcribe_begin(self, request, *args, **kwargs):
+        print("recieved transcribe request")
         user = request.user
         # here video variable is just an audio, for the sake of convenience
         video = Audio.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
@@ -561,16 +577,39 @@ class AudioViewSet(viewsets.ModelViewSet):
                     pprint(audioText)
                     video.transcript = dumps(transcript)          #json field
                     video.audioText = audioText
-                    video.save()
+                    
                     print(f"transcribe time spent: {time()-t1:.2f}")
+                    
+                    # call default summarize
+                    self.default_summarize(video)
+                    video.save()
+                    # call to send email
+                    send_email(video)
                 except:
                     return Response("Fail to transcribe", status=status.HTTP_400_BAD_REQUEST)
 
-            #self.summary_ready(video)
             return Response("Success!")
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
+    def default_summarize(self, audio):
+        print("recieved default summarize request")
+        t1 = time()
+        try:
+            summary, num_sentence = speech_to_text.summarize(audio.audioText, loads(audio.transcript), model ="XLNet")
+            print("default\n")
+            pprint(summary)
+            audio.model_type = "XLNet"       # XLNet is fastest and uses less memory
+            audio.num_sentences = num_sentence
+            audio.summarization = dumps(summary)
+            audio.is_summarized = True
+            print(f"Default summarization  time spent: {time()-t1:.2f}")
+
+        except:
+            return Response("Fail to generate default summarization", status=status.HTTP_400_BAD_REQUEST)
+    
+    
+    
     '''
     Call this endpoint to start summarization with all models,
     This endpoint is avaliable if video.audioText is provided.
@@ -672,5 +711,38 @@ def search(request):
 @permission_classes([IsAuthenticated])
 def get_remaining(request):
     if request.method == 'GET':
+        video = Video.objects.filter(Q(pk=60))
+        send_email(video[0])
         return Response({'remaining_size': request.user.userprofile.remaining_size})
+
+'''
+    Description: when summary is ready, this will be automatically called to send notification email to user's email
+'''
+def send_email(video):
+
+    email_subject = 'You Default Summarization Is Ready at Briefly-AI!'
+    
+    # {{ username }}
+    # {{ mediaType }}
+    # {{ mediaName }}
+    # {{ collection }}
+    d = { 'username': video.collection.owner.first_name, 
+                 'mediaType': video.__class__.__name__.lower(), 
+                 'mediaName': video.title,
+                 'collection': video.collection.name}
+    
+    plaintext = render_to_string('email.txt', d)
+    htmly     = render_to_string('email.html', d)
+    
+    from_email, to = settings.EMAIL_HOST_USER, str(video.collection.owner.email)
+    
+    send_mail(
+        email_subject,
+        plaintext,
+        from_email,
+        [to],
+        html_message=htmly,
+        fail_silently=False
+    )
+    
     
