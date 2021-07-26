@@ -727,7 +727,8 @@ def send_email(video):
     d = { 'username': video.collection.owner.first_name, 
                  'mediaType': video.__class__.__name__.lower(), 
                  'mediaName': video.title,
-                 'collection': video.collection.name}
+                 'collection': video.collection.name,
+                 'MEDIA_URL': settings.MEDIA_URL}
     
     plaintext = render_to_string('email.txt', d)
     htmly     = render_to_string('email.html', d)
