@@ -170,7 +170,10 @@ class VideoViewSet(viewsets.ModelViewSet):
             if not video.transcript:
                 try:
                     # code to perform summarization process
-                    t1 = time()   
+                    t1 = time()
+                    video.is_processing = True
+                    video.save()
+                       
                     video_path = video.video.name.split('/')
                     video_name, video_id, type, collection_name = video_path[3], video_path[2],video_path[1], video_path[0]   
                     transcribe = speech_to_text.amazon_transcribe(video_name, collection_name, type, video_id)
@@ -191,7 +194,8 @@ class VideoViewSet(viewsets.ModelViewSet):
                     print(f"transcribe time spent: {time()-t1:.2f}")
                     
                     # call default_summarize
-                    self.default_summarize(video) 
+                    self.default_summarize(video)
+                    video.is_processing = False
                     video.save()
                     # call to send email
                     send_email(video)
@@ -249,6 +253,9 @@ class VideoViewSet(viewsets.ModelViewSet):
             return Response("Cannot find the audioText for this video", status=status.HTTP_400_BAD_REQUEST)
         
         try:
+            video.is_processing = True
+            video.save()
+            
             model = request.data.get('model', "Bert")
             
             num_sentence = request.data.get('num_sentence', None)
@@ -262,6 +269,7 @@ class VideoViewSet(viewsets.ModelViewSet):
                 video.num_sentences = num_sentence
                 video.summarization = dumps(summary)
                 video.is_summarized = True
+                video.is_processing = False
                 video.save()
                 print(f"Individual {model} summarization  time spent: {time()-t1:.2f}")
                 print(model)
@@ -561,6 +569,10 @@ class AudioViewSet(viewsets.ModelViewSet):
                 try:
                     # code to perform summarization process
                     t1 = time()   
+                    
+                    video.is_processing = True
+                    video.save()
+                    
                     video_path = video.audio.name.split('/')
                     video_name, video_id, type, collection_name = video_path[3], video_path[2],video_path[1], video_path[0]   
                     transcribe = speech_to_text.amazon_transcribe(video_name, collection_name, type, video_id)
@@ -582,6 +594,7 @@ class AudioViewSet(viewsets.ModelViewSet):
                     
                     # call default summarize
                     self.default_summarize(video)
+                    video.is_processing = False
                     video.save()
                     # call to send email
                     send_email(video)
@@ -636,6 +649,9 @@ class AudioViewSet(viewsets.ModelViewSet):
             return Response("Cannot find the audioText for this audio", status=status.HTTP_400_BAD_REQUEST)
         
         try:
+            video.is_processing = True
+            video.save()
+            
             model = request.data.get('model', "Bert")
             
             num_sentence = request.data.get('num_sentence', None)
@@ -649,6 +665,7 @@ class AudioViewSet(viewsets.ModelViewSet):
                 video.num_sentences = num_sentence
                 video.summarization = dumps(summary)
                 video.is_summarized = True
+                video.is_processing = False
                 video.save()
                 
                 print(f"Individual {model} summarization  time spent: {time()-t1:.2f}")
