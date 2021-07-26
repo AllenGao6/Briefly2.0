@@ -711,8 +711,6 @@ def search(request):
 @permission_classes([IsAuthenticated])
 def get_remaining(request):
     if request.method == 'GET':
-        video = Video.objects.filter(Q(pk=60))
-        send_email(video[0])
         return Response({'remaining_size': request.user.userprofile.remaining_size})
 
 '''
