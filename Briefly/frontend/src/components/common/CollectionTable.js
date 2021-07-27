@@ -15,7 +15,7 @@ import {
   Switch,
   LinearProgress,
   IconButton,
-  Icon,
+  Paper,
 } from "@material-ui/core";
 import { darken, lighten } from "@material-ui/core/styles";
 import {
@@ -53,15 +53,17 @@ const useStyles = makeStyles((theme) => {
       ? lighten(theme.palette.primary.main, 0.4)
       : darken(theme.palette.common.cloud, 0.1);
 
+  const getTableBackground = () => {
+    theme.palette.type === "dark" ? theme.palette.primary.main.dark : "white";
+  };
+
   return {
     dataGrid: {
       borderRadius: 3,
       border: 0,
-      height: 48,
+      minHeight: "70vh",
       transition: "background-color 0.3s",
-
-      boxShadow: "0px 5px 7px 5px rgba(165,165,165,0.5)",
-
+      backgroundColor: theme.palette.type === "dark" ? "#424242" : "white",
       "& .MuiDataGrid-row:nth-child(even)": {
         backgroundColor: getBackgroundColor(),
         "&:hover": {
@@ -638,25 +640,26 @@ function CollectionTable({
           marginBottom: "3rem",
         }}
       >
-        <DataGrid
-          className={classes.dataGrid}
-          disableColumnMenu
-          autoHeight
-          checkboxSelection
-          columns={matches ? fixedColumns : flexColumns}
-          rows={filterMediaBySearch()}
-          pageSize={pageSize}
-          onPageSizeChange={handlePageSizeChange}
-          rowsPerPageOptions={[10, 25, 50, 100]}
-          rowHeight={90}
-          selectionModel={selectionModel}
-          onSelectionModelChange={(newSelection) => {
-            setSelectionModel(newSelection.selectionModel);
-          }}
-          components={{
-            Toolbar: CustomToolbar,
-          }}
-        />
+        <Paper elevation={5} style={{ width: "100%" }}>
+          <DataGrid
+            className={classes.dataGrid}
+            disableColumnMenu
+            checkboxSelection
+            columns={matches ? fixedColumns : flexColumns}
+            rows={filterMediaBySearch()}
+            pageSize={pageSize}
+            onPageSizeChange={handlePageSizeChange}
+            rowsPerPageOptions={[10, 25, 50, 100]}
+            rowHeight={90}
+            selectionModel={selectionModel}
+            onSelectionModelChange={(newSelection) => {
+              setSelectionModel(newSelection.selectionModel);
+            }}
+            components={{
+              Toolbar: CustomToolbar,
+            }}
+          />
+        </Paper>
       </Grid>
       <Dialog
         open={openDialog}

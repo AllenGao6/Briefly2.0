@@ -26,6 +26,7 @@ export const AboutSection = () => {
       container
       direction="column"
       id="about-us"
+      style={{ marginBottom: "3rem" }}
     >
       <Typography
         className={classes.captionMargins}
