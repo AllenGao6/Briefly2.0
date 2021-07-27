@@ -27,6 +27,8 @@ import {
 } from "../../redux/actions/collection_actions";
 import defaultImage from "../../assets/dummy/book.png";
 import PublishRoundedIcon from "@material-ui/icons/PublishRounded";
+import { PageFooter } from "./landing_page_properties/LandingPageFooter";
+
 
 // User View
 const useStyles = makeStyles((theme) => ({
@@ -368,6 +370,7 @@ function Dashboard(props) {
           </Grid>
         </DialogContent>
       </Dialog>
+      <PageFooter LandingVisible={false}/>
     </React.Fragment>
   );
 }

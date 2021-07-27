@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
     root: {
         position: 'relative',
       overflow: "auto",
-      height: "95%",
+      height: "100%",
     },
     demo: {
       backgroundColor: theme.palette.background.paper,
