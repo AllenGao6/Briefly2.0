@@ -15,6 +15,7 @@ import {
   Switch,
   LinearProgress,
   IconButton,
+  Icon,
 } from "@material-ui/core";
 import { darken, lighten } from "@material-ui/core/styles";
 import {
@@ -136,8 +137,21 @@ const useStyles = makeStyles((theme) => {
       fontSize: "1rem",
     },
     archiveIcon: {
-      height: "2rem",
-      width: "2rem",
+      height: "1.5rem",
+      width: "1.5rem",
+    },
+    titleButton: {
+      ...theme.typography.roundedButton,
+      background: theme.palette.common.blue,
+      height: "1.7rem",
+      padding: 10,
+      paddingLeft: "1rem",
+      paddingRight: "1rem",
+      fontSize: "1rem",
+      width: undefined,
+      "&:hover": {
+        background: darken(theme.palette.common.blue, 0.2),
+      },
     },
   };
 });
@@ -187,13 +201,27 @@ function CollectionTable({
       align: "center",
       headerAlign: "center",
       renderCell: (params) => (
-        <Typography
-          variant="body1"
-          className={classes.title}
-          onClick={() => handleTitleClick(params.id)}
-        >
-          {params.value}
-        </Typography>
+        <React.Fragment>
+          {params.row.transcript === null ? (
+            <Typography variant="body1" className={classes.title}>
+              {params.value}
+            </Typography>
+          ) : (
+            <Button
+              variant="contained"
+              className={classes.titleButton}
+              onClick={() => handleTitleClick(params.id)}
+            >
+              <Typography
+                variant="body1"
+                className={classes.title}
+                style={{ color: "white" }}
+              >
+                {params.value}
+              </Typography>
+            </Button>
+          )}
+        </React.Fragment>
       ),
     },
     {
@@ -203,7 +231,11 @@ function CollectionTable({
       align: "center",
       headerAlign: "center",
       type: "boolean",
-      renderCell: (params) => <ArchiveIcon archived={params.value} />,
+      renderCell: (params) => (
+        <IconButton>
+          <ArchiveIcon archived={params.value} />
+        </IconButton>
+      ),
     },
     {
       field: "type",
@@ -257,13 +289,21 @@ function CollectionTable({
       align: "center",
       headerAlign: "center",
       renderCell: (params) => (
-        <Typography
-          variant="body1"
-          className={classes.title}
-          onClick={() => handleTitleClick(params.id)}
-        >
-          {params.value}
-        </Typography>
+        <React.Fragment>
+          {params.row.transcript === null ? (
+            <Typography variant="body1" className={classes.title}>
+              {params.value}
+            </Typography>
+          ) : (
+            <Button
+              variant="contained"
+              className={classes.titleButton}
+              onClick={() => handleTitleClick(params.id)}
+            >
+              {params.value}
+            </Button>
+          )}
+        </React.Fragment>
       ),
     },
     {
@@ -274,7 +314,11 @@ function CollectionTable({
       headerAlign: "center",
       type: "boolean",
       flex: 1,
-      renderCell: (params) => <ArchiveIcon archived={params.value} />,
+      renderCell: (params) => (
+        <IconButton>
+          <ArchiveIcon archived={params.value} />
+        </IconButton>
+      ),
     },
     {
       field: "type",

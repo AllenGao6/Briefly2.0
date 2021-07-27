@@ -21,6 +21,7 @@ import {
   Checkbox,
   Paper,
   IconButton,
+  Tooltip,
 } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/styles";
 import EmptyIcon from "@material-ui/icons/HourglassEmpty";
@@ -341,10 +342,14 @@ function SummaryContent({
                 </Grid>
                 <Grid item>
                   <IconButton onClick={handleTranscriptReset}>
-                    <ResetIcon className={classes.icon} />
+                    <Tooltip title="Reset" arrow>
+                      <ResetIcon className={classes.icon} />
+                    </Tooltip>
                   </IconButton>
                   <IconButton onClick={() => setOpenAddDialog(true)}>
-                    <AddIcon className={classes.icon} />
+                    <Tooltip title="Add" arrow>
+                      <AddIcon className={classes.icon} />
+                    </Tooltip>
                   </IconButton>
                 </Grid>
               </Grid>
@@ -497,7 +502,15 @@ function SummaryContent({
         <Divider variant="middle" classes={{ root: classes.divider }} />
         <DialogContent>
           <Grid container direction="column">
-            <Grid item container style={{ paddingLeft: 24, paddingRight: 24 }}>
+            <Grid
+              item
+              container
+              style={{
+                paddingLeft: 24,
+                paddingRight: 24,
+                marginBottom: "1rem",
+              }}
+            >
               <TextField
                 id="add-bulletpoint-text"
                 label="Content"
@@ -509,6 +522,11 @@ function SummaryContent({
                 color={matchesDark ? "secondary" : "primary"}
                 onChange={(e) => setAddContent(e.target.value)}
               />
+            </Grid>
+            <Grid item container style={{ paddingLeft: 24, paddingRight: 24 }}>
+              <Typography variant="h5" style={{ fontSize: "1rem" }}>
+                Drag the slider to the desired timestamp below:
+              </Typography>
             </Grid>
             <Grid item container justify="center">
               {mediaType === "video" && (
