@@ -278,6 +278,54 @@ function SummaryContent({
     }
   };
 
+  const PopQuiz = () => {
+    console.log(media);
+    if(media.quiz === null){
+      return (
+        <React.Fragment>
+          <Grid item>
+            <EmptyIcon
+              className={classes.icon}
+              style={{ width: "7rem", height: "7rem" }}
+            />
+          </Grid>
+          <Grid item>
+            <Typography variant="h5">No Quiz Generated Yet.</Typography>
+          </Grid>
+          <Grid item style={{ marginTop: "1.5rem" }}>
+            <Button
+              variant="contained"
+              color={matchesDark ? "secondary" : "primary"}
+              style={{ color: "white" }}
+              onClick={handleClickOpen}
+            >
+              Generate Quizes
+            </Button> 
+          </Grid>
+        </React.Fragment>
+      );
+    }else{
+      return (
+        <h1>this will be implemented</h1>
+      );
+    }
+  };
+
+  const More = () => {
+    return (
+      <h1>this will be implemented</h1>
+    )
+  };
+
+  const Service_type = (value) =>{
+    if(value === 0)
+      return <Summary />;
+    else if(value === 1)
+      return <PopQuiz />;
+    else
+      return <More />;
+  };
+
   const Summary = () => {
     if (!media.is_summarized) {
       return (
@@ -393,7 +441,7 @@ function SummaryContent({
         alignItems="center"
         direction="column"
       >
-        <Summary />
+        {Service_type(value)}
       </Grid>
       <Dialog
         open={open}

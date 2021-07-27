@@ -168,44 +168,53 @@ const Rating = ({ totalStars = 5 }) => {
     );
   };
 
-export const PageFooter = () => {
+export const PageFooter = (props) => {
     const classes = useStyles()
-
-    return <div className={classes.footer}>
-        <Grid
-            justify="center"
-            alignItems="center"
-            container
-            direction="column"
-        >
-            <Grid style={{height:20}}></Grid>
-            <Box px={{xs:3, sm:10}} py={{xs:5, sm:10}}>
-                <Container maxWidth='lg'>
-                    <Grid container spacing={5}>
-                        <Grid item xs={12} sm={6}>
-                            <Box borderBottom={1}>Contact Us</Box>
-                            <Box>
-                            <Grid item style={{marginTop:'1rem'}}>
-                                <InfoSection data={contactInfo} />
-                            </Grid>
-                            </Box>
-                        </Grid>
-
-                        <Grid item xs={12} sm={6}>
-                            <Box borderBottom={1}>Rate The Page</Box>
-                            <Box>
+    if(props.LandingVisible){
+        return <div className={classes.footer}>
+            <Grid
+                justify="center"
+                alignItems="center"
+                container
+                direction="column"
+            >
+                <Grid style={{height:20}}></Grid>
+                <Box px={{xs:3, sm:10}} py={{xs:5, sm:10}}>
+                    <Container maxWidth='lg'>
+                        <Grid container spacing={5}>
+                            <Grid item xs={12} sm={6}>
+                                <Box borderBottom={1}>Contact Us</Box>
+                                <Box>
                                 <Grid item style={{marginTop:'1rem'}}>
-                                    <Rating />
+                                    <InfoSection data={contactInfo} />
                                 </Grid>
-                            </Box>
+                                </Box>
+                            </Grid>
+
+                            <Grid item xs={12} sm={6}>
+                                <Box borderBottom={1}>Rate The Page</Box>
+                                <Box>
+                                    <Grid item style={{marginTop:'1rem'}}>
+                                        <Rating />
+                                    </Grid>
+                                </Box>
+                            </Grid>
+                            
                         </Grid>
-                        
-                    </Grid>
-                    <Box textAlign='center' pt={{xs:5, sm:10}} pb={{xs:5, sm:0}}>
-                        copyright © 2017- &reg;{new Date().getFullYear()} Briefly Inc. All rights reserved. 
-                    </Box>
-                </Container>
-            </Box>
-        </Grid>
-    </div>
+                        <Box textAlign='center' pt={{xs:5, sm:10}} pb={{xs:5, sm:0}}>
+                            copyright © 2021- &reg;{new Date().getFullYear()} Briefly Inc. All rights reserved. 
+                        </Box>
+                    </Container>
+                </Box>
+            </Grid>
+        </div>
+    }else{
+        return(
+            <div className={classes.footer} style={{height: "40px"}}>
+                <Box textAlign='center' >
+                    copyright © 2021- &reg;{new Date().getFullYear()} Briefly Inc. All rights reserved. 
+                </Box>
+            </div>
+        )
+    }
 }

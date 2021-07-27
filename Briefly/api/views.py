@@ -821,12 +821,9 @@ def send_email(video):
                  'mediaName': video.title,
                  'collection': video.collection.name,
                  'MEDIA_URL': settings.MEDIA_URL}
-    
     plaintext = render_to_string('email.txt', d)
     htmly     = render_to_string('email.html', d)
-    
     from_email, to = settings.EMAIL_HOST_USER, str(video.collection.owner.email)
-    
     send_mail(
         email_subject,
         plaintext,

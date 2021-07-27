@@ -92,7 +92,7 @@ export default function Transcripts({ media }) {
         top: 0,
         bottom: 0,
         width: "100%",
-        height: "95%",
+        height: "100%",
         background:
           theme.palette.type === "dark"
             ? theme.palette.common.grey
@@ -134,7 +134,7 @@ export default function Transcripts({ media }) {
           item
           container
           direction="column"
-          style={{ width: "100%", height: 'calc(100vh - 99px - 48px)' }}
+          style={{ width: "100%", height: 'calc(50vh - 99px - 48px)' }}
         >
           <Paper
             className={classes.cardOutline}

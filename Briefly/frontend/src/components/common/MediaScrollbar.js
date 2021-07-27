@@ -137,7 +137,7 @@ export default function MediaScrollbar(props) {
                 fontSize: "1rem",
               }}
               placeholder="Search..."
-              id="search"
+              id="search1"
               variant="outlined"
               value={props.search}
               fullWidth

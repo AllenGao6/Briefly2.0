@@ -5,7 +5,7 @@ import BulletPoint from "./BulletPoint";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    overflow: "scroll",
+    overflow: "auto",
     height: "-moz-calc(100vh - 99px - 48px - 60px - 30px)",
     height: "-webkit-calc(100vh - 99px - 48px - 60px - 30px)",
   },
