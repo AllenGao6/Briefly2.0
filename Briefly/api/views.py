@@ -24,7 +24,7 @@ from math import ceil
 from pprint import pprint
 from json import dumps, loads
 from time import time
-
+from . import quiz_generation
 from django.template.loader import render_to_string
 
 class VideoViewSet(viewsets.ModelViewSet):
@@ -335,6 +335,44 @@ class VideoViewSet(viewsets.ModelViewSet):
             return Response(f"{video} RESET success", status=status.HTTP_200_OK)
         except :
             return Response("Fail to reset", status=status.HTTP_400_BAD_REQUEST)
+    
+    
+    '''
+    Call this endpoint to fetch Quiz data
+    URL: api/<int: collection_id>/video/<int: video_id>/quiz/
+    
+    Parameters to POST:
+    "task":  "Question_Ans" | "QA_pair_gen" | "Question_gen"
+    "based_text": "summ" | "full"
+    "question": this parameter is especially needed for Question_Ans
+    '''
+    @action(methods=['POST'], detail = True, permission_classes = [IsAuthenticated])
+    def quiz(self, request, *args, **kwargs):
+        print("recieved quiz video request")
+        t1 = time()
+        user = request.user
+        video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
+        if not video:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        video = video[0]
+        task = request.data.get('task', None)
+        based_text = request.data.get('based_text', None)
+        question = request.data.get('question', None)
+        try:
+            video.is_processing = True
+            video.save()
+            Quiz = quiz_generation.Quiz_generation(video.summarization, video.audioText, based_text=based_text)
+            res = Quiz.generate(task, question=question)       # question parameter can be modified if need
+            
+            video.is_processing = False
+            video.quiz = res
+            video.save()
+            print(f"create time spent: {time()-t1:.2f}")
+            return Response(res, status=status.HTTP_200_OK)
+        except:
+            video.is_processing = False
+            video.save()
+            return Response("Quiz generation FAILED", status = status.HTTP_400_BAD_REQUEST)
         
 class CollectionViewSet(viewsets.ModelViewSet):
     serializer_class = CollectionSerializer
@@ -711,6 +749,43 @@ class AudioViewSet(viewsets.ModelViewSet):
             return Response(f"{audio} RESET success", status=status.HTTP_200_OK)
         except :
             return Response("Fail to reset", status=status.HTTP_400_BAD_REQUEST)
+    
+    '''
+    Call this endpoint to fetch Quiz data
+    URL: api/<int: collection_id>/audio/<int: audio_id>/quiz/
+    
+    Parameters to POST:
+    "task":  "Question_Ans" | "QA_pair_gen" | "Question_gen"
+    "based_text": "summ" | "full"
+    "question": this parameter is especially needed for Question_Ans
+    '''
+    @action(methods=['POST'], detail = True, permission_classes = [IsAuthenticated])
+    def quiz(self, request, *args, **kwargs):
+        print("recieved quiz video request")
+        t1 = time()
+        user = request.user
+        video = Audio.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
+        if not video:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        video = video[0]
+        task = request.data.get('task', None)
+        based_text = request.data.get('based_text', None)
+        question = request.data.get('question', None)
+        try:
+            video.is_processing = True
+            video.save()
+            Quiz = quiz_generation.Quiz_generation(video.summarization, video.audioText, based_text=based_text)
+            res = Quiz.generate(task, question=question)       # question parameter can be modified if need
+            
+            video.is_processing = False
+            video.quiz = res
+            video.save()
+            print(f"create time spent: {time()-t1:.2f}")
+            return Response(res, status=status.HTTP_200_OK)
+        except:
+            return Response("Quiz generation FAILED", status = status.HTTP_400_BAD_REQUEST)
+        
+    
     
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

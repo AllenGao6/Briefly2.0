@@ -79,6 +79,7 @@ class Video(models.Model):
     audioText = models.TextField(null=True, blank=True)
     fileSize = models.IntegerField(default=0)
     is_processing = models.BooleanField(blank=True, default=False)
+    quiz = models.JSONField(null=True, blank=True)
     def __str__(self):
         return f"Video: {self.title}"
     
@@ -115,6 +116,7 @@ class Audio(models.Model):
     audioText = models.TextField(null=True, blank=True)
     fileSize = models.IntegerField(default=0)
     is_processing = models.BooleanField(blank=True, default=False)
+    quiz = models.JSONField(null=True, blank=True)
     def __str__(self):
         return f"Audio: {self.title}"
 

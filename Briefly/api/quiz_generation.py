@@ -1,8 +1,8 @@
 
-from Question_gen.pipelines import pipeline
-import speech_to_text
+from .Question_gen.pipelines import pipeline
+from . import speech_to_text
 
-class quiz_generation:
+class Quiz_generation:
 
     '''
         summarization: summarized array with dict element computed by summarize function
