@@ -251,7 +251,9 @@ class VideoViewSet(viewsets.ModelViewSet):
         video = video[0]
         if not video.audioText:
             return Response("Cannot find the audioText for this video", status=status.HTTP_400_BAD_REQUEST)
-        
+        if video.is_processing:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
         try:
             video.is_processing = True
             video.save()
@@ -273,8 +275,13 @@ class VideoViewSet(viewsets.ModelViewSet):
                 video.save()
                 print(f"Individual {model} summarization  time spent: {time()-t1:.2f}")
                 print(model)
+                video.is_processing = False
+                video.save()
+                
                 return Response(summary, status=status.HTTP_200_OK)
         except:
+            video.is_processing = False
+            video.save()
             return Response("Fail to summarize", status=status.HTTP_400_BAD_REQUEST)
             
         # try:
@@ -685,7 +692,9 @@ class AudioViewSet(viewsets.ModelViewSet):
         video = video[0]
         if not video.audioText:
             return Response("Cannot find the audioText for this audio", status=status.HTTP_400_BAD_REQUEST)
-        
+        if video.is_processing:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
         try:
             video.is_processing = True
             video.save()
@@ -708,8 +717,12 @@ class AudioViewSet(viewsets.ModelViewSet):
                 
                 print(f"Individual {model} summarization  time spent: {time()-t1:.2f}")
                 print(model)
+                video.is_processing = False
+                video.save()
                 return Response(summary, status=status.HTTP_200_OK)
         except:
+            video.is_processing = False
+            video.save()
             return Response("Fail to summarize", status=status.HTTP_400_BAD_REQUEST)
             
         # # this is for method=="GET"

@@ -41,6 +41,7 @@ import {
   updateAudioInCollection,
   resetAudioSummarization,
 } from "../../redux/actions/audio_actions";
+import clsx from "clsx";
 
 const format = (seconds) => {
   if (isNaN(seconds)) {
@@ -142,6 +143,7 @@ function SummaryContent({
   const [modelType, setModelType] = useState(0);
   const [played, setPlayed] = useState(0);
   const [addContent, setAddContent] = useState("");
+  const [isSummarizing, setIsSummarizing] = useState(media.is_processing);
 
   const mediaRef = useRef(null);
 
@@ -225,6 +227,7 @@ function SummaryContent({
   };
 
   const summarize = async () => {
+    setIsSummarizing(true);
     const summaryConfig = {
       model: getModelType(),
       num_sentence: optimalSentence ? null : numSentences,
@@ -248,6 +251,7 @@ function SummaryContent({
           break;
       }
     }
+    setIsSummarizing(false);
   };
 
   const handleTabChange = (e, value) => {
@@ -281,7 +285,7 @@ function SummaryContent({
 
   const PopQuiz = () => {
     console.log(media);
-    if(media.quiz === null){
+    if (media.quiz === null) {
       return (
         <React.Fragment>
           <Grid item>
@@ -301,55 +305,55 @@ function SummaryContent({
               onClick={handleClickOpen}
             >
               Generate Quizes
-            </Button> 
+            </Button>
           </Grid>
         </React.Fragment>
       );
-    }else{
-      return (
-        <h1>this will be implemented</h1>
-      );
+    } else {
+      return <h1>this will be implemented</h1>;
     }
   };
 
   const More = () => {
-    return (
-      <h1>this will be implemented</h1>
-    )
+    return <h1>this will be implemented</h1>;
   };
 
-  const Service_type = (value) =>{
-    if(value === 0)
-      return <Summary />;
-    else if(value === 1)
-      return <PopQuiz />;
-    else
-      return <More />;
+  const ServiceType = (value) => {
+    if (value === 0) return <Summary />;
+    else if (value === 1) return <PopQuiz />;
+    else return <More />;
   };
 
   const Summary = () => {
     if (!media.is_summarized) {
       return (
         <React.Fragment>
-          <Grid item>
+          <Grid item style={{ minHeight: isSummarizing ? "10rem" : undefined }}>
             <EmptyIcon
-              className={classes.icon}
+              className={clsx(
+                classes.icon,
+                isSummarizing ? "rotated" : undefined
+              )}
               style={{ width: "7rem", height: "7rem" }}
             />
           </Grid>
           <Grid item>
-            <Typography variant="h5">No summarization yet.</Typography>
+            <Typography variant="h5">
+              {isSummarizing ? "Summarizing..." : "No summarization yet."}
+            </Typography>
           </Grid>
-          <Grid item style={{ marginTop: "1.5rem" }}>
-            <Button
-              variant="contained"
-              color={matchesDark ? "secondary" : "primary"}
-              style={{ color: "white" }}
-              onClick={handleClickOpen}
-            >
-              Start Summarization
-            </Button>
-          </Grid>
+          {isSummarizing ? undefined : (
+            <Grid item style={{ marginTop: "1.5rem" }}>
+              <Button
+                variant="contained"
+                color={matchesDark ? "secondary" : "primary"}
+                style={{ color: "white" }}
+                onClick={handleClickOpen}
+              >
+                Start Summarization
+              </Button>
+            </Grid>
+          )}
         </React.Fragment>
       );
     } else {
@@ -446,7 +450,7 @@ function SummaryContent({
         alignItems="center"
         direction="column"
       >
-        {Service_type(value)}
+        {ServiceType(value)}
       </Grid>
       <Dialog
         open={open}
