@@ -17,6 +17,12 @@ export default function summarizeReducer(state = initialState, action) {
     case type.SUMMARIZE_FAILURE:
       toast.error("Fail to summarize your document.");
       return state;
+    case type.QuizGen_SUCCESS:
+      toast.success("😎 Your pop quiz has been generated!");
+      return state;
+    case type.QuizGen_FAILURE:
+      toast.error("Fail to generate pop quiz, please try again later..");
+      return state;
     default:
       return state;
   }

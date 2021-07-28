@@ -64,3 +64,7 @@ export const SUMMARIZE_FAILURE = "SUMMARIZE_FAILURE";
 
 // player
 export const PLAYER_SEEKING = "PLAYER_SEEKING";
+
+//pop quiz generation
+export const QuizGen_SUCCESS = "QuizGen_SUCCESS";
+export const QuizGen_FAILURE = "QuizGen_FAILURE";

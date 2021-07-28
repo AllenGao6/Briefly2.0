@@ -239,7 +239,7 @@ class VideoViewSet(viewsets.ModelViewSet):
          
     URL: api/<int: collection_id>/video/<int: video_id>/summary_begin/
     '''
-    @action(methods=['POST'],detail=True)
+    @action(methods=['POST'],detail=True, permission_classes = [IsAuthenticated])
     def summary_begin(self, request, *args, **kwargs):
         print("recieved summarize request")
         t1 = time()
@@ -362,17 +362,17 @@ class VideoViewSet(viewsets.ModelViewSet):
         if not video:
             return Response(status=status.HTTP_404_NOT_FOUND)
         video = video[0]
-        task = request.data.get('task', None)
-        based_text = request.data.get('based_text', None)
+        task = request.data.get('task', 'QA_pair_gen')
+        based_text = request.data.get('based_text', 'summ')
         question = request.data.get('question', None)
         try:
             video.is_processing = True
             video.save()
-            Quiz = quiz_generation.Quiz_generation(video.summarization, video.audioText, based_text=based_text)
+            Quiz = quiz_generation.Quiz_generation(loads(video.summarization), video.audioText, based_text=based_text)
             res = Quiz.generate(task, question=question)       # question parameter can be modified if need
             
             video.is_processing = False
-            video.quiz = res
+            video.quiz = dumps(res)
             video.save()
             print(f"create time spent: {time()-t1:.2f}")
             return Response(res, status=status.HTTP_200_OK)
@@ -781,17 +781,17 @@ class AudioViewSet(viewsets.ModelViewSet):
         if not video:
             return Response(status=status.HTTP_404_NOT_FOUND)
         video = video[0]
-        task = request.data.get('task', None)
-        based_text = request.data.get('based_text', None)
+        task = request.data.get('task', 'QA_pair_gen')
+        based_text = request.data.get('based_text', 'summ')
         question = request.data.get('question', None)
         try:
             video.is_processing = True
             video.save()
-            Quiz = quiz_generation.Quiz_generation(video.summarization, video.audioText, based_text=based_text)
+            Quiz = quiz_generation.Quiz_generation(loads(video.summarization), video.audioText, based_text=based_text)
             res = Quiz.generate(task, question=question)       # question parameter can be modified if need
             
             video.is_processing = False
-            video.quiz = res
+            video.quiz = dumps(res)
             video.save()
             print(f"create time spent: {time()-t1:.2f}")
             return Response(res, status=status.HTTP_200_OK)

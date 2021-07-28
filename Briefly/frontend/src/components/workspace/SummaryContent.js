@@ -41,6 +41,7 @@ import {
   updateAudioInCollection,
   resetAudioSummarization,
 } from "../../redux/actions/audio_actions";
+import {generateQuiz} from "../../redux/actions/quizGeneration_actions";
 import clsx from "clsx";
 
 const format = (seconds) => {
@@ -128,6 +129,7 @@ function SummaryContent({
   updateAudioInCollection,
   resetVideoSummarization,
   resetAudioSummarization,
+  generateQuiz,
   getScreenshot,
 }) {
   const classes = useStyles();
@@ -144,6 +146,7 @@ function SummaryContent({
   const [played, setPlayed] = useState(0);
   const [addContent, setAddContent] = useState("");
   const [isSummarizing, setIsSummarizing] = useState(media.is_processing);
+  const [isGenerating, setGenerating] = useState(false);
 
   const mediaRef = useRef(null);
 
@@ -226,6 +229,7 @@ function SummaryContent({
     setPlayed(0);
   };
 
+  //call backend for service request
   const summarize = async () => {
     setIsSummarizing(true);
     const summaryConfig = {
@@ -254,6 +258,35 @@ function SummaryContent({
     setIsSummarizing(false);
   };
 
+  const generate_quiz = async () =>{
+    setGenerating(true);
+    const QuizGenConfig = {
+      task : 'QA_pair_gen',
+      based_text : 'summ',
+      question : null
+    };
+    const quiz = await generateQuiz(
+      collectionId,
+      media.id,
+      mediaType,
+      QuizGenConfig
+    );
+    if (quiz) {
+      switch (mediaType) {
+        case "video":
+          loadVideosInCollection(collectionId);
+          break;
+        case "audio":
+          loadAudiosInCollection(collectionId);
+          break;
+        case "text":
+        default:
+          break;
+      }
+    }
+    setGenerating(false);
+  }
+  
   const handleTabChange = (e, value) => {
     setValue(value);
   };
@@ -288,25 +321,32 @@ function SummaryContent({
     if (media.quiz === null) {
       return (
         <React.Fragment>
-          <Grid item>
+          <Grid item style={{ minHeight: isSummarizing ? "10rem" : undefined }}>
             <EmptyIcon
-              className={classes.icon}
+              className={clsx(
+                classes.icon,
+                isGenerating ? "rotated" : undefined
+              )}
               style={{ width: "7rem", height: "7rem" }}
             />
           </Grid>
           <Grid item>
-            <Typography variant="h5">No Quiz Generated Yet.</Typography>
+            <Typography variant="h5">
+              {isGenerating ? "Generating Pop Quiz..." : "No Pop Quiz yet."}
+            </Typography>
           </Grid>
-          <Grid item style={{ marginTop: "1.5rem" }}>
-            <Button
-              variant="contained"
-              color={matchesDark ? "secondary" : "primary"}
-              style={{ color: "white" }}
-              onClick={handleClickOpen}
-            >
-              Generate Quizes
-            </Button>
-          </Grid>
+          {isGenerating ? undefined : (
+            <Grid item style={{ marginTop: "1.5rem" }}>
+              <Button
+                variant="contained"
+                color={matchesDark ? "secondary" : "primary"}
+                style={{ color: "white" }}
+                onClick={() => {generate_quiz();}}
+              >
+                Generate Pop Quiz
+              </Button>
+            </Grid>
+          )}
         </React.Fragment>
       );
     } else {
@@ -628,6 +668,7 @@ const mapDispatchToProps = {
   updateAudioInCollection,
   resetVideoSummarization,
   resetAudioSummarization,
+  generateQuiz,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SummaryContent);
