@@ -22,6 +22,7 @@ export default function summarizeReducer(state = initialState, action) {
       return state;
     case type.QuizGen_FAILURE:
       toast.error("Fail to generate pop quiz, please try again later..");
+      console.log("this should be printed");
       return state;
     default:
       return state;

@@ -27,6 +27,7 @@ class Quiz_generation:
     def clean_answer(self, result):
         for pair in result:
             pair['answer'] = pair['answer'][6::]
+        return len(result)
 
     def generate(self, task, question=None):
 
@@ -51,10 +52,13 @@ class Quiz_generation:
             quiz = []
             if self.based_text == 'summ':
                 # print(self.summarization)
-                for summary in self.summarization:
+                count = 1
+                for index, summary in enumerate(self.summarization):
                     # print(summary)
                     summary['quiz'] = nlp(summary['sentence'])
-                    self.clean_answer(summary['quiz'])
+                    summary['count'] = count
+                    count += self.clean_answer(summary['quiz'])
+
                     quiz.append(summary)
                 print(quiz)
                 return quiz

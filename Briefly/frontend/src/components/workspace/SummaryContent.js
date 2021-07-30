@@ -28,6 +28,7 @@ import EmptyIcon from "@material-ui/icons/HourglassEmpty";
 import ResetIcon from "@material-ui/icons/Cached";
 import AddIcon from "@material-ui/icons/AddBoxOutlined";
 import BulletPointList from "../common/BulletPointList";
+import QuizList from "../common/QuizList";
 import ControlledVideoPlayer from "../common/ControlledVideoPlayer";
 import { connect } from "react-redux";
 import { summarizeMedia } from "../../redux/actions/summarize_actions";
@@ -41,7 +42,7 @@ import {
   updateAudioInCollection,
   resetAudioSummarization,
 } from "../../redux/actions/audio_actions";
-import {generateQuiz} from "../../redux/actions/quizGeneration_actions";
+import {generateQuiz, resetAudioQuiz, resetVideoQuiz} from "../../redux/actions/quizGeneration_actions";
 import clsx from "clsx";
 
 const format = (seconds) => {
@@ -131,6 +132,8 @@ function SummaryContent({
   resetAudioSummarization,
   generateQuiz,
   getScreenshot,
+  resetAudioQuiz,
+  resetVideoQuiz,
 }) {
   const classes = useStyles();
   const theme = useTheme();
@@ -178,6 +181,20 @@ function SummaryContent({
     }
   };
 
+  const resetMediaQuiz = async (id, mediaId) => {
+    switch (mediaType) {
+      case "video":
+        await resetVideoQuiz(id, mediaId);
+        break;
+      case "audio":
+        await resetAudioQuiz(id, mediaId);
+        break;
+      case "text":
+      default:
+        break;
+    }
+  };
+
   const handleTranscriptChange = (transcript, summary) => {
     const transcripts = JSON.parse(media.summarization);
     const newTranscripts = [
@@ -202,8 +219,11 @@ function SummaryContent({
     console.log("handleTranscriptDelete");
   };
 
-  const handleTranscriptReset = () => {
-    resetMediaSummarization(collectionId, media.id);
+  const handleReset = (type) => {
+    if(type==="summ")
+      resetMediaSummarization(collectionId, media.id);
+    if(type==="quiz")
+      resetMediaQuiz(collectionId, media.id);
   };
 
   const handleAddTranscript = () => {
@@ -350,7 +370,66 @@ function SummaryContent({
         </React.Fragment>
       );
     } else {
-      return <h1>this will be implemented</h1>;
+       return (
+        <Grid
+          item
+          container
+          className={classes.summaryStatus}
+          direction="column"
+        >
+          <Grid item style={{ height: 60 }}>
+            <Paper className={classes.cardOutline}>
+              <Grid container justify="space-between" alignItems="center">
+                <Grid item>
+                  <Grid item container direction="column">
+                    <Grid item container alignItems="center">
+                      <Typography variant="h6" className={classes.text}>
+                        Quiz Type:
+                      </Typography>
+                      <Typography variant="h6" className={classes.specialText}>
+                        {"Short Answer"}
+                      </Typography>
+                    </Grid>
+                    <Grid
+                      item
+                      container
+                      alignItems="center"
+                      style={{ marginTop: 5 }}
+                    >
+                      <Typography variant="h6" className={classes.text}>
+                        Question count:
+                      </Typography>
+                      <Typography variant="h6" className={classes.specialText}>
+                        {JSON.parse(media.quiz).length}
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                </Grid>
+                <Grid item>
+                  <IconButton onClick={() =>{handleReset("quiz")}}>
+                    <Tooltip title="Reset" arrow>
+                      <ResetIcon className={classes.icon} />
+                    </Tooltip>
+                  </IconButton>
+                </Grid>
+              </Grid>
+            </Paper>
+          </Grid>
+          <Grid item>
+            <Paper
+              className={classes.cardOutline}
+              style={{
+                marginTop: 10,
+                padding: 0,
+              }}
+            >
+              <QuizList
+                quizes={JSON.parse(media.quiz)}            
+              />
+            </Paper>
+          </Grid>
+        </Grid>
+      );
     }
   };
 
@@ -433,7 +512,7 @@ function SummaryContent({
                   </Grid>
                 </Grid>
                 <Grid item>
-                  <IconButton onClick={handleTranscriptReset}>
+                  <IconButton onClick={() =>{handleReset("summ")}}>
                     <Tooltip title="Reset" arrow>
                       <ResetIcon className={classes.icon} />
                     </Tooltip>
@@ -669,6 +748,8 @@ const mapDispatchToProps = {
   resetVideoSummarization,
   resetAudioSummarization,
   generateQuiz,
+  resetAudioQuiz,
+  resetVideoQuiz,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SummaryContent);

@@ -34,3 +34,37 @@ export const generateQuiz =
       return false;
     }
   };
+
+  export const resetAudioQuiz = (id, audioId) => (dispatch) => {
+    return axios
+      .get(`${SUMMARIZE_BASE_URL}${id}/audio/${audioId}/resetQuiz/`)
+      .then((res) => {
+        dispatch({
+          type: type.RESET_AUDIO_QUIZ_SUCCESS,
+          audioId: audioId,
+        });
+      })
+      .catch((err) => {
+        dispatch({
+          type: type.RESET_AUDIO_QUIZ_FAILURE,
+        });
+        console.log(err);
+      });
+  };
+
+  export const resetVideoQuiz = (id, videoId) => (dispatch) => {
+    return axios
+      .get(`${SUMMARIZE_BASE_URL}${id}/video/${videoId}/resetQuiz/`)
+      .then((res) => {
+        dispatch({
+          type: type.RESET_VIDEO_QUIZ_SUCCESS,
+          videoId: videoId,
+        });
+      })
+      .catch((err) => {
+        dispatch({
+          type: type.RESET_VIDEO_QUIZ_FAILURE,
+        });
+        console.log(err);
+      });
+  };

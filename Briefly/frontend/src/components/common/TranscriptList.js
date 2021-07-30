@@ -67,7 +67,9 @@ function TranscriptList({ audioText, seekTo }){
                                     className={classes.timestampButton}
                                     onClick={() => seekTo(audio_text.time)}
                                 >
-                                    {audio_text.displayed_time}
+                                    {audio_text.displayed_time.slice( 1,
+                                        audio_text.displayed_time.length - 1
+                                        )}
                                 </Button>
                             </Grid>
                         </Grid>

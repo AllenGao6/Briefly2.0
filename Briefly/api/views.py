@@ -343,6 +343,21 @@ class VideoViewSet(viewsets.ModelViewSet):
         except :
             return Response("Fail to reset", status=status.HTTP_400_BAD_REQUEST)
     
+    @action(methods=['GET'],detail=True, permission_classes=[IsAuthenticated])
+    def resetQuiz(self, request, *args, **kwargs):
+        print("recieved video quiz reset request")
+        user = request.user
+        video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
+        if not video:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        video = video[0]
+        try:
+            video.quiz = None
+            video.save()
+            return Response(f"{video} RESET success", status=status.HTTP_200_OK)
+        except :
+            return Response("Fail to reset", status=status.HTTP_400_BAD_REQUEST)
+        
     
     '''
     Call this endpoint to fetch Quiz data
@@ -365,6 +380,9 @@ class VideoViewSet(viewsets.ModelViewSet):
         task = request.data.get('task', 'QA_pair_gen')
         based_text = request.data.get('based_text', 'summ')
         question = request.data.get('question', None)
+        if video.summarization == None:
+            print("this is aaa")
+            return Response({'Message':"Summarization Can't be empty"}, status = 204)
         try:
             video.is_processing = True
             video.save()
@@ -379,7 +397,8 @@ class VideoViewSet(viewsets.ModelViewSet):
         except:
             video.is_processing = False
             video.save()
-            return Response("Quiz generation FAILED", status = status.HTTP_400_BAD_REQUEST)
+            print("this is reached")
+            return Response({'Message':"Quiz Generation Failed"},status = status.HTTP_400_BAD_REQUEST)
         
 class CollectionViewSet(viewsets.ModelViewSet):
     serializer_class = CollectionSerializer
@@ -763,6 +782,21 @@ class AudioViewSet(viewsets.ModelViewSet):
         except :
             return Response("Fail to reset", status=status.HTTP_400_BAD_REQUEST)
     
+    @action(methods=['GET'],detail=True, permission_classes=[IsAuthenticated])
+    def resetQuiz(self, request, *args, **kwargs):
+        print("recieved audio quiz reset request")
+        user = request.user
+        audio = Audio.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
+        if not audio:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        audio = audio[0]
+        try:
+            audio.quiz = None
+            audio.save()
+            return Response(f"{audio} RESET success", status=status.HTTP_200_OK)
+        except :
+            return Response("Fail to reset", status=status.HTTP_400_BAD_REQUEST)
+
     '''
     Call this endpoint to fetch Quiz data
     URL: api/<int: collection_id>/audio/<int: audio_id>/quiz/
