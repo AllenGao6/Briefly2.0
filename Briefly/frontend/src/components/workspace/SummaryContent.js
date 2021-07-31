@@ -32,6 +32,8 @@ import QuizList from "../common/QuizList";
 import ControlledVideoPlayer from "../common/ControlledVideoPlayer";
 import { connect } from "react-redux";
 import { summarizeMedia } from "../../redux/actions/summarize_actions";
+import VisibilityIcon from '@material-ui/icons/Visibility';
+import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import {
   loadVideosInCollection,
   updateVideoInCollection,
@@ -150,8 +152,9 @@ function SummaryContent({
   const [addContent, setAddContent] = useState("");
   const [isSummarizing, setIsSummarizing] = useState(media.is_processing);
   const [isGenerating, setGenerating] = useState(false);
-
+  const [answerVisible, setAnswerVisible] = useState(false);
   const mediaRef = useRef(null);
+  const [answer, setAnswer] = useState("")
 
   const updateMediaInCollection = async (id, media, mediaId) => {
     switch (mediaType) {
@@ -216,7 +219,7 @@ function SummaryContent({
       summarization: JSON.stringify(newTranscripts),
     };
     updateMediaInCollection(collectionId, newMedia, media.id);
-    console.log("handleTranscriptDelete");
+    //console.log("handleTranscriptDelete");
   };
 
   const handleReset = (type) => {
@@ -323,6 +326,10 @@ function SummaryContent({
     setOpen(false);
   };
 
+  const handleAnswer = () =>{
+    setAnswerVisible(!answerVisible);
+  };
+
   const getModelType = () => {
     switch (modelType) {
       case 1:
@@ -337,7 +344,7 @@ function SummaryContent({
   };
 
   const PopQuiz = () => {
-    console.log(media);
+    //console.log(media);
     if (media.quiz === null) {
       return (
         <React.Fragment>
@@ -411,6 +418,15 @@ function SummaryContent({
                       <ResetIcon className={classes.icon} />
                     </Tooltip>
                   </IconButton>
+                  <IconButton onClick={() =>{handleAnswer()}}>
+                    {answerVisible ? 
+                      <Tooltip title="Hide Answers" arrow>
+                        <VisibilityIcon className={classes.icon} />
+                      </Tooltip> : 
+                      <Tooltip title="Show Answers" arrow>
+                      <VisibilityOffIcon className={classes.icon} />
+                    </Tooltip>}
+                  </IconButton>
                 </Grid>
               </Grid>
             </Paper>
@@ -424,7 +440,8 @@ function SummaryContent({
               }}
             >
               <QuizList
-                quizes={JSON.parse(media.quiz)}            
+                quizes={JSON.parse(media.quiz)}  
+                answerVisible={answerVisible}     
               />
             </Paper>
           </Grid>
@@ -539,6 +556,7 @@ function SummaryContent({
                 getScreenshot={getScreenshot}
                 onTranscriptChange={handleTranscriptChange}
                 onTranscriptDelete={handleTranscriptDelete}
+                mediaType={mediaType}
               />
             </Paper>
           </Grid>

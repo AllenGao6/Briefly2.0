@@ -90,6 +90,7 @@ function BulletPoint({
   onTranscriptDelete,
   seekTo,
   getScreenshot,
+  mediaType,
 }) {
   const classes = useStyles();
   const theme = useTheme();
@@ -196,7 +197,7 @@ function BulletPoint({
           </Grid>
         </Grid>
       </ListItem>
-      <Grid container justify="center">
+      {mediaType === "video" ? <Grid container justify="center">
         <IconButton
           onClick={handleToggleScreenshot}
           style={{ padding: 0, paddingBottom: 5 }}
@@ -207,7 +208,7 @@ function BulletPoint({
             <ExpandMoreIcon className={classes.icon} />
           )}
         </IconButton>
-      </Grid>
+      </Grid> : null}
       <Collapse in={open} timeout="auto" unmountOnExit>
         <Grid
           container

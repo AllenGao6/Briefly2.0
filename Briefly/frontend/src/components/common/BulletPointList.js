@@ -22,6 +22,7 @@ export default function BulletPointList({
   getScreenshot,
   onTranscriptChange,
   onTranscriptDelete,
+  mediaType,
 }) {
   const classes = useStyles();
 
@@ -36,6 +37,7 @@ export default function BulletPointList({
             onTranscriptChange={onTranscriptChange}
             onTranscriptDelete={onTranscriptDelete}
             getScreenshot={getScreenshot}
+            mediaType={mediaType}
           />
         ))}
     </List>

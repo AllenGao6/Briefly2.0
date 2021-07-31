@@ -16,18 +16,37 @@ const useStyles = makeStyles((theme) => ({
 
 export default function QuizList({
   quizes,
+  answerVisible,
 }) {
   const classes = useStyles();
+
+
+  const construct_pair = (pair_list) =>{
+    let QA_pair = [];
+    for(let i = 0; i < pair_list.length; i++){
+        QA_pair.push([pair_list[i].question, pair_list[i].answer]);
+    }
+    return QA_pair;
+  };
 
   return (
     <List className={classes.root} disablePadding>
       {quizes
-        .sort((a, b) => a.time - b.time)
+        .sort((a, b) => a.count - b.count)
         .map((quiz, i) => (
-          <QuizPoint
-            key={`$quiz-${quiz.id}-${i}`}
-            quiz={quiz}
-          />
+          <React.Fragment>
+            {construct_pair(quiz.quiz).map((pair, i) =>(
+              <QuizPoint
+                key={`$quiz-${quiz.id}-${i}`}
+                pair={pair}
+                answerVisible={answerVisible}
+                time={quiz.time}
+                count={quiz.count}
+                index={i}
+              />
+
+            ))}
+        </React.Fragment>
         ))}
     </List>
   );

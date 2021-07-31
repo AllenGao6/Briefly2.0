@@ -13,21 +13,10 @@ import {
   Button,
   useMediaQuery,
   ListItem,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Tooltip,
-  TextareaAutosize
+  Box,
 } from "@material-ui/core";
 import { darken } from "@material-ui/core/styles";
 
-import IconButton from "@material-ui/core/IconButton";
-import DeleteIcon from "@material-ui/icons/Delete";
-import EditIcon from "@material-ui/icons/Edit";
-import ExpandLessIcon from "@material-ui/icons/ExpandLess";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import PublishIcon from "@material-ui/icons/Publish";
 
 import { connect } from "react-redux";
 import { seekTo } from "../../redux/actions/player_actions";
@@ -101,80 +90,68 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function QuizPoint({
-  quiz,
+  pair,
   seekTo,
+  answerVisible,
+  time,
+  count,
+  index,
 }) {
   const classes = useStyles();
   const theme = useTheme();
 
-  // constant
-  const time = quiz.time;
-  const pair_list = quiz.quiz;
-  const count = quiz.count;
-  // local states
-  const [open, setOpen] = useState(false);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [answerVisible, setAnswerVisible] = useState(false);
-  const [editable, setEditable] = useState(false);
-
   const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
   const matchesDark = theme.palette.type === "dark";
-
-  const handleToggleScreenshot = () => {
-    setOpen(!open);
-    if (imageRef.current === null) getScreenshot(time, imageRef, canvasRef);
-  };
-  const construct_pair = (pair_list) =>{
-    let QA_pair = [];
-    for(let i = 0; i < pair_list.length; i++){
-        QA_pair.push([pair_list[i].question, pair_list[i].answer]);
-    }
-    return QA_pair;
-  };
-  console.log(construct_pair(pair_list));
+  const [value, setValue] = useState("")
+  //console.log(construct_pair(pair_list));
+  console.log(value);
   return (
     <React.Fragment>
-        {construct_pair(pair_list).map((pair, i) =>(
-        <React.Fragment>
-          <ListItem key={pair.answer+i} dense={true}>
-            <Grid container direction="column">
-              <Grid item container justify="space-between" alignItems="center">
-                <Typography className={classes.title} variant="h5">{`Question ${count+i}:`}</Typography>
-                <Grid item>
-                  <Button
-                    variant="contained"
-                    className={classes.timestampButton}
-                    onClick={() => seekTo(time)}
-                  >
-                    Review
-                  </Button>
-                </Grid>
-              </Grid>
-              <Grid item justify="center" alignItems="center" style={{ paddingTop: 10, lineHeight: 0.5 }}>
-                <Typography>{pair[0]}</Typography>
-              </Grid>
-              <Grid item style={{ paddingTop: 10, lineHeight: 0.5 }}>
-              <form className={classes.root} noValidate autoComplete="off">
-                <TextField
-                  style={{width: "100%", justifyItems: "center"}}
-                  color="primary"
-                  id="outlined-textarea"
-                  label="Your Answer:"
-                  placeholder="Input your answer..."
-                  multiline
-                  rows={3}
-                  variant="outlined"
-                />
-                            
-              </form>
-              </Grid>
-              {answerVisible ? <h1>Not Visible</h1>: null}
+      <ListItem key={pair.answer+index} dense={true}>
+        <Grid container direction="column">
+          <Grid item container justify="space-between" alignItems="center">
+            <Typography className={classes.title} variant="h5">{`Question ${count+index}:`}</Typography>
+            <Grid item>
+              <Button
+                variant="contained"
+                className={classes.timestampButton}
+                onClick={() => seekTo(time)}
+              >
+                Review
+              </Button>
             </Grid>
-          </ListItem>
-          <Divider variant="middle" className={classes.divider} />
-        </React.Fragment>
-
-        ))}
+          </Grid>
+          <Grid item style={{ paddingTop: 10, lineHeight: 0.5 }}>
+            <Typography>{pair[0]}</Typography>
+          </Grid>
+          <Grid item style={{ paddingTop: 10, lineHeight: 0.5 }}>
+          <form key={`form${count+index}`} className={classes.root} noValidate autoComplete="off">
+            <TextField
+              key={`textarea${count+index}`}
+              style={{width: "100%", justifyItems: "center"}}
+              color="primary"
+              value={value}
+              onChange={(e)=> setValue(e.currentTarget.value)}
+              label="Your Answer:"
+              placeholder="Input your answer..."
+              multiline
+              rows={3}
+              variant="outlined"
+              error={false}
+            />
+                        
+          </form>
+          </Grid>
+          {answerVisible ? <Typography style={{marginTop: "10px", marginBottom: "10px"}} variant="h5" component="div">
+                              <Box display="inline" fontWeight="fontWeightBold">
+                                Answer: 
+                              </Box>{" "}
+                              {pair[1]}
+                            </Typography>
+                            : null}
+        </Grid>
+      </ListItem>
+      <Divider variant="middle" className={classes.divider} />
     </React.Fragment>
   );
 }
