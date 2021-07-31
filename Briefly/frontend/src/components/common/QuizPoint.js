@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { useTheme } from "@material-ui/styles";
+import store from "store";
 import {
   InputBase,
   FormHelperText,
@@ -102,9 +103,29 @@ function QuizPoint({
 
   const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
   const matchesDark = theme.palette.type === "dark";
+
+  const id = count + index;
+  
   const [value, setValue] = useState("")
+
+  const setAnswer = (id, value) =>{
+    console.log(value);
+    store.set(id, value);
+    setValue(store.get(id));
+  };
+  
+  useEffect(() => {
+    const result = store.get(id);
+    if(result === null){
+      store.set(id, "")
+      setValue("")
+    }
+    else
+      setValue(result);
+  }, []);
+
   //console.log(construct_pair(pair_list));
-  console.log(value);
+  // console.log(answer);
   return (
     <React.Fragment>
       <ListItem key={pair.answer+index} dense={true}>
@@ -131,7 +152,7 @@ function QuizPoint({
               style={{width: "100%", justifyItems: "center"}}
               color="primary"
               value={value}
-              onChange={(e)=> setValue(e.currentTarget.value)}
+              onChange={(e)=> setAnswer(id, e.currentTarget.value)}
               label="Your Answer:"
               placeholder="Input your answer..."
               multiline
@@ -142,8 +163,8 @@ function QuizPoint({
                         
           </form>
           </Grid>
-          {answerVisible ? <Typography style={{marginTop: "10px", marginBottom: "10px"}} variant="h5" component="div">
-                              <Box display="inline" fontWeight="fontWeightBold">
+          {answerVisible ? <Typography style={{ color: matchesDark ? "green" : "red", marginTop: "10px", marginBottom: "10px"}} variant="h7" component="div">
+                              <Box display="inline" variant="h5" fontWeight="fontWeightBold">
                                 Answer: 
                               </Box>{" "}
                               {pair[1]}
@@ -158,6 +179,7 @@ function QuizPoint({
 
 function mapStateToProps(state) {
   return {};
+
 }
 
 const mapDispatchToProps = {

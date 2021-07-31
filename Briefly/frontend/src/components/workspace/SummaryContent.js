@@ -46,6 +46,7 @@ import {
 } from "../../redux/actions/audio_actions";
 import {generateQuiz, resetAudioQuiz, resetVideoQuiz} from "../../redux/actions/quizGeneration_actions";
 import clsx from "clsx";
+import store from "store";
 
 const format = (seconds) => {
   if (isNaN(seconds)) {
@@ -225,8 +226,13 @@ function SummaryContent({
   const handleReset = (type) => {
     if(type==="summ")
       resetMediaSummarization(collectionId, media.id);
-    if(type==="quiz")
+    if(type==="quiz"){
+      store.each(function(value, key){
+        if(key !== 'accessToken')
+          store.remove(key);
+      })
       resetMediaQuiz(collectionId, media.id);
+    }
   };
 
   const handleAddTranscript = () => {

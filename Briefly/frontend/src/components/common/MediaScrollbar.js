@@ -28,6 +28,7 @@ import VideoLibraryIcon from "@material-ui/icons/VideoLibrary";
 import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import DescriptionIcon from "@material-ui/icons/Description";
 import AudiotrackIcon from "@material-ui/icons/Audiotrack";
+import store from "store";
 
 const useStyles = makeStyles((theme) => ({
   drawerPaper: {
@@ -158,10 +159,15 @@ export default function MediaScrollbar(props) {
           {media.map((item, index) => (
             <ListItem
               key={index}
-              onClick={() =>
+              onClick={() => {
+                store.each(function(value, key){
+                  if(key !== 'accessToken')
+                    store.remove(key);
+                })
                 props.history.push(
                   `/dashboard/${item.collection}/${media_type}/${item.id}`
-                )
+                );
+                }
               }
               button
             >

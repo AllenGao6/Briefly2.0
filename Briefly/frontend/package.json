@@ -55,6 +55,7 @@
     "redux-persist": "^6.0.0",
     "redux-thunk": "^2.3.0",
     "screenfull": "^5.1.0",
+    "store": "^2.0.12",
     "tsparticles": "^1.31.1",
     "url-loader": "^4.1.1"
   },
