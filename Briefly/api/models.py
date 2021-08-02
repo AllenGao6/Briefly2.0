@@ -120,18 +120,26 @@ class Audio(models.Model):
     def __str__(self):
         return f"Audio: {self.title}"
 
-'''
+
 #Text File
 class Text(models.Model):
+    MODEL_TYPE_CHOICES = [
+        ('B', 'BERT'),
+        ('G', 'GPT-2'),
+        ('X', 'XLNet')
+    ]
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     is_archived = models.BooleanField(blank=True, default=False)
-    text = models.URLField(max_length=200)
-    transcript = models.URLField(max_length=200)
-    summarization = models.JSONField(null=True)
-    created = models.DateTimeField(auto_now_add=True)
-    
+    is_summarized = models.BooleanField(blank=True, default=False)
+    text = models.TextField(null=True, blank=True) 
+    summarization = models.JSONField(null=True, blank=True)
+    num_sentences = models.IntegerField(default=0)
+    model_type = models.CharField(max_length=1, choices=MODEL_TYPE_CHOICES, blank=True, null=True)
+    created = models.DateField(auto_now_add=True)
+    fileSize = models.IntegerField(default=0)
+    is_processing = models.BooleanField(blank=True, default=False)
+    quiz = models.JSONField(null=True, blank=True)
     
     def __str__(self):
         return f"Text: {self.title}"
-'''
