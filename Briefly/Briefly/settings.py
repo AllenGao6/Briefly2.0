@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'django.contrib.sites',
     'social_django',
+    'django_celery_results',
 
 ]
 
@@ -206,12 +207,11 @@ AWS_S3_FILE_OVERWRITE = False
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_SSL = False
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-
 
 # total maximum storage size for each user in byte
 MAX_SIZE_PER_USER = 2*1024*1024*1024  # 1024*1024*30
@@ -223,3 +223,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://briefly-ai.com",
     "http://143.244.190.3",
 ]
+
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_TASK_TRACK_STARTED = True
