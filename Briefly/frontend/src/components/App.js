@@ -3,7 +3,7 @@ import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
-import NotFound from "./pages/NotFound";
+// import NotFound from "./pages/NotFound";
 import Workspace from "./pages/Workspace";
 //ui interface module
 import theme from "./Theme";
@@ -13,7 +13,7 @@ import { ThemeProvider } from "@material-ui/styles";
 //toast
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { particlesJS } from "tsparticles";
+import { connect } from "react-redux";
 
 class App extends Component {
   constructor(props) {
@@ -29,6 +29,12 @@ class App extends Component {
     const newTheme = this.state.theme === theme ? darkTheme : theme;
     this.setState({ theme: newTheme });
     console.log("switched");
+  };
+
+  PrivateComponent = ({ component: Component }) => {
+    const user = this.props.user;
+
+    return user === null ? <Redirect to="/" /> : <Component />;
   };
 
   render() {
@@ -62,18 +68,26 @@ class App extends Component {
               path="/dashboard"
               exact
               render={(props) => (
-                <Dashboard {...props} {...stateProps} isDashboard={true} />
+                <this.PrivateComponent
+                  component={() => (
+                    <Dashboard {...props} {...stateProps} isDashboard={true} />
+                  )}
+                />
               )}
             />
             <Route
               path="/dashboard/:id/video"
               exact
               render={(props) => (
-                <Dashboard
-                  {...props}
-                  {...stateProps}
-                  isDashboard={false}
-                  mediaType={"video"}
+                <this.PrivateComponent
+                  component={() => (
+                    <Dashboard
+                      {...props}
+                      {...stateProps}
+                      isDashboard={false}
+                      mediaType={"video"}
+                    />
+                  )}
                 />
               )}
             />
@@ -81,11 +95,15 @@ class App extends Component {
               path="/dashboard/:id/audio"
               exact
               render={(props) => (
-                <Dashboard
-                  {...props}
-                  {...stateProps}
-                  isDashboard={false}
-                  mediaType={"audio"}
+                <this.PrivateComponent
+                  component={() => (
+                    <Dashboard
+                      {...props}
+                      {...stateProps}
+                      isDashboard={false}
+                      mediaType={"audio"}
+                    />
+                  )}
                 />
               )}
             />
@@ -93,19 +111,27 @@ class App extends Component {
               path="/dashboard/:id/text"
               exact
               render={(props) => (
-                <Dashboard
-                  {...props}
-                  {...stateProps}
-                  isDashboard={false}
-                  mediaType={"text"}
+                <this.PrivateComponent
+                  component={() => (
+                    <Dashboard
+                      {...props}
+                      {...stateProps}
+                      isDashboard={false}
+                      mediaType={"text"}
+                    />
+                  )}
                 />
               )}
             />
             <Route
               path="/dashboard/:id/:mediaType/:mediaId"
-              render={(props) => <Workspace {...props} {...stateProps} />}
+              render={(props) => (
+                <this.PrivateComponent
+                  component={() => <Workspace {...props} {...stateProps} />}
+                />
+              )}
             />
-            <Route path="/not-found" component={NotFound} />
+            <Route path="/not-found" component={<div>SADA</div>} />
             <Redirect to="/not-found" />
           </Switch>
         </BrowserRouter>
@@ -114,4 +140,10 @@ class App extends Component {
   }
 }
 
-export default App;
+function mapStateToProps(state) {
+  return {
+    user: state.authReducer.user,
+  };
+}
+
+export default connect(mapStateToProps, {})(App);
