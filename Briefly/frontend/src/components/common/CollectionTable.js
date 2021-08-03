@@ -381,6 +381,8 @@ function CollectionTable({
         loadAudiosInCollection(id);
         break;
       case "text":
+        loadAudiosInCollection(id);
+        break;
       default:
         break;
     }
@@ -396,6 +398,8 @@ function CollectionTable({
         createdMedia = await createAudioInCollection(id, media);
         break;
       case "text":
+        createdMedia = await createAudioInCollection(id, media);
+        break;
       default:
         break;
     }
@@ -421,6 +425,8 @@ function CollectionTable({
         await updateAudioInCollection(id, media, mediaId);
         break;
       case "text":
+        await updateAudioInCollection(id, media, mediaId);
+        break;
       default:
         break;
     }
@@ -436,6 +442,8 @@ function CollectionTable({
         deleteAudios(id, list_id);
         break;
       case "text":
+        deleteAudios(id, list_id);
+        break;
       default:
         break;
     }
@@ -448,6 +456,7 @@ function CollectionTable({
       case "audio":
         return audios;
       case "text":
+        return audios;
       default:
         break;
     }
@@ -599,7 +608,7 @@ function CollectionTable({
         onClick={() => handleMediaTranscription(id)}
       >
         <Typography variant="h6" style={{ color: "white" }}>
-          {status}
+          {status === "Transcribe" ? "Processing..." : "Completed"}
         </Typography>
       </Button>
     );

@@ -17,8 +17,9 @@ import { seekTo } from "../../redux/actions/player_actions";
 const useStyles = makeStyles((theme) => ({
     root: {
         position: 'relative',
-      overflow: "auto",
-      height: "100%",
+        overflow: "auto",
+        height: "100%",
+        scrollbarColor: "dark",
     },
     demo: {
       backgroundColor: theme.palette.background.paper,

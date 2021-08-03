@@ -166,6 +166,8 @@ function SummaryContent({
         await updateAudioInCollection(id, media, mediaId);
         break;
       case "text":
+        await updateAudioInCollection(id, media, mediaId);
+        break;
       default:
         break;
     }
@@ -180,6 +182,8 @@ function SummaryContent({
         await resetAudioSummarization(id, mediaId);
         break;
       case "text":
+        await resetAudioSummarization(id, mediaId);
+        break;
       default:
         break;
     }
@@ -194,6 +198,8 @@ function SummaryContent({
         await resetAudioQuiz(id, mediaId);
         break;
       case "text":
+        await resetAudioQuiz(id, mediaId);
+        break;
       default:
         break;
     }
@@ -280,6 +286,8 @@ function SummaryContent({
           loadAudiosInCollection(collectionId);
           break;
         case "text":
+          loadAudiosInCollection(collectionId);
+          break;
         default:
           break;
       }
@@ -309,6 +317,8 @@ function SummaryContent({
           loadAudiosInCollection(collectionId);
           break;
         case "text":
+          loadAudiosInCollection(collectionId);
+          break;
         default:
           break;
       }

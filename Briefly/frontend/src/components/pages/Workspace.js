@@ -64,6 +64,7 @@ class Workspace extends Component {
       case "audio":
         return this.props.audios;
       case "text":
+        return this.props.audios;
       default:
         return [];
     }
