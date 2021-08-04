@@ -8,43 +8,40 @@ import {
   FormControl,
   TextField,
   Collapse,
-  Divider,
   Typography,
   Grid,
   Button,
   useMediaQuery,
   ListItem,
   Box,
+  Tooltip,
 } from "@material-ui/core";
 import { darken } from "@material-ui/core/styles";
 
-
 import { connect } from "react-redux";
 import { seekTo } from "../../redux/actions/player_actions";
+import ReviewIcon from "@material-ui/icons/RateReview";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    '& label.Mui-focused': {
-      color: 'green',
+    "& label.Mui-focused": {
+      color: "green",
     },
-    '& .MuiTextField-root': {
+    "& .MuiTextField-root": {
       margin: theme.spacing(1),
-      width: '25ch',
+      width: "25ch",
     },
-    '& .MuiOutlinedInput-root': {
-      
-      '&.Mui-focused fieldset': {
-        borderColor: 'green',
+    "& .MuiOutlinedInput-root": {
+      "&.Mui-focused fieldset": {
+        borderColor: "green",
       },
     },
   },
-  divider: {
-    background: theme.palette.type === "dark" ? "white" : "black",
-  },
+
   title: {
     fontStyle: "italic",
     color: theme.palette.type === "dark" ? "white" : theme.palette.common.grey,
-    lineHeight: 1.4,
+    fontWeight: 800,
   },
   secondary: {
     marginRight: "1rem",
@@ -61,8 +58,8 @@ const useStyles = makeStyles((theme) => ({
   },
   timestampButton: {
     color: "white",
-    background: theme.palette.common.green,
     padding: "3px 8px",
+    background: theme.palette.common.green,
     borderRadius: 8,
     "&:hover": {
       background: darken(theme.palette.common.green, 0.2),
@@ -90,14 +87,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function QuizPoint({
-  pair,
-  seekTo,
-  answerVisible,
-  time,
-  count,
-  index,
-}) {
+function QuizPoint({ pair, seekTo, answerVisible, time, count, index }) {
   const classes = useStyles();
   const theme = useTheme();
 
@@ -105,81 +95,95 @@ function QuizPoint({
   const matchesDark = theme.palette.type === "dark";
 
   const id = count + index;
-  
-  const [value, setValue] = useState("")
 
-  const setAnswer = (id, value) =>{
+  const [value, setValue] = useState("");
+
+  const setAnswer = (id, value) => {
     console.log(value);
     store.set(id, value);
     setValue(store.get(id));
   };
-  
+
   useEffect(() => {
     const result = store.get(id);
-    if(result === null){
-      store.set(id, "")
-      setValue("")
-    }
-    else
-      setValue(result);
+    if (result === null) {
+      store.set(id, "");
+      setValue("");
+    } else setValue(result);
   }, []);
 
   //console.log(construct_pair(pair_list));
   // console.log(answer);
   return (
-    <React.Fragment>
-      <ListItem key={pair.answer+index} dense={true}>
-        <Grid container direction="column">
-          <Grid item container justify="space-between" alignItems="center">
-            <Typography className={classes.title} variant="h5">{`Question ${count+index}:`}</Typography>
-            <Grid item>
-              <Button
-                variant="contained"
-                className={classes.timestampButton}
-                onClick={() => seekTo(time)}
-              >
-                Review
-              </Button>
-            </Grid>
-          </Grid>
-          <Grid item style={{ paddingTop: 10, lineHeight: 0.5 }}>
-            <Typography>{pair[0]}</Typography>
-          </Grid>
-          <Grid item style={{ paddingTop: 10, lineHeight: 0.5 }}>
-          <form key={`form${count+index}`} className={classes.root} noValidate autoComplete="off">
-            <TextField
-              key={`textarea${count+index}`}
-              style={{width: "100%", justifyItems: "center"}}
-              color="primary"
-              value={value}
-              onChange={(e)=> setAnswer(id, e.currentTarget.value)}
-              label="Your Answer:"
-              placeholder="Input your answer..."
-              multiline
-              rows={3}
-              variant="outlined"
-              error={false}
+    <ListItem dense={true}>
+      <Grid container direction="column" style={{ paddingTop: 10 }}>
+        <Grid item container justify="space-between" alignItems="center">
+          <Typography className={classes.title} variant="h5">{`Question ${
+            count + index
+          }:`}</Typography>
+
+          <Tooltip title="Review" arrow>
+            <ReviewIcon
+              style={{
+                color: theme.palette.common.blue,
+                alignSelf: "center",
+                cursor: "pointer",
+              }}
+              onClick={() => seekTo(time)}
             />
-                        
-          </form>
-          </Grid>
-          {answerVisible ? <Typography style={{ color: matchesDark ? "green" : "red", marginTop: "10px", marginBottom: "10px"}} variant="h7" component="div">
-                              <Box display="inline" variant="h5" fontWeight="fontWeightBold">
-                                Answer: 
-                              </Box>{" "}
-                              {pair[1]}
-                            </Typography>
-                            : null}
+          </Tooltip>
         </Grid>
-      </ListItem>
-      <Divider variant="middle" className={classes.divider} />
-    </React.Fragment>
+        <Grid item style={{ paddingTop: 10 }}>
+          <Typography>{pair[0]}</Typography>
+        </Grid>
+        <Grid
+          item
+          container
+          style={{
+            paddingTop: 10,
+            lineHeight: 0.5,
+            paddingBottom: answerVisible ? 0 : 10,
+          }}
+          alignItems="center"
+        >
+          <TextField
+            color={matchesDark ? "secondary" : "primary"}
+            value={value}
+            onChange={(e) => setAnswer(id, e.currentTarget.value)}
+            label="Type your answer..."
+            multiline
+            fullWidth
+            rows={3}
+            variant="outlined"
+            error={false}
+          />
+        </Grid>
+        {answerVisible ? (
+          <Typography
+            style={{
+              color: matchesDark
+                ? theme.palette.common.green
+                : theme.palette.common.red,
+              marginTop: "10px",
+              marginBottom: "10px",
+              fontSize: "1rem",
+            }}
+            variant="h5"
+            component="div"
+          >
+            <Box display="inline" variant="h5" fontWeight="fontWeightBold">
+              Answer:
+            </Box>{" "}
+            {pair[1]}
+          </Typography>
+        ) : null}
+      </Grid>
+    </ListItem>
   );
 }
 
 function mapStateToProps(state) {
   return {};
-
 }
 
 const mapDispatchToProps = {

@@ -9,7 +9,6 @@ import {
   Button,
 } from "@material-ui/core";
 import clsx from "clsx";
-import { darken, lighten } from "@material-ui/core/styles";
 import SplitPane from "react-split-pane";
 import "../../../static/css/split.css"; // do not delete!
 // local component
@@ -113,6 +112,7 @@ export default function WorkspaceContent({
             height: "-moz-calc(100vh - 69px)",
             height: "-webkit-calc(100vh - 69px)",
             border: matchesDark ? "15px solid #515151" : "15px solid #dfe4ea",
+            boxSizing: "border-box",
           }}
           minSize={1}
           maxSize={-46}
@@ -157,6 +157,7 @@ export default function WorkspaceContent({
             height: "-moz-calc(100vh - 69px)",
             height: "-webkit-calc(100vh - 69px)",
             border: matchesDark ? "15px solid #515151" : "15px solid #dfe4ea",
+            boxSizing: "border-box",
           }}
           minSize={1}
           maxSize={-46}
