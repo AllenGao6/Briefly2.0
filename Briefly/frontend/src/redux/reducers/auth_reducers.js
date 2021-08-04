@@ -8,7 +8,7 @@ const initialState = {
 export default function authReducer(state = initialState, action) {
   switch (action.type) {
     case type.LOGIN_SUCCESS:
-      localStorage.setItem("accessToken", action.data.accessToken);
+      localStorage.setItem("accessToken", action.data.token);
       return {
         ...state,
         user: action.data,

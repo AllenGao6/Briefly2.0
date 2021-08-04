@@ -32,9 +32,9 @@ class App extends Component {
   };
 
   PrivateComponent = ({ component: Component }) => {
-    const user = this.props.user;
+    const accessToken = localStorage.getItem("accessToken");
 
-    return user === null ? <Redirect to="/" /> : <Component />;
+    return accessToken ? <Component /> : <Redirect to="/" />;
   };
 
   render() {
