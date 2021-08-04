@@ -190,6 +190,7 @@ function CollectionTable({
   const [mediaStream, setMediaStream] = useState(null);
   const [mediaUrl, setMediaUrl] = useState(null);
   const [action, setAction] = useState(null);
+  const [textInput, setTextInput] = useState("");
 
   const matches = useMediaQuery("(max-width:1086px)");
   const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
@@ -497,7 +498,10 @@ function CollectionTable({
       formData.append("title", title);
       formData.append("is_archived", archived);
       formData.append("collection", match.params.id);
-      formData.append(mediaType, mediaStream, mediaStream.name);
+      if(mediaType === 'text')
+        formData.append(mediaType, textInput);
+      else
+        formData.append(mediaType, mediaStream, mediaStream.name);
 
       createMediaInCollection(match.params.id, formData);
     }
@@ -527,11 +531,16 @@ function CollectionTable({
     setArchived(false);
     setMediaStream(null);
     setMediaUrl(null);
+    setTextInput("");
   };
 
   const handleUploadFinish = (e) => {
-    setMediaStream(e.target.files[0]);
-    setMediaUrl(URL.createObjectURL(e.target.files[0]));
+    if(mediaType === "text"){
+      setTextInput(e.currentTarget.value);
+    }else{
+      setMediaStream(e.target.files[0]);
+      setMediaUrl(URL.createObjectURL(e.target.files[0]));
+    }
   };
 
   function CustomToolbar() {
@@ -719,6 +728,7 @@ function CollectionTable({
               style={{ paddingTop: mediaUrl ? 0 : undefined }}
             >
               <MediaUploader
+                textInput={textInput}
                 action={action}
                 mediaType={mediaType}
                 isCreating={isCreating}
@@ -747,7 +757,7 @@ function CollectionTable({
                 <Button
                   variant="contained"
                   disabled={
-                    title.length === 0 || mediaUrl === null || isCreating
+                    title.length === 0 || (mediaType !== 'text' && mediaUrl === null) || isCreating
                   }
                   className={classes.createButton}
                   onClick={() => {

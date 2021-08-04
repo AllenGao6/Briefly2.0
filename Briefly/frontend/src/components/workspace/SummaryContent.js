@@ -34,6 +34,7 @@ import { connect } from "react-redux";
 import { summarizeMedia } from "../../redux/actions/summarize_actions";
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
+import GetAppIcon from '@material-ui/icons/GetApp';
 import {
   loadVideosInCollection,
   updateVideoInCollection,
@@ -47,6 +48,7 @@ import {
 import {generateQuiz, resetAudioQuiz, resetVideoQuiz} from "../../redux/actions/quizGeneration_actions";
 import clsx from "clsx";
 import store from "store";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 
 const format = (seconds) => {
   if (isNaN(seconds)) {
@@ -327,7 +329,7 @@ function SummaryContent({
   }
   
   const handleTabChange = (e, value) => {
-    setValue(value);
+      setValue(value);
   };
 
   const handleModelTypeChange = (event) => {
@@ -471,6 +473,8 @@ function SummaryContent({
   };
 
   const ServiceType = (value) => {
+    if(mediaType === 'text')
+      value += 1;
     if (value === 0) return <Summary />;
     else if (value === 1) return <PopQuiz />;
     else return <More />;
@@ -555,6 +559,16 @@ function SummaryContent({
                       <AddIcon className={classes.icon} />
                     </Tooltip>
                   </IconButton>
+                  <PDFDownloadLink
+                    document={<h1>this is a test</h1>}
+                    fileName="movielist.pdf"
+                  >
+                    <IconButton onClick={() => setOpenAddDialog(true)}>
+                    <Tooltip title="Export Notes" arrow>
+                      <GetAppIcon className={classes.icon} />
+                    </Tooltip>
+                  </IconButton>
+                  </PDFDownloadLink> 
                 </Grid>
               </Grid>
             </Paper>
@@ -590,7 +604,7 @@ function SummaryContent({
           className={classes.tabContainer}
           indicatorColor={matchesDark ? "secondary" : "primary"}
         >
-          <Tab className={classes.tab} label="Summary"></Tab>
+          {mediaType !== 'text'? <Tab className={classes.tab} label="Summary"></Tab> : null}
           <Tab className={classes.tab} label="Pop Quiz"></Tab>
           <Tab className={classes.tab} label="More..."></Tab>
         </Tabs>
