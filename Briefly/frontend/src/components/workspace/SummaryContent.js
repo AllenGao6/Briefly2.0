@@ -32,9 +32,9 @@ import QuizList from "../common/QuizList";
 import ControlledVideoPlayer from "../common/ControlledVideoPlayer";
 import { connect } from "react-redux";
 import { summarizeMedia } from "../../redux/actions/summarize_actions";
-import VisibilityIcon from '@material-ui/icons/Visibility';
-import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
-import GetAppIcon from '@material-ui/icons/GetApp';
+import VisibilityIcon from "@material-ui/icons/Visibility";
+import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
+import GetAppIcon from "@material-ui/icons/GetApp";
 import {
   loadVideosInCollection,
   updateVideoInCollection,
@@ -45,7 +45,11 @@ import {
   updateAudioInCollection,
   resetAudioSummarization,
 } from "../../redux/actions/audio_actions";
-import {generateQuiz, resetAudioQuiz, resetVideoQuiz} from "../../redux/actions/quizGeneration_actions";
+import {
+  generateQuiz,
+  resetAudioQuiz,
+  resetVideoQuiz,
+} from "../../redux/actions/quizGeneration_actions";
 import clsx from "clsx";
 import store from "store";
 import { PDFDownloadLink } from "@react-pdf/renderer";
@@ -100,9 +104,6 @@ const useStyles = makeStyles((theme) => {
       background: theme.palette.type === "dark" ? "white" : "black",
     },
     cardOutline: {
-      width: "100%",
-      paddingLeft: 15,
-      paddingRight: 15,
       paddingTop: 5,
       paddingBottom: 5,
     },
@@ -157,7 +158,7 @@ function SummaryContent({
   const [isGenerating, setGenerating] = useState(false);
   const [answerVisible, setAnswerVisible] = useState(false);
   const mediaRef = useRef(null);
-  const [answer, setAnswer] = useState("")
+  const [answer, setAnswer] = useState("");
 
   const updateMediaInCollection = async (id, media, mediaId) => {
     switch (mediaType) {
@@ -232,13 +233,11 @@ function SummaryContent({
   };
 
   const handleReset = (type) => {
-    if(type==="summ")
-      resetMediaSummarization(collectionId, media.id);
-    if(type==="quiz"){
-      store.each(function(value, key){
-        if(key !== 'accessToken')
-          store.remove(key);
-      })
+    if (type === "summ") resetMediaSummarization(collectionId, media.id);
+    if (type === "quiz") {
+      store.each(function (value, key) {
+        if (key !== "accessToken") store.remove(key);
+      });
       resetMediaQuiz(collectionId, media.id);
     }
   };
@@ -297,12 +296,12 @@ function SummaryContent({
     setIsSummarizing(false);
   };
 
-  const generate_quiz = async () =>{
+  const generate_quiz = async () => {
     setGenerating(true);
     const QuizGenConfig = {
-      task : 'QA_pair_gen',
-      based_text : 'summ',
-      question : null
+      task: "QA_pair_gen",
+      based_text: "summ",
+      question: null,
     };
     const quiz = await generateQuiz(
       collectionId,
@@ -326,10 +325,10 @@ function SummaryContent({
       }
     }
     setGenerating(false);
-  }
-  
+  };
+
   const handleTabChange = (e, value) => {
-      setValue(value);
+    setValue(value);
   };
 
   const handleModelTypeChange = (event) => {
@@ -344,7 +343,7 @@ function SummaryContent({
     setOpen(false);
   };
 
-  const handleAnswer = () =>{
+  const handleAnswer = () => {
     setAnswerVisible(!answerVisible);
   };
 
@@ -386,7 +385,9 @@ function SummaryContent({
                 variant="contained"
                 color={matchesDark ? "secondary" : "primary"}
                 style={{ color: "white" }}
-                onClick={() => {generate_quiz();}}
+                onClick={() => {
+                  generate_quiz();
+                }}
               >
                 Generate Pop Quiz
               </Button>
@@ -395,7 +396,7 @@ function SummaryContent({
         </React.Fragment>
       );
     } else {
-       return (
+      return (
         <Grid
           item
           container
@@ -404,7 +405,12 @@ function SummaryContent({
         >
           <Grid item style={{ height: 60 }}>
             <Paper className={classes.cardOutline}>
-              <Grid container justify="space-between" alignItems="center">
+              <Grid
+                container
+                justify="space-between"
+                alignItems="center"
+                style={{ paddingLeft: 15, paddingRight: 15 }}
+              >
                 <Grid item>
                   <Grid item container direction="column">
                     <Grid item container alignItems="center">
@@ -431,19 +437,29 @@ function SummaryContent({
                   </Grid>
                 </Grid>
                 <Grid item>
-                  <IconButton onClick={() =>{handleReset("quiz")}}>
+                  <IconButton
+                    onClick={() => {
+                      handleReset("quiz");
+                    }}
+                  >
                     <Tooltip title="Reset" arrow>
                       <ResetIcon className={classes.icon} />
                     </Tooltip>
                   </IconButton>
-                  <IconButton onClick={() =>{handleAnswer()}}>
-                    {answerVisible ? 
+                  <IconButton
+                    onClick={() => {
+                      handleAnswer();
+                    }}
+                  >
+                    {answerVisible ? (
                       <Tooltip title="Hide Answers" arrow>
                         <VisibilityIcon className={classes.icon} />
-                      </Tooltip> : 
+                      </Tooltip>
+                    ) : (
                       <Tooltip title="Show Answers" arrow>
-                      <VisibilityOffIcon className={classes.icon} />
-                    </Tooltip>}
+                        <VisibilityOffIcon className={classes.icon} />
+                      </Tooltip>
+                    )}
                   </IconButton>
                 </Grid>
               </Grid>
@@ -458,8 +474,8 @@ function SummaryContent({
               }}
             >
               <QuizList
-                quizes={JSON.parse(media.quiz)}  
-                answerVisible={answerVisible}     
+                quizes={JSON.parse(media.quiz)}
+                answerVisible={answerVisible}
               />
             </Paper>
           </Grid>
@@ -473,8 +489,7 @@ function SummaryContent({
   };
 
   const ServiceType = (value) => {
-    if(mediaType === 'text')
-      value += 1;
+    if (mediaType === "text") value += 1;
     if (value === 0) return <Summary />;
     else if (value === 1) return <PopQuiz />;
     else return <More />;
@@ -524,7 +539,12 @@ function SummaryContent({
             <Paper className={classes.cardOutline}>
               <Grid container justify="space-between" alignItems="center">
                 <Grid item>
-                  <Grid item container direction="column">
+                  <Grid
+                    item
+                    container
+                    direction="column"
+                    style={{ paddingLeft: 15, paddingRight: 15 }}
+                  >
                     <Grid item container alignItems="center">
                       <Typography variant="h6" className={classes.text}>
                         Model Type:
@@ -549,7 +569,11 @@ function SummaryContent({
                   </Grid>
                 </Grid>
                 <Grid item>
-                  <IconButton onClick={() =>{handleReset("summ")}}>
+                  <IconButton
+                    onClick={() => {
+                      handleReset("summ");
+                    }}
+                  >
                     <Tooltip title="Reset" arrow>
                       <ResetIcon className={classes.icon} />
                     </Tooltip>
@@ -564,11 +588,11 @@ function SummaryContent({
                     fileName="movielist.pdf"
                   >
                     <IconButton>
-                    <Tooltip title="Export Notes" arrow>
-                      <GetAppIcon className={classes.icon} />
-                    </Tooltip>
-                  </IconButton>
-                  </PDFDownloadLink> 
+                      <Tooltip title="Export Notes" arrow>
+                        <GetAppIcon className={classes.icon} />
+                      </Tooltip>
+                    </IconButton>
+                  </PDFDownloadLink>
                 </Grid>
               </Grid>
             </Paper>
@@ -604,7 +628,9 @@ function SummaryContent({
           className={classes.tabContainer}
           indicatorColor={matchesDark ? "secondary" : "primary"}
         >
-          {mediaType !== 'text'? <Tab className={classes.tab} label="Summary"></Tab> : null}
+          {mediaType !== "text" ? (
+            <Tab className={classes.tab} label="Summary"></Tab>
+          ) : null}
           <Tab className={classes.tab} label="Pop Quiz"></Tab>
           <Tab className={classes.tab} label="More..."></Tab>
         </Tabs>

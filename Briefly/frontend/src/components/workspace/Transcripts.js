@@ -1,17 +1,10 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import { makeStyles, useTheme } from "@material-ui/styles";
 import Divider from "@material-ui/core/Divider";
-import {
-  Typography,
-  Grid,
-  Icon,
-  Paper,
-  Button,
-  InputAdornment,
-  InputBase,
-} from "@material-ui/core";
+import { Grid, Paper, InputAdornment, InputBase } from "@material-ui/core";
 import SearchOutlinedIcon from "@material-ui/icons/SearchOutlined";
 import TranscriptList from "../common/TranscriptList";
+import { darken, lighten } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => {
   const matchesDark = theme.palette.type === "dark";
@@ -21,17 +14,27 @@ const useStyles = makeStyles((theme) => {
     },
     search: {
       width: "100%",
-      // background:
-      //   theme.palette.type === "dark"
-      //     ? theme.palette.primary.main
-      //     : lighten("#2481F4", 0.2),
-      height: "2.8rem",
-      padding: "1rem",
+      height: 40,
+      margin: 10,
+      paddingLeft: 10,
       color:
         theme.palette.type === "dark"
           ? theme.palette.common.white
-          : theme.palette.common.blue,
-      fontSize: "1.25rem",
+          : theme.palette.common.grey,
+      border: "1px solid",
+      borderColor:
+        theme.palette.type === "dark"
+          ? theme.palette.common.white
+          : lighten(theme.palette.common.grey, 0.5),
+      borderRadius: 15,
+      fontSize: "1rem",
+      transition: "all 0.2s",
+      "&.Mui-focused": {
+        borderColor:
+          theme.palette.type === "dark"
+            ? theme.palette.common.orange
+            : theme.palette.common.blue,
+      },
     },
     cardOutline: {
       width: "97%",
@@ -66,7 +69,7 @@ export default function Transcripts({ media }) {
       observer.current = new ResizeObserver((entries) => {
         for (let entry of entries) {
           const height = entry.contentRect.height;
-          setTranscriptHeight(height - 60);
+          setTranscriptHeight(height - 80);
         }
       });
       observer.current.observe(node);
@@ -123,14 +126,8 @@ export default function Transcripts({ media }) {
         alignItems="stretch"
         direction="column"
       >
-        <Grid item container style={{ height: 40 }}>
+        <Grid item container>
           <InputBase
-            style={{
-              marginLeft: "1rem",
-              verticalAlign: "center",
-              paddingLeft: 0,
-              fontSize: "1rem",
-            }}
             placeholder="Search Transcript..."
             id="search"
             variant="outlined"
@@ -144,7 +141,7 @@ export default function Transcripts({ media }) {
               </InputAdornment>
             }
             onChange={(event) => setSearch(event.target.value)}
-          ></InputBase>
+          />
         </Grid>
         <Divider variant="middle" className={classes.divider} />
         <Grid item container direction="column" style={{ width: "100%" }}>
