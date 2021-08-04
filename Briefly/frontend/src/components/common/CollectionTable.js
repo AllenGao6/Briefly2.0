@@ -15,6 +15,7 @@ import {
   Switch,
   LinearProgress,
   IconButton,
+  Paper,
 } from "@material-ui/core";
 import { darken, lighten } from "@material-ui/core/styles";
 import {
@@ -52,15 +53,17 @@ const useStyles = makeStyles((theme) => {
       ? lighten(theme.palette.primary.main, 0.4)
       : darken(theme.palette.common.cloud, 0.1);
 
+  const getTableBackground = () => {
+    theme.palette.type === "dark" ? theme.palette.primary.main.dark : "white";
+  };
+
   return {
     dataGrid: {
       borderRadius: 3,
       border: 0,
-      height: 48,
+      minHeight: "70vh",
       transition: "background-color 0.3s",
-
-      boxShadow: "0px 5px 7px 5px rgba(165,165,165,0.5)",
-
+      backgroundColor: theme.palette.type === "dark" ? "#424242" : "white",
       "& .MuiDataGrid-row:nth-child(even)": {
         backgroundColor: getBackgroundColor(),
         "&:hover": {
@@ -136,8 +139,21 @@ const useStyles = makeStyles((theme) => {
       fontSize: "1rem",
     },
     archiveIcon: {
-      height: "2rem",
-      width: "2rem",
+      height: "1.5rem",
+      width: "1.5rem",
+    },
+    titleButton: {
+      ...theme.typography.roundedButton,
+      background: theme.palette.common.blue,
+      height: "1.7rem",
+      padding: 10,
+      paddingLeft: "1rem",
+      paddingRight: "1rem",
+      fontSize: "1rem",
+      width: undefined,
+      "&:hover": {
+        background: darken(theme.palette.common.blue, 0.2),
+      },
     },
   };
 });
@@ -174,6 +190,7 @@ function CollectionTable({
   const [mediaStream, setMediaStream] = useState(null);
   const [mediaUrl, setMediaUrl] = useState(null);
   const [action, setAction] = useState(null);
+  const [textInput, setTextInput] = useState("");
 
   const matches = useMediaQuery("(max-width:1086px)");
   const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
@@ -187,13 +204,27 @@ function CollectionTable({
       align: "center",
       headerAlign: "center",
       renderCell: (params) => (
-        <Typography
-          variant="body1"
-          className={classes.title}
-          onClick={() => handleTitleClick(params.id)}
-        >
-          {params.value}
-        </Typography>
+        <React.Fragment>
+          {params.row.transcript === null ? (
+            <Typography variant="body1" className={classes.title}>
+              {params.value}
+            </Typography>
+          ) : (
+            <Button
+              variant="contained"
+              className={classes.titleButton}
+              onClick={() => handleTitleClick(params.id)}
+            >
+              <Typography
+                variant="body1"
+                className={classes.title}
+                style={{ color: "white" }}
+              >
+                {params.value}
+              </Typography>
+            </Button>
+          )}
+        </React.Fragment>
       ),
     },
     {
@@ -203,7 +234,11 @@ function CollectionTable({
       align: "center",
       headerAlign: "center",
       type: "boolean",
-      renderCell: (params) => <ArchiveIcon archived={params.value} />,
+      renderCell: (params) => (
+        <IconButton>
+          <ArchiveIcon archived={params.value} />
+        </IconButton>
+      ),
     },
     {
       field: "type",
@@ -257,13 +292,21 @@ function CollectionTable({
       align: "center",
       headerAlign: "center",
       renderCell: (params) => (
-        <Typography
-          variant="body1"
-          className={classes.title}
-          onClick={() => handleTitleClick(params.id)}
-        >
-          {params.value}
-        </Typography>
+        <React.Fragment>
+          {params.row.transcript === null ? (
+            <Typography variant="body1" className={classes.title}>
+              {params.value}
+            </Typography>
+          ) : (
+            <Button
+              variant="contained"
+              className={classes.titleButton}
+              onClick={() => handleTitleClick(params.id)}
+            >
+              {params.value}
+            </Button>
+          )}
+        </React.Fragment>
       ),
     },
     {
@@ -274,7 +317,11 @@ function CollectionTable({
       headerAlign: "center",
       type: "boolean",
       flex: 1,
-      renderCell: (params) => <ArchiveIcon archived={params.value} />,
+      renderCell: (params) => (
+        <IconButton>
+          <ArchiveIcon archived={params.value} />
+        </IconButton>
+      ),
     },
     {
       field: "type",
@@ -335,6 +382,8 @@ function CollectionTable({
         loadAudiosInCollection(id);
         break;
       case "text":
+        loadAudiosInCollection(id);
+        break;
       default:
         break;
     }
@@ -350,6 +399,8 @@ function CollectionTable({
         createdMedia = await createAudioInCollection(id, media);
         break;
       case "text":
+        createdMedia = await createAudioInCollection(id, media);
+        break;
       default:
         break;
     }
@@ -375,6 +426,8 @@ function CollectionTable({
         await updateAudioInCollection(id, media, mediaId);
         break;
       case "text":
+        await updateAudioInCollection(id, media, mediaId);
+        break;
       default:
         break;
     }
@@ -390,6 +443,8 @@ function CollectionTable({
         deleteAudios(id, list_id);
         break;
       case "text":
+        deleteAudios(id, list_id);
+        break;
       default:
         break;
     }
@@ -402,6 +457,7 @@ function CollectionTable({
       case "audio":
         return audios;
       case "text":
+        return audios;
       default:
         break;
     }
@@ -442,7 +498,10 @@ function CollectionTable({
       formData.append("title", title);
       formData.append("is_archived", archived);
       formData.append("collection", match.params.id);
-      formData.append(mediaType, mediaStream, mediaStream.name);
+      if(mediaType === 'text')
+        formData.append(mediaType, textInput);
+      else
+        formData.append(mediaType, mediaStream, mediaStream.name);
 
       createMediaInCollection(match.params.id, formData);
     }
@@ -472,11 +531,16 @@ function CollectionTable({
     setArchived(false);
     setMediaStream(null);
     setMediaUrl(null);
+    setTextInput("");
   };
 
   const handleUploadFinish = (e) => {
-    setMediaStream(e.target.files[0]);
-    setMediaUrl(URL.createObjectURL(e.target.files[0]));
+    if(mediaType === "text"){
+      setTextInput(e.currentTarget.value);
+    }else{
+      setMediaStream(e.target.files[0]);
+      setMediaUrl(URL.createObjectURL(e.target.files[0]));
+    }
   };
 
   function CustomToolbar() {
@@ -545,7 +609,7 @@ function CollectionTable({
     return (
       <Button
         variant="contained"
-        disabled={status === "Completed"}
+        disabled={status === "Completed" || status === "Transcribe"}
         className={classes.status}
         style={{
           background: status === "Transcribe" ? "#f9ca24" : "#2ed573",
@@ -553,7 +617,7 @@ function CollectionTable({
         onClick={() => handleMediaTranscription(id)}
       >
         <Typography variant="h6" style={{ color: "white" }}>
-          {status}
+          {status === "Transcribe" ? "Processing..." : "Completed"}
         </Typography>
       </Button>
     );
@@ -594,25 +658,26 @@ function CollectionTable({
           marginBottom: "3rem",
         }}
       >
-        <DataGrid
-          className={classes.dataGrid}
-          disableColumnMenu
-          autoHeight
-          checkboxSelection
-          columns={matches ? fixedColumns : flexColumns}
-          rows={filterMediaBySearch()}
-          pageSize={pageSize}
-          onPageSizeChange={handlePageSizeChange}
-          rowsPerPageOptions={[10, 25, 50, 100]}
-          rowHeight={90}
-          selectionModel={selectionModel}
-          onSelectionModelChange={(newSelection) => {
-            setSelectionModel(newSelection.selectionModel);
-          }}
-          components={{
-            Toolbar: CustomToolbar,
-          }}
-        />
+        <Paper elevation={5} style={{ width: "100%" }}>
+          <DataGrid
+            className={classes.dataGrid}
+            disableColumnMenu
+            checkboxSelection
+            columns={matches ? fixedColumns : flexColumns}
+            rows={filterMediaBySearch()}
+            pageSize={pageSize}
+            onPageSizeChange={handlePageSizeChange}
+            rowsPerPageOptions={[10, 25, 50, 100]}
+            rowHeight={90}
+            selectionModel={selectionModel}
+            onSelectionModelChange={(newSelection) => {
+              setSelectionModel(newSelection.selectionModel);
+            }}
+            components={{
+              Toolbar: CustomToolbar,
+            }}
+          />
+        </Paper>
       </Grid>
       <Dialog
         open={openDialog}
@@ -663,6 +728,7 @@ function CollectionTable({
               style={{ paddingTop: mediaUrl ? 0 : undefined }}
             >
               <MediaUploader
+                textInput={textInput}
                 action={action}
                 mediaType={mediaType}
                 isCreating={isCreating}
@@ -691,7 +757,7 @@ function CollectionTable({
                 <Button
                   variant="contained"
                   disabled={
-                    title.length === 0 || mediaUrl === null || isCreating
+                    title.length === 0 || (mediaType !== 'text' && mediaUrl === null) || isCreating
                   }
                   className={classes.createButton}
                   onClick={() => {

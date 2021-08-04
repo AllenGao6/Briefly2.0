@@ -1,17 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { makeStyles, useTheme } from "@material-ui/styles";
 import Divider from "@material-ui/core/Divider";
-import {
-  Typography,
-  Grid,
-  Icon,
-  Paper,
-  Button,
-  InputAdornment,
-  InputBase,
-} from "@material-ui/core";
+import { Grid, Paper, InputAdornment, InputBase } from "@material-ui/core";
 import SearchOutlinedIcon from "@material-ui/icons/SearchOutlined";
 import TranscriptList from "../common/TranscriptList";
+import { darken, lighten } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => {
   const matchesDark = theme.palette.type === "dark";
@@ -21,15 +14,27 @@ const useStyles = makeStyles((theme) => {
     },
     search: {
       width: "100%",
-      // background:
-      //   theme.palette.type === "dark"
-      //     ? theme.palette.primary.main
-      //     : lighten("#2481F4", 0.2),
-      height: "2.8rem",
-      padding: "1rem",
+      height: 40,
+      margin: 10,
+      paddingLeft: 10,
       color:
-        theme.palette.type === "dark" ? theme.palette.common.white : "blue",
-      fontSize: "1.25rem",
+        theme.palette.type === "dark"
+          ? theme.palette.common.cloud
+          : theme.palette.common.grey,
+      border: "2px solid",
+      borderColor:
+        theme.palette.type === "dark"
+          ? theme.palette.common.white
+          : lighten(theme.palette.common.grey, 0.5),
+      borderRadius: 15,
+      fontSize: "1rem",
+      transition: "all 0.2s",
+      "&.Mui-focused": {
+        borderColor:
+          theme.palette.type === "dark"
+            ? theme.palette.common.orange
+            : theme.palette.common.blue,
+      },
     },
     cardOutline: {
       width: "97%",
@@ -45,9 +50,9 @@ const useStyles = makeStyles((theme) => {
       borderRadius: 15,
     },
     sectionContainer: {
-      top: 10,
+      top: 0,
       bottom: 100,
-      position: 'relative',
+      position: "relative",
     },
   };
 });
@@ -56,6 +61,20 @@ export default function Transcripts({ media }) {
   const classes = useStyles();
   const theme = useTheme();
   const [search, setSearch] = useState("");
+  const [transcriptHeight, setTranscriptHeight] = useState(300);
+  const observer = useRef();
+
+  const containerRef = useCallback((node) => {
+    if (node !== null) {
+      observer.current = new ResizeObserver((entries) => {
+        for (let entry of entries) {
+          const height = entry.contentRect.height;
+          setTranscriptHeight(height - 80);
+        }
+      });
+      observer.current.observe(node);
+    }
+  }, []);
 
   const process_audioText = (audioText) => {
     let new_audioText = [];
@@ -92,28 +111,24 @@ export default function Transcripts({ media }) {
         top: 0,
         bottom: 0,
         width: "100%",
-        height: "95%",
+        height: "100%",
         background:
           theme.palette.type === "dark"
             ? theme.palette.common.grey
             : theme.palette.common.cloud,
+        minWidth: 300,
       }}
+      ref={containerRef}
     >
-      <Grid  
+      <Grid
         container
         className={classes.sectionContainer}
         justify={"center"}
         alignItems="stretch"
         direction="column"
       >
-        <Grid item container style={{ height: 40 }}>
+        <Grid item container>
           <InputBase
-            style={{
-              marginLeft: "1rem",
-              verticalAlign: "center",
-              paddingLeft: 0,
-              fontSize: "1rem",
-            }}
             placeholder="Search Transcript..."
             id="search"
             variant="outlined"
@@ -127,21 +142,17 @@ export default function Transcripts({ media }) {
               </InputAdornment>
             }
             onChange={(event) => setSearch(event.target.value)}
-          ></InputBase>
+          />
         </Grid>
         <Divider variant="middle" className={classes.divider} />
-        <Grid
-          item
-          container
-          direction="column"
-          style={{ width: "100%", height: 'calc(100vh - 99px - 48px)' }}
-        >
+        <Grid item container direction="column" style={{ width: "100%" }}>
           <Paper
-            className={classes.cardOutline}
             style={{
               marginTop: 10,
-              padding: 0,
-              height: "100%",
+              marginLeft: 10,
+              marginRight: 10,
+              overflow: "scroll",
+              height: transcriptHeight,
             }}
           >
             <TranscriptList audioText={filter_media(text_script)} />

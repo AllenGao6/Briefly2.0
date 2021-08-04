@@ -1,0 +1,8 @@
+Hi {{ username }}:
+    Your {{ mediaType }}: {{ mediaName }} in collection {{ collection }} is successfully summarized with default XLNet model by our powerful Briefly-AI!
+    We are very glad that you chose Briefly as your leanring assistant.
+    Please go to Briefly-AI.com and login to your dashboard to start your learning journey!
+    As we provided you with a default summarization with XLNet, you can choose to either improve your summarization by clicking on the 'add' button under the SUMMARY section.
+    Or you can generate a new summarization with other Machine Learning model based on the number of sentences you opt.
+    During your learning journey, feel free to discover other functions and tools that we provided especially for you!
+    Briefly-AI team

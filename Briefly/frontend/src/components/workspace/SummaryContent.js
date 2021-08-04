@@ -21,15 +21,20 @@ import {
   Checkbox,
   Paper,
   IconButton,
+  Tooltip,
 } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/styles";
 import EmptyIcon from "@material-ui/icons/HourglassEmpty";
 import ResetIcon from "@material-ui/icons/Cached";
 import AddIcon from "@material-ui/icons/AddBoxOutlined";
 import BulletPointList from "../common/BulletPointList";
+import QuizList from "../common/QuizList";
 import ControlledVideoPlayer from "../common/ControlledVideoPlayer";
 import { connect } from "react-redux";
 import { summarizeMedia } from "../../redux/actions/summarize_actions";
+import VisibilityIcon from "@material-ui/icons/Visibility";
+import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
+import GetAppIcon from "@material-ui/icons/GetApp";
 import {
   loadVideosInCollection,
   updateVideoInCollection,
@@ -40,6 +45,14 @@ import {
   updateAudioInCollection,
   resetAudioSummarization,
 } from "../../redux/actions/audio_actions";
+import {
+  generateQuiz,
+  resetAudioQuiz,
+  resetVideoQuiz,
+} from "../../redux/actions/quizGeneration_actions";
+import clsx from "clsx";
+import store from "store";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 
 const format = (seconds) => {
   if (isNaN(seconds)) {
@@ -91,9 +104,6 @@ const useStyles = makeStyles((theme) => {
       background: theme.palette.type === "dark" ? "white" : "black",
     },
     cardOutline: {
-      width: "100%",
-      paddingLeft: 15,
-      paddingRight: 15,
       paddingTop: 5,
       paddingBottom: 5,
     },
@@ -126,7 +136,10 @@ function SummaryContent({
   updateAudioInCollection,
   resetVideoSummarization,
   resetAudioSummarization,
+  generateQuiz,
   getScreenshot,
+  resetAudioQuiz,
+  resetVideoQuiz,
 }) {
   const classes = useStyles();
   const theme = useTheme();
@@ -141,8 +154,11 @@ function SummaryContent({
   const [modelType, setModelType] = useState(0);
   const [played, setPlayed] = useState(0);
   const [addContent, setAddContent] = useState("");
-
+  const [isSummarizing, setIsSummarizing] = useState(media.is_processing);
+  const [isGenerating, setGenerating] = useState(false);
+  const [answerVisible, setAnswerVisible] = useState(false);
   const mediaRef = useRef(null);
+  const [answer, setAnswer] = useState("");
 
   const updateMediaInCollection = async (id, media, mediaId) => {
     switch (mediaType) {
@@ -153,6 +169,8 @@ function SummaryContent({
         await updateAudioInCollection(id, media, mediaId);
         break;
       case "text":
+        await updateAudioInCollection(id, media, mediaId);
+        break;
       default:
         break;
     }
@@ -167,6 +185,24 @@ function SummaryContent({
         await resetAudioSummarization(id, mediaId);
         break;
       case "text":
+        await resetAudioSummarization(id, mediaId);
+        break;
+      default:
+        break;
+    }
+  };
+
+  const resetMediaQuiz = async (id, mediaId) => {
+    switch (mediaType) {
+      case "video":
+        await resetVideoQuiz(id, mediaId);
+        break;
+      case "audio":
+        await resetAudioQuiz(id, mediaId);
+        break;
+      case "text":
+        await resetAudioQuiz(id, mediaId);
+        break;
       default:
         break;
     }
@@ -193,11 +229,17 @@ function SummaryContent({
       summarization: JSON.stringify(newTranscripts),
     };
     updateMediaInCollection(collectionId, newMedia, media.id);
-    console.log("handleTranscriptDelete");
+    //console.log("handleTranscriptDelete");
   };
 
-  const handleTranscriptReset = () => {
-    resetMediaSummarization(collectionId, media.id);
+  const handleReset = (type) => {
+    if (type === "summ") resetMediaSummarization(collectionId, media.id);
+    if (type === "quiz") {
+      store.each(function (value, key) {
+        if (key !== "accessToken") store.remove(key);
+      });
+      resetMediaQuiz(collectionId, media.id);
+    }
   };
 
   const handleAddTranscript = () => {
@@ -223,7 +265,9 @@ function SummaryContent({
     setPlayed(0);
   };
 
+  //call backend for service request
   const summarize = async () => {
+    setIsSummarizing(true);
     const summaryConfig = {
       model: getModelType(),
       num_sentence: optimalSentence ? null : numSentences,
@@ -243,10 +287,44 @@ function SummaryContent({
           loadAudiosInCollection(collectionId);
           break;
         case "text":
+          loadAudiosInCollection(collectionId);
+          break;
         default:
           break;
       }
     }
+    setIsSummarizing(false);
+  };
+
+  const generate_quiz = async () => {
+    setGenerating(true);
+    const QuizGenConfig = {
+      task: "QA_pair_gen",
+      based_text: "summ",
+      question: null,
+    };
+    const quiz = await generateQuiz(
+      collectionId,
+      media.id,
+      mediaType,
+      QuizGenConfig
+    );
+    if (quiz) {
+      switch (mediaType) {
+        case "video":
+          loadVideosInCollection(collectionId);
+          break;
+        case "audio":
+          loadAudiosInCollection(collectionId);
+          break;
+        case "text":
+          loadAudiosInCollection(collectionId);
+          break;
+        default:
+          break;
+      }
+    }
+    setGenerating(false);
   };
 
   const handleTabChange = (e, value) => {
@@ -265,6 +343,10 @@ function SummaryContent({
     setOpen(false);
   };
 
+  const handleAnswer = () => {
+    setAnswerVisible(!answerVisible);
+  };
+
   const getModelType = () => {
     switch (modelType) {
       case 1:
@@ -278,29 +360,171 @@ function SummaryContent({
     }
   };
 
-  const Summary = () => {
-    if (!media.is_summarized) {
+  const PopQuiz = () => {
+    //console.log(media);
+    if (media.quiz === null) {
       return (
         <React.Fragment>
-          <Grid item>
+          <Grid item style={{ minHeight: isSummarizing ? "10rem" : undefined }}>
             <EmptyIcon
-              className={classes.icon}
+              className={clsx(
+                classes.icon,
+                isGenerating ? "rotated" : undefined
+              )}
               style={{ width: "7rem", height: "7rem" }}
             />
           </Grid>
           <Grid item>
-            <Typography variant="h5">No summarization yet.</Typography>
+            <Typography variant="h5">
+              {isGenerating ? "Generating Pop Quiz..." : "No Pop Quiz yet."}
+            </Typography>
           </Grid>
-          <Grid item style={{ marginTop: "1.5rem" }}>
-            <Button
-              variant="contained"
-              color={matchesDark ? "secondary" : "primary"}
-              style={{ color: "white" }}
-              onClick={handleClickOpen}
+          {isGenerating ? undefined : (
+            <Grid item style={{ marginTop: "1.5rem" }}>
+              <Button
+                variant="contained"
+                color={matchesDark ? "secondary" : "primary"}
+                style={{ color: "white" }}
+                onClick={() => {
+                  generate_quiz();
+                }}
+              >
+                Generate Pop Quiz
+              </Button>
+            </Grid>
+          )}
+        </React.Fragment>
+      );
+    } else {
+      return (
+        <Grid
+          item
+          container
+          className={classes.summaryStatus}
+          direction="column"
+        >
+          <Grid item style={{ height: 60 }}>
+            <Paper className={classes.cardOutline}>
+              <Grid
+                container
+                justify="space-between"
+                alignItems="center"
+                style={{ paddingLeft: 15, paddingRight: 15 }}
+              >
+                <Grid item>
+                  <Grid item container direction="column">
+                    <Grid item container alignItems="center">
+                      <Typography variant="h6" className={classes.text}>
+                        Quiz Type:
+                      </Typography>
+                      <Typography variant="h6" className={classes.specialText}>
+                        {"Short Answer"}
+                      </Typography>
+                    </Grid>
+                    <Grid
+                      item
+                      container
+                      alignItems="center"
+                      style={{ marginTop: 5 }}
+                    >
+                      <Typography variant="h6" className={classes.text}>
+                        Question count:
+                      </Typography>
+                      <Typography variant="h6" className={classes.specialText}>
+                        {JSON.parse(media.quiz).length}
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                </Grid>
+                <Grid item>
+                  <IconButton
+                    onClick={() => {
+                      handleReset("quiz");
+                    }}
+                  >
+                    <Tooltip title="Reset" arrow>
+                      <ResetIcon className={classes.icon} />
+                    </Tooltip>
+                  </IconButton>
+                  <IconButton
+                    onClick={() => {
+                      handleAnswer();
+                    }}
+                  >
+                    {answerVisible ? (
+                      <Tooltip title="Hide Answers" arrow>
+                        <VisibilityIcon className={classes.icon} />
+                      </Tooltip>
+                    ) : (
+                      <Tooltip title="Show Answers" arrow>
+                        <VisibilityOffIcon className={classes.icon} />
+                      </Tooltip>
+                    )}
+                  </IconButton>
+                </Grid>
+              </Grid>
+            </Paper>
+          </Grid>
+          <Grid item>
+            <Paper
+              className={classes.cardOutline}
+              style={{
+                marginTop: 10,
+                padding: 0,
+              }}
             >
-              Start Summarization
-            </Button>
+              <QuizList
+                quizes={JSON.parse(media.quiz)}
+                answerVisible={answerVisible}
+              />
+            </Paper>
           </Grid>
+        </Grid>
+      );
+    }
+  };
+
+  const More = () => {
+    return <h1>this will be implemented</h1>;
+  };
+
+  const ServiceType = (value) => {
+    if (mediaType === "text") value += 1;
+    if (value === 0) return <Summary />;
+    else if (value === 1) return <PopQuiz />;
+    else return <More />;
+  };
+
+  const Summary = () => {
+    if (!media.is_summarized) {
+      return (
+        <React.Fragment>
+          <Grid item style={{ minHeight: isSummarizing ? "10rem" : undefined }}>
+            <EmptyIcon
+              className={clsx(
+                classes.icon,
+                isSummarizing ? "rotated" : undefined
+              )}
+              style={{ width: "7rem", height: "7rem" }}
+            />
+          </Grid>
+          <Grid item>
+            <Typography variant="h5">
+              {isSummarizing ? "Summarizing..." : "No summarization yet."}
+            </Typography>
+          </Grid>
+          {isSummarizing ? undefined : (
+            <Grid item style={{ marginTop: "1.5rem" }}>
+              <Button
+                variant="contained"
+                color={matchesDark ? "secondary" : "primary"}
+                style={{ color: "white" }}
+                onClick={handleClickOpen}
+              >
+                Start Summarization
+              </Button>
+            </Grid>
+          )}
         </React.Fragment>
       );
     } else {
@@ -315,7 +539,12 @@ function SummaryContent({
             <Paper className={classes.cardOutline}>
               <Grid container justify="space-between" alignItems="center">
                 <Grid item>
-                  <Grid item container direction="column">
+                  <Grid
+                    item
+                    container
+                    direction="column"
+                    style={{ paddingLeft: 15, paddingRight: 15 }}
+                  >
                     <Grid item container alignItems="center">
                       <Typography variant="h6" className={classes.text}>
                         Model Type:
@@ -340,12 +569,30 @@ function SummaryContent({
                   </Grid>
                 </Grid>
                 <Grid item>
-                  <IconButton onClick={handleTranscriptReset}>
-                    <ResetIcon className={classes.icon} />
+                  <IconButton
+                    onClick={() => {
+                      handleReset("summ");
+                    }}
+                  >
+                    <Tooltip title="Reset" arrow>
+                      <ResetIcon className={classes.icon} />
+                    </Tooltip>
                   </IconButton>
                   <IconButton onClick={() => setOpenAddDialog(true)}>
-                    <AddIcon className={classes.icon} />
+                    <Tooltip title="Add" arrow>
+                      <AddIcon className={classes.icon} />
+                    </Tooltip>
                   </IconButton>
+                  <PDFDownloadLink
+                    document={<h1>this is a test</h1>}
+                    fileName="movielist.pdf"
+                  >
+                    <IconButton>
+                      <Tooltip title="Export Notes" arrow>
+                        <GetAppIcon className={classes.icon} />
+                      </Tooltip>
+                    </IconButton>
+                  </PDFDownloadLink>
                 </Grid>
               </Grid>
             </Paper>
@@ -363,6 +610,7 @@ function SummaryContent({
                 getScreenshot={getScreenshot}
                 onTranscriptChange={handleTranscriptChange}
                 onTranscriptDelete={handleTranscriptDelete}
+                mediaType={mediaType}
               />
             </Paper>
           </Grid>
@@ -372,7 +620,7 @@ function SummaryContent({
   };
 
   return (
-    <Grid container direction="column" style={{ minWidth: 300 }}>
+    <Grid container direction="column" style={{ minWidth: 350 }}>
       <Grid item container>
         <Tabs
           value={value}
@@ -380,7 +628,9 @@ function SummaryContent({
           className={classes.tabContainer}
           indicatorColor={matchesDark ? "secondary" : "primary"}
         >
-          <Tab className={classes.tab} label="Summary"></Tab>
+          {mediaType !== "text" ? (
+            <Tab className={classes.tab} label="Summary"></Tab>
+          ) : null}
           <Tab className={classes.tab} label="Pop Quiz"></Tab>
           <Tab className={classes.tab} label="More..."></Tab>
         </Tabs>
@@ -393,7 +643,7 @@ function SummaryContent({
         alignItems="center"
         direction="column"
       >
-        <Summary />
+        {ServiceType(value)}
       </Grid>
       <Dialog
         open={open}
@@ -497,7 +747,15 @@ function SummaryContent({
         <Divider variant="middle" classes={{ root: classes.divider }} />
         <DialogContent>
           <Grid container direction="column">
-            <Grid item container style={{ paddingLeft: 24, paddingRight: 24 }}>
+            <Grid
+              item
+              container
+              style={{
+                paddingLeft: 24,
+                paddingRight: 24,
+                marginBottom: "1rem",
+              }}
+            >
               <TextField
                 id="add-bulletpoint-text"
                 label="Content"
@@ -509,6 +767,11 @@ function SummaryContent({
                 color={matchesDark ? "secondary" : "primary"}
                 onChange={(e) => setAddContent(e.target.value)}
               />
+            </Grid>
+            <Grid item container style={{ paddingLeft: 24, paddingRight: 24 }}>
+              <Typography variant="h5" style={{ fontSize: "1rem" }}>
+                Drag the slider to the desired timestamp below:
+              </Typography>
             </Grid>
             <Grid item container justify="center">
               {mediaType === "video" && (
@@ -558,6 +821,9 @@ const mapDispatchToProps = {
   updateAudioInCollection,
   resetVideoSummarization,
   resetAudioSummarization,
+  generateQuiz,
+  resetAudioQuiz,
+  resetVideoQuiz,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SummaryContent);

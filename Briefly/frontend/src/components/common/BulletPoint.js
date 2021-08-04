@@ -16,6 +16,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Tooltip,
 } from "@material-ui/core";
 import { darken } from "@material-ui/core/styles";
 
@@ -89,6 +90,7 @@ function BulletPoint({
   onTranscriptDelete,
   seekTo,
   getScreenshot,
+  mediaType,
 }) {
   const classes = useStyles();
   const theme = useTheme();
@@ -146,14 +148,24 @@ function BulletPoint({
                 onClick={() => setOpenDialog(true)}
                 className={classes.deleteButton}
               >
-                <DeleteIcon />
+                <Tooltip title="Delete" arrow>
+                  <DeleteIcon />
+                </Tooltip>
               </IconButton>
               <IconButton
                 onClick={handleEdit}
                 className={classes.editButton}
                 disabled={summary.trim().length === 0}
               >
-                {editable ? <PublishIcon /> : <EditIcon />}
+                {editable ? (
+                  <Tooltip title="Update">
+                    <PublishIcon />
+                  </Tooltip>
+                ) : (
+                  <Tooltip title="Edit">
+                    <EditIcon />
+                  </Tooltip>
+                )}
               </IconButton>
             </Grid>
           </Grid>
@@ -185,7 +197,7 @@ function BulletPoint({
           </Grid>
         </Grid>
       </ListItem>
-      <Grid container justify="center">
+      {mediaType === "video" ? <Grid container justify="center">
         <IconButton
           onClick={handleToggleScreenshot}
           style={{ padding: 0, paddingBottom: 5 }}
@@ -196,7 +208,7 @@ function BulletPoint({
             <ExpandMoreIcon className={classes.icon} />
           )}
         </IconButton>
-      </Grid>
+      </Grid> : null}
       <Collapse in={open} timeout="auto" unmountOnExit>
         <Grid
           container

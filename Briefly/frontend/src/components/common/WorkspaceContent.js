@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useRef } from "react";
 import {
   Grid,
   makeStyles,
@@ -9,7 +9,6 @@ import {
   Button,
 } from "@material-ui/core";
 import clsx from "clsx";
-import { darken, lighten } from "@material-ui/core/styles";
 import SplitPane from "react-split-pane";
 import "../../../static/css/split.css"; // do not delete!
 // local component
@@ -99,54 +98,96 @@ export default function WorkspaceContent({
   };
 
   if (!media) return <div></div>;
-  return (
-    <div
-      className={clsx(classes.root, {
-        [classes.contentShift]: open && !matchesXS,
-      })}
-    >
-      <ReactPlayer
-        ref={invisiblePlayerRef}
-        url={media[mediaType]}
-        style={{ display: "none" }}
-        config={{
-          file: {
-            attributes: {
-              crossOrigin: "anonymous",
-            },
-          },
-        }}
-      />
-      <SplitPane
-        split="vertical"
-        defaultSize="40%"
-        style={{
-          height: "-moz-calc(100vh - 69px)",
-          height: "-webkit-calc(100vh - 69px)",
-          border: "15px solid #dfe4ea",
-        }}
-        minSize={1}
-        maxSize={-46}
-        primary="second"
+  if (mediaType === "text") {
+    return (
+      <div
+        className={clsx(classes.root, {
+          [classes.contentShift]: open && !matchesXS,
+        })}
       >
         <SplitPane
-          split="horizontal"
+          split="vertical"
           defaultSize="50%"
-          className={classes.splitPane}
-          primary="first"
+          style={{
+            height: "-moz-calc(100vh - 69px)",
+            height: "-webkit-calc(100vh - 69px)",
+            border: matchesDark ? "15px solid #515151" : "15px solid #dfe4ea",
+            boxSizing: "border-box",
+          }}
           minSize={1}
           maxSize={-46}
+          primary="second"
+          resizerStyle={{
+            backgroundColor: matchesDark ? "#515151" : null,
+          }}
         >
           <MediaDisplay media={media} mediaType={mediaType} ref={mediaRef} />
-          <Transcripts media={media} />
+          <SummaryContent
+            media={media}
+            mediaType={mediaType}
+            collectionId={collectionId}
+            getScreenshot={handleScreenshot}
+          />
         </SplitPane>
-        <SummaryContent
-          media={media}
-          mediaType={mediaType}
-          collectionId={collectionId}
-          getScreenshot={handleScreenshot}
+      </div>
+    );
+  } else {
+    return (
+      <div
+        className={clsx(classes.root, {
+          [classes.contentShift]: open && !matchesXS,
+        })}
+      >
+        <ReactPlayer
+          ref={invisiblePlayerRef}
+          url={media[mediaType]}
+          style={{ display: "none" }}
+          config={{
+            file: {
+              attributes: {
+                crossOrigin: "anonymous",
+              },
+            },
+          }}
         />
-      </SplitPane>
-    </div>
-  );
+        <SplitPane
+          split="vertical"
+          defaultSize="40%"
+          style={{
+            height: "-moz-calc(100vh - 69px)",
+            height: "-webkit-calc(100vh - 69px)",
+            border: matchesDark ? "15px solid #515151" : "15px solid #dfe4ea",
+            boxSizing: "border-box",
+          }}
+          minSize={1}
+          maxSize={-46}
+          primary="second"
+          resizerStyle={{
+            backgroundColor: matchesDark ? "#515151" : null,
+          }}
+        >
+          <SplitPane
+            split="horizontal"
+            defaultSize="50%"
+            className={classes.splitPane}
+            primary="first"
+            minSize={1}
+            maxSize={-17}
+            resizerStyle={{
+              backgroundColor: matchesDark ? "#515151" : null,
+            }}
+          >
+            <MediaDisplay media={media} mediaType={mediaType} ref={mediaRef} />
+            <Transcripts media={media} />
+          </SplitPane>
+          <SummaryContent
+            media={media}
+            mediaType={mediaType}
+            collectionId={collectionId}
+            getScreenshot={handleScreenshot}
+          />
+        </SplitPane>
+      </div>
+    );
+  }
 }

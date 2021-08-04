@@ -34,7 +34,7 @@ export default function LandingPage(props) {
   const scrollIntoView = (id) => {
     pageReference.current[id].scrollIntoView({behavior: 'smooth'});
   }
-  const components = [<IntroSection />, <MissionSection/>, <MemberSection />, <AboutSection />, <PageFooter />]
+  const components = [<IntroSection />, <MissionSection/>, <MemberSection />, <AboutSection />, <PageFooter LandingVisible={true}/>]
   useEffect(() => {
     if (theme.palette.type === "dark") {
       props.switchTheme();

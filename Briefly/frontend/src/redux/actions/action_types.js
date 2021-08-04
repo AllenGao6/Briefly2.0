@@ -64,3 +64,14 @@ export const SUMMARIZE_FAILURE = "SUMMARIZE_FAILURE";
 
 // player
 export const PLAYER_SEEKING = "PLAYER_SEEKING";
+
+//pop quiz generation
+export const QuizGen_SUCCESS = "QuizGen_SUCCESS";
+export const QuizGen_FAILURE = "QuizGen_FAILURE";
+export const RESET_AUDIO_QUIZ_SUCCESS = "RESET_AUDIO_QUIZ_SUCCESS";
+export const RESET_AUDIO_QUIZ_FAILURE = "RESET_AUDIO_QUIZ_FAILURE";
+export const RESET_VIDEO_QUIZ_SUCCESS = "RESET_VIDEO_QUIZ_SUCCESS";
+export const RESET_VIDEO_QUIZ_FAILURE = "RESET_VIDEO_QUIZ_FAILURE";
+
+//quiz entry
+export const Answer_Entry = "Answer_Entry";

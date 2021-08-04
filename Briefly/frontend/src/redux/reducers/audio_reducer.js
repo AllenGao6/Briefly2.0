@@ -102,6 +102,22 @@ export default function audioReducer(state = initialState, action) {
     case type.RESET_AUDIO_SUMMARY_FAILURE:
       toast.error("Fail to reset audio summary.");
       return state;
+    case type.RESET_AUDIO_QUIZ_SUCCESS:
+      toast.success("😎 Your Quiz has been reset!");
+      return {
+        ...state,
+        audios: [...state.audios].filter((audio) =>
+          audio.id === action.audioId
+            ? {
+                ...audio,
+                quiz: null,
+              }
+            : audio
+        ),
+      };
+    case type.RESET_AUDIO_QUIZ_FAILURE:
+      toast.error("Fail to reset pop quiz.");
+      return state;
     default:
       return state;
   }

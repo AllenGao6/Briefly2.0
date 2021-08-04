@@ -31,6 +31,8 @@ nltk = "*"
 sentencepiece = "*"
 gunicorn = "*"
 protobuf = "*"
+celery = "*"
+django-celery-results = "*"
 
 [dev-packages]
 

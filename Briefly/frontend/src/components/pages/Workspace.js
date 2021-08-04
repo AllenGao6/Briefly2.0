@@ -12,6 +12,8 @@ import MediaScrollbar from "../common/MediaScrollbar";
 import WorkspaceContent from "../common/WorkspaceContent";
 //resizeable grid experimenting
 import { Rnd } from "react-rnd";
+//localStorage Management
+import store from "store";
 
 const useStyles = (theme) => {
   const matchesDark = theme.palette.type === "dark";
@@ -34,6 +36,10 @@ class Workspace extends Component {
   };
 
   componentDidMount = () => {
+    store.each(function(value, key){
+      if(key !== 'accessToken')
+        store.remove(key);
+    })
     this.props.loadVideosInCollection(this.props.match.params.id);
     this.props.loadAudiosInCollection(this.props.match.params.id);
   };
@@ -58,6 +64,7 @@ class Workspace extends Component {
       case "audio":
         return this.props.audios;
       case "text":
+        return this.props.audios;
       default:
         return [];
     }

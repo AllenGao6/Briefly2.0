@@ -103,6 +103,23 @@ export default function videoReducer(state = initialState, action) {
     case type.RESET_VIDEO_SUMMARY_FAILURE:
       toast.error("Fail to reset video summary.");
       return state;
+    case type.RESET_VIDEO_QUIZ_SUCCESS:
+      toast.success("😎 Your Quiz has been reset!");
+
+      return {
+        ...state,
+        videos: [...state.videos].map((video) =>
+          video.id === action.videoId
+            ? {
+                ...video,
+                quiz: null,
+              }
+            : video
+        ),
+      };
+    case type.RESET_VIDEO_QUIZ_FAILURE:
+      toast.error("Fail to reset pop quiz.");
+      return state;
     default:
       return state;
   }

@@ -39,8 +39,8 @@ const theme = createMuiTheme({
     grandCaption: {
       fontFamily: "Ubuntu",
       fontWeight: 600,
-      fontSize: "5rem",
-      color: "#e67e22",
+      fontSize: "4.5rem",
+      color: briefOrange,
     },
     grandIntro: {
       fontFamily: "Roboto",

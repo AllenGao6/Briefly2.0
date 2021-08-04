@@ -2,11 +2,11 @@ from django.core.exceptions import ValidationError
 from django.db.models.expressions import Col
 from django.db import transaction
 import transformers
-from .models import Collection, Video, Audio
+from .models import Collection, Video, Audio, Text
 from social_login.models import UserProfile
 from django.shortcuts import render, get_object_or_404
 from rest_framework import serializers, viewsets
-from .serializers import AudioSerializer, VideoSerializer, CollectionSerializer
+from .serializers import AudioSerializer, VideoSerializer, CollectionSerializer, TextSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 from rest_framework.response import Response
@@ -14,16 +14,18 @@ from rest_framework.decorators import action
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from django.conf import settings
-from django.http import HttpRequest
 import boto3
 from .permissions import CollectionUserPermission,VideoUserPermission, AudioUserPermission
 from django.db.models import Q
-from django.core.mail import send_mail
 from . import speech_to_text
 from math import ceil
 from pprint import pprint
 from json import dumps, loads
 from time import time
+from . import quiz_generation, tasks
+from django.template.loader import render_to_string
+from .tasks import send_email_celery
+from django.core.mail import send_mail
 
 class VideoViewSet(viewsets.ModelViewSet):
 
@@ -152,21 +154,6 @@ class VideoViewSet(viewsets.ModelViewSet):
     #     serializer = self.get_serializer_class()(newest)
     #     return Response(serializer.data)
     
-    '''
-    Description: when summary is ready, this will be automatically called to send notification email to user's email
-    '''
-    def summary_ready(self, video):
-        email_title = 'You Summarization Is Ready at Briefly-AI'
-        email_body = f"Hi {video.collection.owner.first_name},\n\n	Your {video.__class__.__name__}: {video.title} in {video.collection} is successfully summarized by our powerful Briefly-AI!\n	Please go to www.Briefly-AI.com and start your journey!\n\n	Briefly-AI team"
-        
-        mail = send_mail(
-            email_title,
-            email_body,
-            settings.EMAIL_HOST_USER,
-            [str(video.collection.owner.email)],
-            fail_silently=False
-        )
-        return mail
     
     '''
     Call this url to begin transcribe from Amazon
@@ -174,6 +161,7 @@ class VideoViewSet(viewsets.ModelViewSet):
     '''
     @action(methods=['GET'],detail=True)
     def transcribe_begin(self, request, *args, **kwargs):
+        print("recieved transcribe request")
         user = request.user
         video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
         if video:
@@ -182,7 +170,10 @@ class VideoViewSet(viewsets.ModelViewSet):
             if not video.transcript:
                 try:
                     # code to perform summarization process
-                    t1 = time()   
+                    t1 = time()
+                    video.is_processing = True
+                    video.save()
+                       
                     video_path = video.video.name.split('/')
                     video_name, video_id, type, collection_name = video_path[3], video_path[2],video_path[1], video_path[0]   
                     transcribe = speech_to_text.amazon_transcribe(video_name, collection_name, type, video_id)
@@ -199,17 +190,53 @@ class VideoViewSet(viewsets.ModelViewSet):
                     pprint(audioText)
                     video.transcript = dumps(transcript)          #json field
                     video.audioText = audioText
-                    video.save()
+                    
                     print(f"transcribe time spent: {time()-t1:.2f}")
+                    
+                    # call default_summarize
+                    self.default_summarize(video)
+                    video.is_processing = False
+                    video.save()
+                    # call to send email
+                    d = { 'username': video.collection.owner.first_name, 
+                        'mediaType': video.__class__.__name__.lower(), 
+                        'mediaName': video.title,
+                        'collection': video.collection.name,
+                        'MEDIA_URL': settings.MEDIA_URL}
+                    send_email(d)
                 except:
                     return Response("Fail to transcribe", status=status.HTTP_400_BAD_REQUEST)
 
-            #self.summary_ready(video)
+            
             return Response("Success!")
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
     
+    def default_summarize(self, audio):
+        print("recieved default summarize request")
+        t1 = time()
+        try:
+            summary, num_sentence = speech_to_text.summarize(audio.audioText, loads(audio.transcript), model ="XLNet")
+            print("default\n")
+            pprint(summary)
+            audio.model_type = "XLNet"       # XLNet is fastest and uses less memory
+            audio.num_sentences = num_sentence
+            audio.summarization = dumps(summary)
+            audio.is_summarized = True
+            
+            Quiz = quiz_generation.Quiz_generation(loads(audio.summarization), audio.audioText, based_text="summ")
+            res = Quiz.generate("QA_pair_gen", question=None)       # question parameter can be modified if need
+            
+            audio.quiz = dumps(res)
+            print(f"Default summarization time spent: {time()-t1:.2f}")
+            return True
+            
+        except:
+            return Response("Fail to generate default summarization", status=status.HTTP_400_BAD_REQUEST)
     
+        
+        
+        
     '''
     Call this endpoint to start summarization with all models,
     This endpoint is avaliable if video.audioText is provided.
@@ -223,8 +250,9 @@ class VideoViewSet(viewsets.ModelViewSet):
          
     URL: api/<int: collection_id>/video/<int: video_id>/summary_begin/
     '''
-    @action(methods=['POST'],detail=True)
-    def summary_begin(self, request, *args, **kwargs):  
+    @action(methods=['POST'],detail=True, permission_classes = [IsAuthenticated])
+    def summary_begin(self, request, *args, **kwargs):
+        print("recieved summarize request")
         t1 = time()
         user = request.user
         video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
@@ -234,8 +262,13 @@ class VideoViewSet(viewsets.ModelViewSet):
         video = video[0]
         if not video.audioText:
             return Response("Cannot find the audioText for this video", status=status.HTTP_400_BAD_REQUEST)
-        
+        if video.is_processing:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
         try:
+            video.is_processing = True
+            video.save()
+            
             model = request.data.get('model', "Bert")
             
             num_sentence = request.data.get('num_sentence', None)
@@ -249,11 +282,15 @@ class VideoViewSet(viewsets.ModelViewSet):
                 video.num_sentences = num_sentence
                 video.summarization = dumps(summary)
                 video.is_summarized = True
-                video.save()
                 print(f"Individual {model} summarization  time spent: {time()-t1:.2f}")
                 print(model)
+                video.is_processing = False
+                video.save()
+                
                 return Response(summary, status=status.HTTP_200_OK)
         except:
+            video.is_processing = False
+            video.save()
             return Response("Fail to summarize", status=status.HTTP_400_BAD_REQUEST)
             
         # try:
@@ -282,6 +319,7 @@ class VideoViewSet(viewsets.ModelViewSet):
     '''
     @action(methods=['POST'],detail=False, permission_classes=[IsAuthenticated])
     def delete_list_videos(self, request, *args, **kwargs):
+        print("recieved delete list videos request")
         user = request.user
         videos_to_delete = request.data.get('list_id', None)
         if not videos_to_delete:
@@ -298,6 +336,7 @@ class VideoViewSet(viewsets.ModelViewSet):
     
     @action(methods=['GET'],detail=True, permission_classes=[IsAuthenticated])
     def reset(self, request, *args, **kwargs):
+        print("recieved reset video request")
         user = request.user
         video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
         if not video:
@@ -312,6 +351,63 @@ class VideoViewSet(viewsets.ModelViewSet):
             return Response(f"{video} RESET success", status=status.HTTP_200_OK)
         except :
             return Response("Fail to reset", status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(methods=['GET'],detail=True, permission_classes=[IsAuthenticated])
+    def resetQuiz(self, request, *args, **kwargs):
+        print("recieved video quiz reset request")
+        user = request.user
+        video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
+        if not video:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        video = video[0]
+        try:
+            video.quiz = None
+            video.save()
+            return Response(f"{video} RESET success", status=status.HTTP_200_OK)
+        except :
+            return Response("Fail to reset", status=status.HTTP_400_BAD_REQUEST)
+        
+    
+    '''
+    Call this endpoint to fetch Quiz data
+    URL: api/<int: collection_id>/video/<int: video_id>/quiz/
+    
+    Parameters to POST:
+    "task":  "Question_Ans" | "QA_pair_gen" | "Question_gen"
+    "based_text": "summ" | "full"
+    "question": this parameter is especially needed for Question_Ans
+    '''
+    @action(methods=['POST'], detail = True, permission_classes = [IsAuthenticated])
+    def quiz(self, request, *args, **kwargs):
+        print("recieved quiz video request")
+        t1 = time()
+        user = request.user
+        video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
+        if not video:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        video = video[0]
+        task = request.data.get('task', 'QA_pair_gen')
+        based_text = request.data.get('based_text', 'summ')
+        question = request.data.get('question', None)
+        if video.summarization == None:
+            print("this is aaa")
+            return Response({'Message':"Summarization Can't be empty"}, status = 204)
+        try:
+            video.is_processing = True
+            video.save()
+            Quiz = quiz_generation.Quiz_generation(loads(video.summarization), video.audioText, based_text=based_text)
+            res = Quiz.generate(task, question=question)       # question parameter can be modified if need
+            
+            video.is_processing = False
+            video.quiz = dumps(res)
+            video.save()
+            print(f"create time spent: {time()-t1:.2f}")
+            return Response(res, status=status.HTTP_200_OK)
+        except:
+            video.is_processing = False
+            video.save()
+            print("this is reached")
+            return Response({'Message':"Quiz Generation Failed"},status = status.HTTP_400_BAD_REQUEST)
         
 class CollectionViewSet(viewsets.ModelViewSet):
     serializer_class = CollectionSerializer
@@ -534,6 +630,7 @@ class AudioViewSet(viewsets.ModelViewSet):
     '''
     @action(methods=['GET'],detail=True)
     def transcribe_begin(self, request, *args, **kwargs):
+        print("recieved transcribe request")
         user = request.user
         # here video variable is just an audio, for the sake of convenience
         video = Audio.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
@@ -545,6 +642,10 @@ class AudioViewSet(viewsets.ModelViewSet):
                 try:
                     # code to perform summarization process
                     t1 = time()   
+                    
+                    video.is_processing = True
+                    video.save()
+                    
                     video_path = video.audio.name.split('/')
                     video_name, video_id, type, collection_name = video_path[3], video_path[2],video_path[1], video_path[0]   
                     transcribe = speech_to_text.amazon_transcribe(video_name, collection_name, type, video_id)
@@ -561,16 +662,51 @@ class AudioViewSet(viewsets.ModelViewSet):
                     pprint(audioText)
                     video.transcript = dumps(transcript)          #json field
                     video.audioText = audioText
-                    video.save()
+                    
                     print(f"transcribe time spent: {time()-t1:.2f}")
+                    
+                    # call default summarize
+                    self.default_summarize(video)
+                    video.is_processing = False
+                    video.save()
+                    # call to send email
+                    d = { 'username': video.collection.owner.first_name, 
+                        'mediaType': video.__class__.__name__.lower(), 
+                        'mediaName': video.title,
+                        'collection': video.collection.name,
+                        'MEDIA_URL': settings.MEDIA_URL,
+                        'TO': video.collection.owner.email}
+                    send_email(d)
                 except:
                     return Response("Fail to transcribe", status=status.HTTP_400_BAD_REQUEST)
 
-            #self.summary_ready(video)
             return Response("Success!")
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
+    def default_summarize(self, audio):
+        print("recieved default summarize request")
+        t1 = time()
+        try:
+            summary, num_sentence = speech_to_text.summarize(audio.audioText, loads(audio.transcript), model ="XLNet")
+            print("default\n")
+            pprint(summary)
+            audio.model_type = "XLNet"       # XLNet is fastest and uses less memory
+            audio.num_sentences = num_sentence
+            audio.summarization = dumps(summary)
+            audio.is_summarized = True
+
+            Quiz = quiz_generation.Quiz_generation(loads(audio.summarization), audio.audioText, based_text="summ")
+            res = Quiz.generate("QA_pair_gen", question=None)       # question parameter can be modified if need
+            
+            audio.quiz = dumps(res)
+            print(f"Default summarization  time spent: {time()-t1:.2f}")
+            return True
+        except:
+            return Response("Fail to generate default summarization", status=status.HTTP_400_BAD_REQUEST)
+    
+    
+    
     '''
     Call this endpoint to start summarization with all models,
     This endpoint is avaliable if video.audioText is provided.
@@ -595,8 +731,13 @@ class AudioViewSet(viewsets.ModelViewSet):
         video = video[0]
         if not video.audioText:
             return Response("Cannot find the audioText for this audio", status=status.HTTP_400_BAD_REQUEST)
-        
+        if video.is_processing:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
         try:
+            video.is_processing = True
+            video.save()
+            
             model = request.data.get('model', "Bert")
             
             num_sentence = request.data.get('num_sentence', None)
@@ -610,12 +751,14 @@ class AudioViewSet(viewsets.ModelViewSet):
                 video.num_sentences = num_sentence
                 video.summarization = dumps(summary)
                 video.is_summarized = True
-                video.save()
-                
                 print(f"Individual {model} summarization  time spent: {time()-t1:.2f}")
                 print(model)
+                video.is_processing = False
+                video.save()
                 return Response(summary, status=status.HTTP_200_OK)
         except:
+            video.is_processing = False
+            video.save()
             return Response("Fail to summarize", status=status.HTTP_400_BAD_REQUEST)
             
         # # this is for method=="GET"
@@ -656,6 +799,224 @@ class AudioViewSet(viewsets.ModelViewSet):
         except :
             return Response("Fail to reset", status=status.HTTP_400_BAD_REQUEST)
     
+    @action(methods=['GET'],detail=True, permission_classes=[IsAuthenticated])
+    def resetQuiz(self, request, *args, **kwargs):
+        print("recieved audio quiz reset request")
+        user = request.user
+        audio = Audio.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
+        if not audio:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        audio = audio[0]
+        try:
+            audio.quiz = None
+            audio.save()
+            return Response(f"{audio} RESET success", status=status.HTTP_200_OK)
+        except :
+            return Response("Fail to reset", status=status.HTTP_400_BAD_REQUEST)
+
+    '''
+    Call this endpoint to fetch Quiz data
+    URL: api/<int: collection_id>/audio/<int: audio_id>/quiz/
+    
+    Parameters to POST:
+    "task":  "Question_Ans" | "QA_pair_gen" | "Question_gen"
+    "based_text": "summ" | "full"
+    "question": this parameter is especially needed for Question_Ans
+    '''
+    @action(methods=['POST'], detail = True, permission_classes = [IsAuthenticated])
+    def quiz(self, request, *args, **kwargs):
+        print("recieved quiz video request")
+        t1 = time()
+        user = request.user
+        video = Audio.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
+        if not video:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        video = video[0]
+        task = request.data.get('task', 'QA_pair_gen')
+        based_text = request.data.get('based_text', 'summ')
+        question = request.data.get('question', None)
+        try:
+            video.is_processing = True
+            video.save()
+            Quiz = quiz_generation.Quiz_generation(loads(video.summarization), video.audioText, based_text=based_text)
+            res = Quiz.generate(task, question=question)       # question parameter can be modified if need
+            
+            video.is_processing = False
+            video.quiz = dumps(res)
+            video.save()
+            print(f"create time spent: {time()-t1:.2f}")
+            return Response(res, status=status.HTTP_200_OK)
+        except:
+            return Response("Quiz generation FAILED", status = status.HTTP_400_BAD_REQUEST)
+        
+   
+class TextViewSet(viewsets.ModelViewSet):
+
+    serializer_class = TextSerializer
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    def get_queryset(self, *args, **kwargs):
+        user = self.request.user
+        return Text.objects.filter(Q(collection=self.kwargs['collection_pk']) & Q(collection__owner=user.pk))
+    
+    '''
+    When method=="POST", following fields are required:
+        model (if None, default: "Bert"),
+        num_sentence (if None, default: None),
+        max_sentence (if None, default: 20)
+        default: set to 1 if this is the default summarization (if None, default: 0),
+    URL: api/<int: collection_id>/text/<int: text_id>/summary_begin/
+    '''
+    @action(methods=['POST'],detail=True, permission_classes = [IsAuthenticated])
+    def summary_begin(self, request, *args, **kwargs):
+        print("recieved summarize request")
+        
+        t1 = time()
+        user = request.user
+        text = Text.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
+        
+        if not text:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        text = text[0]
+        if not text.text:
+            return Response("Cannot find the Text for this text", status=status.HTTP_400_BAD_REQUEST)
+        if text.is_processing:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            text.is_processing = True
+            text.save()
+            
+            default = request.data.get('default', 0)
+            if default:
+                model = "XLNet"
+            else:
+                model = request.data.get('model', "Bert")
+            
+            num_sentence = request.data.get('num_sentence', None)
+            if num_sentence is not None:
+                num_sentence = int(num_sentence)
+            max_sentence = int(request.data.get('max_sentence', 20))
+            #TODO
+            summary, num_sentence = speech_to_text.summarize(text.text, loads(text.transcript), model=model, num_sentence=num_sentence, max_sentence=max_sentence)
+            pprint(summary)
+            
+            if default:
+                Quiz = quiz_generation.Quiz_generation(summary, text.text, based_text="summ")
+                res = Quiz.generate("QA_pair_gen", question=None)       # question parameter can be modified if need
+                text.quiz = dumps(res)
+            
+            with transaction.atomic():
+                text.model_type = model
+                text.num_sentences = num_sentence
+                text.summarization = dumps(summary)
+                text.is_summarized = True
+                text.is_processing = False
+                text.save()
+                print(f"Individual {model} summarization  time spent: {time()-t1:.2f}")
+                print(model)
+                text.save()
+                
+                return Response(summary, status=status.HTTP_200_OK)
+        except:
+            text.is_processing = False
+            text.save()
+            return Response("Fail to summarize", status=status.HTTP_400_BAD_REQUEST)
+        
+    '''
+    Call this endpoint to delete a list of texts under one collection
+    URL: api/<int: collection_id>/texts/delete_list_texts/
+    '''
+    @action(methods=['POST'],detail=False, permission_classes=[IsAuthenticated])
+    def delete_list_texts(self, request, *args, **kwargs):
+        print("recieved delete list texts request")
+        user = request.user
+        texts_to_delete = request.data.get('list_id', None)
+        if not texts_to_delete:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+        print(texts_to_delete)
+        for pk in texts_to_delete:
+            text = get_object_or_404(Text, pk=pk, collection__owner=user.pk)
+            self.perform_destroy(text)
+                 
+        return Response({"list_id": texts_to_delete, 'remaining_size': user.userprofile.remaining_size})
+    
+    @action(methods=['GET'],detail=True, permission_classes=[IsAuthenticated])
+    def reset(self, request, *args, **kwargs):
+        print("recieved reset text request")
+        user = request.user
+        text = Text.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
+        if not text:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        text = text[0]
+        try:
+            text.is_summarized = False
+            text.model_type = False
+            text.num_sentences = 0
+            text.summarization = None
+            text.save()
+            return Response(f"{text} RESET success", status=status.HTTP_200_OK)
+        except :
+            return Response("Fail to reset", status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(methods=['GET'],detail=True, permission_classes=[IsAuthenticated])
+    def resetQuiz(self, request, *args, **kwargs):
+        print("recieved text quiz reset request")
+        user = request.user
+        text = Text.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
+        if not text:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        text = text[0]
+        try:
+            text.quiz = None
+            text.save()
+            return Response(f"{text} RESET success", status=status.HTTP_200_OK)
+        except :
+            return Response("Fail to reset", status=status.HTTP_400_BAD_REQUEST)
+        
+    
+    '''
+    Call this endpoint to fetch Quiz data
+    URL: api/<int: collection_id>/text/<int: text_id>/quiz/
+    
+    Parameters to POST:
+    "task":  "Question_Ans" | "QA_pair_gen" | "Question_gen"
+    "based_text": "summ" | "full"
+    "question": this parameter is especially needed for Question_Ans
+    '''
+    @action(methods=['POST'], detail = True, permission_classes = [IsAuthenticated])
+    def quiz(self, request, *args, **kwargs):
+        print("recieved quiz text request")
+        t1 = time()
+        user = request.user
+        text = Text.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
+        if not text:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        text = text[0]
+        task = request.data.get('task', 'QA_pair_gen')
+        based_text = request.data.get('based_text', 'summ')
+        question = request.data.get('question', None)
+        if text.summarization == None:
+            print("this is aaa")
+            return Response({'Message':"Summarization Can't be empty"}, status = 204)
+        try:
+            text.is_processing = True
+            text.save()
+            Quiz = quiz_generation.Quiz_generation(loads(text.summarization), text.text, based_text=based_text)
+            res = Quiz.generate(task, question=question)       # question parameter can be modified if need
+            
+            text.is_processing = False
+            text.quiz = dumps(res)
+            text.save()
+            print(f"create time spent: {time()-t1:.2f}")
+            return Response(res, status=status.HTTP_200_OK)
+        except:
+            text.is_processing = False
+            text.save()
+            print("this is reached")
+            return Response({'Message':"Quiz Generation Failed"},status = status.HTTP_400_BAD_REQUEST) 
+    
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def search(request):
@@ -672,5 +1033,46 @@ def search(request):
 @permission_classes([IsAuthenticated])
 def get_remaining(request):
     if request.method == 'GET':
+        
+        # this simply used for test purpose
+        user = request.user
+        video = Video.objects.filter(collection__owner=user.pk)[0]
+        print(video)
+        d = { 'username': video.collection.owner.first_name, 
+                        'mediaType': video.__class__.__name__.lower(), 
+                        'mediaName': video.title,
+                        'collection': video.collection.name,
+                        'MEDIA_URL': settings.MEDIA_URL,
+                        'TO': video.collection.owner.email}
+        print(d)
+        x = send_email(d)
+        
         return Response({'remaining_size': request.user.userprofile.remaining_size})
+
+'''
+    Description: when summary is ready, this will be automatically called to send notification email to user's email
+'''
+
+# This functionality is moved to .tasks handled by Celery in production
+def send_email(d):
+
+    email_subject = 'You Default Summarization Is Ready at Briefly-AI!'
+    
+    # {{ username }}
+    # {{ mediaType }}
+    # {{ mediaName }}
+    # {{ collection }}
+    
+    plaintext = render_to_string('email.txt', d)
+    htmly     = render_to_string('email.html', d)
+    from_email, to = settings.EMAIL_HOST_USER, str(d['TO'])
+    send_mail(
+        email_subject,
+        plaintext,
+        from_email,
+        [to],
+        html_message=htmly,
+        fail_silently=False
+    )
+    
     

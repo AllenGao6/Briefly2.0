@@ -1,8 +1,16 @@
 import React, { useState, useRef } from "react";
 import { makeStyles } from "@material-ui/styles";
-import { Button, Grid } from "@material-ui/core";
 import PublishRoundedIcon from "@material-ui/icons/PublishRounded";
 import ControlledVideoPlayer from "./ControlledVideoPlayer";
+import {
+  InputBase,
+  FormHelperText,
+  FormControl,
+  TextField,
+  Typography,
+  Grid,
+  Button,
+} from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   uploadButton: {
@@ -20,9 +28,25 @@ const useStyles = makeStyles((theme) => ({
     paddingRight: 24,
     paddingTop: "1rem",
   },
+  root: {
+    '& label.Mui-focused': {
+      color: 'green',
+    },
+    '& .MuiTextField-root': {
+      margin: theme.spacing(1),
+      width: '25ch',
+    },
+    '& .MuiOutlinedInput-root': {
+      
+      '&.Mui-focused fieldset': {
+        borderColor: 'green',
+      },
+    },
+  },
 }));
 
 export default function MediaUploader({
+  textInput,
   mediaType,
   onUploadFinish,
   isCreating,
@@ -34,14 +58,13 @@ export default function MediaUploader({
   // controlling state for video player
   const [played, setPlayed] = useState(0);
   const playerRef = useRef(null);
-
   function capitalize(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
-
+  console.log(mediaUrl);
   return (
     <React.Fragment>
-      {mediaUrl ? (
+      {mediaUrl && mediaType === "video"? (
         <ControlledVideoPlayer
           mediaUrl={mediaUrl}
           played={played}
@@ -50,21 +73,40 @@ export default function MediaUploader({
           ref={playerRef}
         />
       ) : null}
-      {action === "Update" ? null : (
-        <Grid item xs={12} className={classes.padding}>
-          <input
-            type="file"
-            style={{ display: "none" }}
-            ref={fileInputRef}
-            accept={`${mediaType}/*`}
-            onChange={onUploadFinish}
-          />
-          <Button
-            variant="outlined"
-            onClick={() => fileInputRef.current.click()}
-            className={classes.uploadButton}
-            disabled={isCreating}
-          >
+      {mediaType === 'text' ? 
+      
+        (<Grid item xs={12} className={classes.padding}>
+          <form className={classes.root} fullWidth noValidate autoComplete="off">
+            <TextField
+              key={`textarea_create`}
+              style={{width: "100%", justifyItems: "center"}}
+              color="primary"
+              value={textInput}
+              onChange={onUploadFinish}
+              label="Input Text"
+              placeholder="Input Text Here"
+              multiline
+              rows={5}
+              variant="outlined"
+              error={false}
+            />               
+          </form>
+          </Grid>) : null}
+          {action === "Update" || mediaType === "text" ? null : (
+            <Grid item xs={12} className={classes.padding}>
+              <input
+                type="file"
+                style={{ display: "none" }}
+                ref={fileInputRef}
+                accept={`${mediaType}/*`}
+                onChange={onUploadFinish}
+              />
+              <Button
+                variant="outlined"
+                onClick={() => fileInputRef.current.click()}
+                className={classes.uploadButton}
+                disabled={isCreating}
+              >
             <PublishRoundedIcon
               style={{ fontSize: "2.5rem", paddingRight: "1rem" }}
             />
@@ -72,6 +114,7 @@ export default function MediaUploader({
           </Button>
         </Grid>
       )}
+      
     </React.Fragment>
   );
 }
