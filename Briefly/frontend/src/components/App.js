@@ -125,11 +125,7 @@ class App extends Component {
             />
             <Route
               path="/dashboard/:id/:mediaType/:mediaId"
-              render={(props) => (
-                <this.PrivateComponent
-                  component={() => <Workspace {...props} {...stateProps} />}
-                />
-              )}
+              render={(props) => <Workspace {...props} {...stateProps} />}
             />
             <Route path="/not-found" component={<div>SADA</div>} />
             <Redirect to="/not-found" />

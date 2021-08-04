@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useRef } from "react";
 import {
   Grid,
   makeStyles,
@@ -99,7 +99,7 @@ export default function WorkspaceContent({
   };
 
   if (!media) return <div></div>;
-  if(mediaType === "text"){
+  if (mediaType === "text") {
     return (
       <div
         className={clsx(classes.root, {
@@ -112,13 +112,13 @@ export default function WorkspaceContent({
           style={{
             height: "-moz-calc(100vh - 69px)",
             height: "-webkit-calc(100vh - 69px)",
-            border: matchesDark? "15px solid #515151":"15px solid #dfe4ea",
+            border: matchesDark ? "15px solid #515151" : "15px solid #dfe4ea",
           }}
           minSize={1}
           maxSize={-46}
           primary="second"
           resizerStyle={{
-            backgroundColor: matchesDark? '#515151':null,
+            backgroundColor: matchesDark ? "#515151" : null,
           }}
         >
           <MediaDisplay media={media} mediaType={mediaType} ref={mediaRef} />
@@ -131,7 +131,7 @@ export default function WorkspaceContent({
         </SplitPane>
       </div>
     );
-  }else{
+  } else {
     return (
       <div
         className={clsx(classes.root, {
@@ -156,13 +156,13 @@ export default function WorkspaceContent({
           style={{
             height: "-moz-calc(100vh - 69px)",
             height: "-webkit-calc(100vh - 69px)",
-            border: matchesDark? "15px solid #515151":"15px solid #dfe4ea",
+            border: matchesDark ? "15px solid #515151" : "15px solid #dfe4ea",
           }}
           minSize={1}
           maxSize={-46}
           primary="second"
           resizerStyle={{
-            backgroundColor: matchesDark? '#515151':null,
+            backgroundColor: matchesDark ? "#515151" : null,
           }}
         >
           <SplitPane
@@ -173,7 +173,7 @@ export default function WorkspaceContent({
             minSize={1}
             maxSize={-46}
             resizerStyle={{
-              backgroundColor: matchesDark? '#515151':null,
+              backgroundColor: matchesDark ? "#515151" : null,
             }}
           >
             <MediaDisplay media={media} mediaType={mediaType} ref={mediaRef} />

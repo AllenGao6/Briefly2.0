@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { makeStyles, useTheme } from "@material-ui/styles";
 import Divider from "@material-ui/core/Divider";
 import {
@@ -28,7 +28,9 @@ const useStyles = makeStyles((theme) => {
       height: "2.8rem",
       padding: "1rem",
       color:
-        theme.palette.type === "dark" ? theme.palette.common.white : "blue",
+        theme.palette.type === "dark"
+          ? theme.palette.common.white
+          : theme.palette.common.blue,
       fontSize: "1.25rem",
     },
     cardOutline: {
@@ -45,9 +47,9 @@ const useStyles = makeStyles((theme) => {
       borderRadius: 15,
     },
     sectionContainer: {
-      top: 10,
+      top: 0,
       bottom: 100,
-      position: 'relative',
+      position: "relative",
     },
   };
 });
@@ -56,6 +58,20 @@ export default function Transcripts({ media }) {
   const classes = useStyles();
   const theme = useTheme();
   const [search, setSearch] = useState("");
+  const [transcriptHeight, setTranscriptHeight] = useState(300);
+  const observer = useRef();
+
+  const containerRef = useCallback((node) => {
+    if (node !== null) {
+      observer.current = new ResizeObserver((entries) => {
+        for (let entry of entries) {
+          const height = entry.contentRect.height;
+          setTranscriptHeight(height - 60);
+        }
+      });
+      observer.current.observe(node);
+    }
+  }, []);
 
   const process_audioText = (audioText) => {
     let new_audioText = [];
@@ -98,8 +114,9 @@ export default function Transcripts({ media }) {
             ? theme.palette.common.grey
             : theme.palette.common.cloud,
       }}
+      ref={containerRef}
     >
-      <Grid  
+      <Grid
         container
         className={classes.sectionContainer}
         justify={"center"}
@@ -130,18 +147,14 @@ export default function Transcripts({ media }) {
           ></InputBase>
         </Grid>
         <Divider variant="middle" className={classes.divider} />
-        <Grid
-          item
-          container
-          direction="column"
-          style={{ width: "100%", height: 'calc(50vh - 99px - 48px)' }}
-        >
+        <Grid item container direction="column" style={{ width: "100%" }}>
           <Paper
-            className={classes.cardOutline}
             style={{
               marginTop: 10,
-              padding: 0,
-              height: "100%",
+              marginLeft: 10,
+              marginRight: 10,
+              overflow: "scroll",
+              height: transcriptHeight,
             }}
           >
             <TranscriptList audioText={filter_media(text_script)} />
