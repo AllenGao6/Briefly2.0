@@ -609,7 +609,7 @@ function CollectionTable({
     return (
       <Button
         variant="contained"
-        disabled={status === "Completed"}
+        disabled={status === "Completed" || status === "Transcribe"}
         className={classes.status}
         style={{
           background: status === "Transcribe" ? "#f9ca24" : "#2ed573",

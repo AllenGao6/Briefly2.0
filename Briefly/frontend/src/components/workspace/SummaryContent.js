@@ -563,7 +563,7 @@ function SummaryContent({
                     document={<h1>this is a test</h1>}
                     fileName="movielist.pdf"
                   >
-                    <IconButton onClick={() => setOpenAddDialog(true)}>
+                    <IconButton>
                     <Tooltip title="Export Notes" arrow>
                       <GetAppIcon className={classes.icon} />
                     </Tooltip>

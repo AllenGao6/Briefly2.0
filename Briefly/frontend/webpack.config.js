@@ -28,11 +28,20 @@ module.exports = {
   },
   resolve: {
     extensions: ["", ".js", ".jsx", ".css"],
+    alias: {
+      process: 'process/browser',
+      stream: "stream-browserify",
+      zlib: "browserify-zlib"
+  }
   },
   optimization: {
     minimize: true,
   },
   plugins: [
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
+      Buffer: ['buffer', 'Buffer'],
+  }),
     new webpack.DefinePlugin({
       "process.env": {
         // This has effect on the react lib size
