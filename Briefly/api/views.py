@@ -126,19 +126,19 @@ class VideoViewSet(viewsets.ModelViewSet):
     
     # Don't do any 
     # This may not be used as the logic is reverted to the original one
-    def perform_update(self, serializer):
+    # def perform_update(self, serializer):
         
-        user = self.request.user
-        instance = serializer.save()
-        fileSize = instance.fileSize
-        if fileSize:
-            profile = UserProfile.objects.select_for_update().filter(user=user)[0]
+    #     user = self.request.user
+    #     instance = serializer.save()
+    #     fileSize = instance.fileSize
+    #     if fileSize:
+    #         profile = UserProfile.objects.select_for_update().filter(user=user)[0]
 
-            with transaction.atomic():
-                print(f"updating before: remaining: {profile.remaining_size}")
-                profile.remaining_size -= fileSize
-                profile.save()
-                print(f"updating after: remaining: {profile.remaining_size}")
+    #         with transaction.atomic():
+    #             print(f"updating before: remaining: {profile.remaining_size}")
+    #             profile.remaining_size -= fileSize
+    #             profile.save()
+    #             print(f"updating after: remaining: {profile.remaining_size}")
     
     
     #override create
@@ -593,18 +593,18 @@ class AudioViewSet(viewsets.ModelViewSet):
                          'remaining_size': remaining}, status=status.HTTP_202_ACCEPTED)
     
     # similarly, this may not be used
-    def perform_update(self, serializer):
-        user = self.request.user
-        instance = serializer.save()
-        fileSize = instance.fileSize
+    # def perform_update(self, serializer):
+    #     user = self.request.user
+    #     instance = serializer.save()
+    #     fileSize = instance.fileSize
         
-        if fileSize:
-            profile = UserProfile.objects.select_for_update().filter(user=user)[0]
-            with transaction.atomic():
-                print(f"updating before: remaining: {profile.remaining_size}")
-                profile.remaining_size -= fileSize
-                profile.save()
-                print(f"updating after: remaining: {profile.remaining_size}")
+    #     if fileSize:
+    #         profile = UserProfile.objects.select_for_update().filter(user=user)[0]
+    #         with transaction.atomic():
+    #             print(f"updating before: remaining: {profile.remaining_size}")
+    #             profile.remaining_size -= fileSize
+    #             profile.save()
+    #             print(f"updating after: remaining: {profile.remaining_size}")
         
     '''
     Call this endpoint to delete a list of videos under one collection
