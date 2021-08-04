@@ -202,7 +202,8 @@ class VideoViewSet(viewsets.ModelViewSet):
                         'mediaType': video.__class__.__name__.lower(), 
                         'mediaName': video.title,
                         'collection': video.collection.name,
-                        'MEDIA_URL': settings.MEDIA_URL}
+                        'MEDIA_URL': settings.MEDIA_URL,
+                        'TO': video.collection.owner.email}
                     send_email(d)
                 except:
                     return Response("Fail to transcribe", status=status.HTTP_400_BAD_REQUEST)
