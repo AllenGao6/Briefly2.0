@@ -1065,7 +1065,7 @@ def send_email(d):
     
     plaintext = render_to_string('email.txt', d)
     htmly     = render_to_string('email.html', d)
-    from_email, to = settings.EMAIL_HOST_USER, str(d['TO'])
+    from_email, to = settings.EMAIL_HOST_USER, d['TO']
     send_mail(
         email_subject,
         plaintext,
