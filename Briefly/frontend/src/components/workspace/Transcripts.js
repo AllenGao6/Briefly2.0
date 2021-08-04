@@ -19,9 +19,9 @@ const useStyles = makeStyles((theme) => {
       paddingLeft: 10,
       color:
         theme.palette.type === "dark"
-          ? theme.palette.common.white
+          ? theme.palette.common.cloud
           : theme.palette.common.grey,
-      border: "1px solid",
+      border: "2px solid",
       borderColor:
         theme.palette.type === "dark"
           ? theme.palette.common.white
@@ -116,6 +116,7 @@ export default function Transcripts({ media }) {
           theme.palette.type === "dark"
             ? theme.palette.common.grey
             : theme.palette.common.cloud,
+        minWidth: 300,
       }}
       ref={containerRef}
     >

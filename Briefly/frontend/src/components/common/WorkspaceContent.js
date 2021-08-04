@@ -172,7 +172,7 @@ export default function WorkspaceContent({
             className={classes.splitPane}
             primary="first"
             minSize={1}
-            maxSize={-46}
+            maxSize={-17}
             resizerStyle={{
               backgroundColor: matchesDark ? "#515151" : null,
             }}

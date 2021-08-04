@@ -620,7 +620,7 @@ function SummaryContent({
   };
 
   return (
-    <Grid container direction="column" style={{ minWidth: 300 }}>
+    <Grid container direction="column" style={{ minWidth: 350 }}>
       <Grid item container>
         <Tabs
           value={value}
