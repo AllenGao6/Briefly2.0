@@ -35,6 +35,7 @@ import { summarizeMedia } from "../../redux/actions/summarize_actions";
 import VisibilityIcon from "@material-ui/icons/Visibility";
 import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
 import GetAppIcon from "@material-ui/icons/GetApp";
+
 import {
   loadVideosInCollection,
   updateVideoInCollection,
@@ -52,7 +53,10 @@ import {
 } from "../../redux/actions/quizGeneration_actions";
 import clsx from "clsx";
 import store from "store";
+//pdf
 import { PDFDownloadLink } from "@react-pdf/renderer";
+import PdfNote from "../common/PdfNote";
+
 
 const format = (seconds) => {
   if (isNaN(seconds)) {
@@ -158,8 +162,9 @@ function SummaryContent({
   const [isGenerating, setGenerating] = useState(false);
   const [answerVisible, setAnswerVisible] = useState(false);
   const mediaRef = useRef(null);
-  const [answer, setAnswer] = useState("");
+  const canvasRef = useRef(null);
 
+  const [answer, setAnswer] = useState("");
   const updateMediaInCollection = async (id, media, mediaId) => {
     switch (mediaType) {
       case "video":
@@ -495,6 +500,7 @@ function SummaryContent({
     else return <More />;
   };
 
+
   const Summary = () => {
     if (!media.is_summarized) {
       return (
@@ -584,8 +590,8 @@ function SummaryContent({
                     </Tooltip>
                   </IconButton>
                   <PDFDownloadLink
-                    document={<h1>this is a test</h1>}
-                    fileName="movielist.pdf"
+                    document={<PdfNote mediaType={mediaType} summarization={JSON.parse(media.summarization)} title={media.title}/>}
+                    fileName={media.title}
                   >
                     <IconButton>
                       <Tooltip title="Export Notes" arrow>
@@ -594,6 +600,7 @@ function SummaryContent({
                     </IconButton>
                   </PDFDownloadLink>
                 </Grid>
+                <canvas ref={canvasRef} style={{ display: "none" }} />
               </Grid>
             </Paper>
           </Grid>

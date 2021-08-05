@@ -57,6 +57,7 @@ export default function WorkspaceContent({
   const invisiblePlayerRef = useRef(null);
 
   let getScreenshotFunc = null;
+  let getScreenshotFunc2 = null;
 
   const matchesDark = theme.palette.type === "dark";
   const matchesSM = useMediaQuery(theme.breakpoints.down("sm"));
@@ -96,6 +97,39 @@ export default function WorkspaceContent({
     player.getInternalPlayer().removeEventListener("seeked", getScreenshotFunc);
     getScreenshotFunc = null;
   };
+
+  // //Responsible for export image to pdf
+  // const exportImage = (time, canvasRef) => {
+  //   console.log("this")
+  //   const player = invisiblePlayerRef.current;
+  //   player.seekTo(time);
+  //   getScreenshotFunc2 = () => handleExport(canvasRef);
+  //   // store event listener function into a global variable
+  //   player.getInternalPlayer().addEventListener("seeked", getScreenshotFunc2);
+    
+  // };
+
+  // // player.seekTo() is async, so we have to create a calback function to create screenshot
+  // const handleExport = (canvasRef) => {
+  //   const canvas = canvasRef.current;
+  //   const player = invisiblePlayerRef.current;
+
+  //   canvas.width = player.getInternalPlayer().videoWidth;
+  //   canvas.height = player.getInternalPlayer().videoHeight;
+
+  //   canvas
+  //     .getContext("2d")
+  //     .drawImage(player.getInternalPlayer(), 0, 0, canvas.width, canvas.height);
+  //   console.log(canvas.toDataURL("image/png"));
+  
+  //   // reset width and height back to zero
+  //   canvas.width = 0;
+  //   canvas.height = 0;
+
+  //   // remove event listener to prevent other screenshot been updated (important)
+  //   player.getInternalPlayer().removeEventListener("seeked", getScreenshotFunc2);
+  //   getScreenshotFunc2 = null;
+  // };
 
   if (!media) return <div></div>;
   if (mediaType === "text") {

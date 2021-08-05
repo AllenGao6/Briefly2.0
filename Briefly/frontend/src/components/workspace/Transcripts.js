@@ -151,7 +151,7 @@ export default function Transcripts({ media }) {
               marginTop: 10,
               marginLeft: 10,
               marginRight: 10,
-              overflow: "scroll",
+              overflow: "auto",
               height: transcriptHeight,
             }}
           >

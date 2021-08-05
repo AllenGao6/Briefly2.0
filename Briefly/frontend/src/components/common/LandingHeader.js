@@ -165,7 +165,7 @@ function LandingHeader({
     { name: "Demo", link: "/", icon: <DemoIcon /> },
     { name: "Team", link: "/", icon: <TeamIcon /> },
     { name: "About Us", link: "/", icon: <AboutIcon /> },
-    { name: "More ...", link: "/", icon: <MoreIcon /> },
+    { name: "Contact Us", link: "/", icon: <MoreIcon /> },
   ];
 
   const accountMenus = [
