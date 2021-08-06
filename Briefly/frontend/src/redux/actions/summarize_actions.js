@@ -7,6 +7,13 @@ const SUMMARIZE_BASE_URL = BASE_URL + "api/collection/";
 
 export const transcribeMedia =
   (collectionId, mediaId, mediaType) => async (dispatch) => {
+    if(mediaType === "text"){
+      dispatch({
+        type: type.TRANSCRIBE_SUCCESS,
+        mediaType: mediaType,
+      });
+      return true;
+    }
     console.log(mediaId);
     const response = await axios.get(
       `${SUMMARIZE_BASE_URL}${collectionId}/${mediaType}/${mediaId}/transcribe_begin/`
@@ -14,6 +21,7 @@ export const transcribeMedia =
     if (response.status === 200) {
       dispatch({
         type: type.TRANSCRIBE_SUCCESS,
+        mediaType: mediaType,
       });
       return true;
     } else {

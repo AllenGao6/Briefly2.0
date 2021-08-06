@@ -37,6 +37,12 @@ import {
   updateAudioInCollection,
   deleteAudios,
 } from "../../redux/actions/audio_actions";
+import {
+  loadTextsInCollection,
+  createTextInCollection,
+  // updateAudioInCollection,
+  // deleteAudios,
+} from "../../redux/actions/text_actions";
 import { transcribeMedia } from "../../redux/actions/summarize_actions";
 import MediaUploader from "./MediaUploader";
 import DoneIcon from "@material-ui/icons/Done";
@@ -162,7 +168,7 @@ function CollectionTable({
   history,
   videos,
   audios,
-  text,
+  texts,
   isLoading,
   isCreating,
   loadVideosInCollection,
@@ -178,6 +184,8 @@ function CollectionTable({
   selectArchived,
   search,
   transcribeMedia,
+  createTextInCollection,
+  loadTextsInCollection
 }) {
   const theme = useTheme();
   const classes = useStyles();
@@ -371,6 +379,7 @@ function CollectionTable({
   useEffect(() => {
     loadVideosInCollection(match.params.id);
     loadAudiosInCollection(match.params.id);
+    loadTextsInCollection(match.params.id);
   }, []);
 
   const loadMediaInCollection = (id) => {
@@ -382,7 +391,7 @@ function CollectionTable({
         loadAudiosInCollection(id);
         break;
       case "text":
-        loadAudiosInCollection(id);
+        loadTextsInCollection(id);
         break;
       default:
         break;
@@ -399,7 +408,7 @@ function CollectionTable({
         createdMedia = await createAudioInCollection(id, media);
         break;
       case "text":
-        createdMedia = await createAudioInCollection(id, media);
+        createdMedia = await createTextInCollection(id, media);
         break;
       default:
         break;
@@ -457,7 +466,7 @@ function CollectionTable({
       case "audio":
         return audios;
       case "text":
-        return audios;
+        return texts;
       default:
         break;
     }
@@ -498,10 +507,11 @@ function CollectionTable({
       formData.append("title", title);
       formData.append("is_archived", archived);
       formData.append("collection", match.params.id);
-      if(mediaType === 'text')
+      if(mediaType === 'text'){
         formData.append(mediaType, textInput);
-      else
+      }else{
         formData.append(mediaType, mediaStream, mediaStream.name);
+      }
 
       createMediaInCollection(match.params.id, formData);
     }
@@ -789,8 +799,9 @@ function mapStateToProps(state) {
   return {
     videos: state.videoReducer.videos,
     audios: state.audioReducer.audios,
-    isLoading: state.videoReducer.isLoading || state.audioReducer.isLoading,
-    isCreating: state.videoReducer.isCreating || state.audioReducer.isCreating,
+    texts: state.textReducer.texts,
+    isLoading: state.videoReducer.isLoading || state.audioReducer.isLoading || state.textReducer.isLoading,
+    isCreating: state.videoReducer.isCreating || state.audioReducer.isCreating || state.textReducer.isCreating,
   };
 }
 
@@ -804,6 +815,8 @@ const mapDispatchToProps = {
   updateAudioInCollection,
   deleteAudios,
   transcribeMedia,
+  createTextInCollection,
+  loadTextsInCollection,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CollectionTable);

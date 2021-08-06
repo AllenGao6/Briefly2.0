@@ -61,7 +61,6 @@ export default function MediaUploader({
   function capitalize(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
-  console.log(mediaUrl);
   return (
     <React.Fragment>
       {mediaUrl && mediaType === "video"? (
@@ -76,7 +75,7 @@ export default function MediaUploader({
       {mediaType === 'text' ? 
       
         (<Grid item xs={12} className={classes.padding}>
-          <form className={classes.root} fullWidth noValidate autoComplete="off">
+          <form className={classes.root} fullwidth="true" noValidate autoComplete="off">
             <TextField
               key={`textarea_create`}
               style={{width: "100%", justifyItems: "center"}}

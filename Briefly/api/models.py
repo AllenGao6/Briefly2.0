@@ -122,6 +122,9 @@ class Audio(models.Model):
 
 
 #Text File
+def jsonfield_default_value():  # This is a callable
+    return [0, 0] 
+
 class Text(models.Model):
     MODEL_TYPE_CHOICES = [
         ('B', 'BERT'),
@@ -140,6 +143,7 @@ class Text(models.Model):
     fileSize = models.IntegerField(default=0)
     is_processing = models.BooleanField(blank=True, default=False)
     quiz = models.JSONField(null=True, blank=True)
-    
+    transcript = models.JSONField(null=True, default=jsonfield_default_value)
+
     def __str__(self):
         return f"Text: {self.title}"
