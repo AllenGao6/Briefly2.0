@@ -169,50 +169,66 @@ class VideoViewSet(viewsets.ModelViewSet):
             
             if not video.transcript:
                 try:
-                    # code to perform summarization process
-                    t1 = time()
-                    video.is_processing = True
-                    video.save()
-                       
-                    video_path = video.video.name.split('/')
-                    video_name, video_id, type, collection_name = video_path[3], video_path[2],video_path[1], video_path[0]   
-                    transcribe = speech_to_text.amazon_transcribe(video_name, collection_name, type, video_id)
-                    
-                    if not transcribe:
-                        return Response("Unknown failure during S3 transcribe", status=status.HTTP_400_BAD_REQUEST)
-                    #video.transcript = transcribe
-                    data = speech_to_text.load_json_output(transcribe)
-                    transcript, audioText, sentences = speech_to_text.read_output(data)
-                    print(f"transcribe time spent: {time()-t1:.2f}")
-                    print("transcript: (for dev purpose only! delete before deploy)")
-                    pprint(transcript)
-                    print("audioText: (for dev purpose only! delete before deploy)")
-                    pprint(audioText)
-                    video.transcript = dumps(transcript)          #json field
-                    video.audioText = audioText
-                    
-                    print(f"transcribe time spent: {time()-t1:.2f}")
-                    
-                    # call default_summarize
-                    self.default_summarize(video)
-                    video.is_processing = False
-                    video.save()
-                    # call to send email
+                    video_info = (video.__class__.__name__.lower(), video.pk)
                     d = { 'username': video.collection.owner.first_name, 
-                        'mediaType': video.__class__.__name__.lower(), 
-                        'mediaName': video.title,
-                        'collection': video.collection.name,
-                        'MEDIA_URL': settings.MEDIA_URL,
-                        'TO': video.collection.owner.email}
-                    send_email(d)
-                except:
-                    return Response("Fail to transcribe", status=status.HTTP_400_BAD_REQUEST)
-
-            
-            return Response("Success!")
+                            'mediaType': video.__class__.__name__.lower(), 
+                            'mediaName': video.title,
+                            'collection': video.collection.name,
+                            'MEDIA_URL': settings.MEDIA_URL,
+                            'TO': video.collection.owner.email}
+                    # In fact, we do not need to delay this one
+                    tasks.chain_initial_process_video(video_info, d)
+                    return Response("Your request has been recieved", status=status.HTTP_200_OK)
+                except Exception as e:
+                    print(e)
+                    return Response("Failed to recieve initial process request", status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response("You have transcribed already", status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response("No such video found", status=status.HTTP_404_NOT_FOUND)
+                # try:
+                    #     # code to perform summarization process
+                    #     video.is_processing = True
+                    #     video.save()
+                        
+                    #     video_path = video.video.name.split('/')
+                    #     video_name, video_id, type, collection_name = video_path[3], video_path[2],video_path[1], video_path[0]   
+                    #     transcribe = speech_to_text.amazon_transcribe(video_name, collection_name, type, video_id)
+                        
+                    #     if not transcribe:
+                    #        return Response("Unknown failure during S3 transcribe", status=status.HTTP_400_BAD_REQUEST)
+                    #     video.transcript = transcribe
+                    #     data = speech_to_text.load_json_output(transcribe)
+                    #     transcript, audioText, sentences = speech_to_text.read_output(data)
+                    #     print(f"transcribe time spent: {time()-t1:.2f}")
+                    #     print("transcript: (for dev purpose only! delete before deploy)")
+                    #     pprint(transcript)
+                    #     print("audioText: (for dev purpose only! delete before deploy)")
+                    #     pprint(audioText)
+                    #     video.transcript = dumps(transcript)          #json field
+                    #     video.audioText = audioText
+                        
+                    #     print(f"transcribe time spent: {time()-t1:.2f}")
+                        
+                    #     call default_summarize
+                    #     self.default_summarize(video)
+                    #     video.is_processing = False
+                    #     video.save()
+                    #     call to send email
+                    #     d = { 'username': video.collection.owner.first_name, 
+                    #         'mediaType': video.__class__.__name__.lower(), 
+                    #         'mediaName': video.title,
+                    #         'collection': video.collection.name,
+                    #         'MEDIA_URL': settings.MEDIA_URL,
+                    #         'TO': video.collection.owner.email}
+                    #     send_email(d)
+                    # except:
+                    #     return Response("Fail to transcribe", status=status.HTTP_400_BAD_REQUEST)
+            # else:
+            #     return Response(status=status.HTTP_404_NOT_FOUND)
     
+    # moved to celery
+    '''
     def default_summarize(self, audio):
         print("recieved default summarize request")
         t1 = time()
@@ -234,7 +250,7 @@ class VideoViewSet(viewsets.ModelViewSet):
             
         except:
             return Response("Fail to generate default summarization", status=status.HTTP_400_BAD_REQUEST)
-    
+    '''
         
         
         
@@ -254,7 +270,6 @@ class VideoViewSet(viewsets.ModelViewSet):
     @action(methods=['POST'],detail=True, permission_classes = [IsAuthenticated])
     def summary_begin(self, request, *args, **kwargs):
         print("recieved summarize request")
-        t1 = time()
         user = request.user
         video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
         
@@ -264,8 +279,42 @@ class VideoViewSet(viewsets.ModelViewSet):
         if not video.audioText:
             return Response("Cannot find the audioText for this video", status=status.HTTP_400_BAD_REQUEST)
         if video.is_processing:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
+            return Response("Processing already", status=status.HTTP_400_BAD_REQUEST)
+        if video.is_summarized:
+            return Response("You have to reset before summarize", status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            model = request.data.get('model', "Bert")
+                
+            num_sentence = request.data.get('num_sentence', None)
+            if num_sentence is not None:
+                num_sentence = int(num_sentence)
+            max_sentence = int(request.data.get('max_sentence', 20))
+            
+            video.is_processing = True
+            video.save()
+            
+            video_info = (video.__class__.__name__.lower(), video.pk)
+            tuple_args = (video.audioText, loads(video.transcript), video_info)
+            if model == "Bert":
+                res = tasks.Bert_summarize_celery.delay(tuple_args, num_sentence=num_sentence, max_sentence = max_sentence)
+            elif model == "XLNet":
+                res = tasks.XLNet_summarize_celery.delay(tuple_args, num_sentence=num_sentence, max_sentence = max_sentence)
+            elif model == "GPT-2":
+                res = tasks.GPT2_summarize_celery.delay(tuple_args, num_sentence=num_sentence, max_sentence = max_sentence)
+            res = res.get(timeout=300)
+            
+            video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))[0]
+            video.is_processing = False
+            video.save()
+            return Response(res[0], status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            print(e)
+            video.is_processing = False
+            video.save()
+            return Response("Fail to summarize", status=status.HTTP_400_BAD_REQUEST)
+        '''
         try:
             video.is_processing = True
             video.save()
@@ -293,26 +342,7 @@ class VideoViewSet(viewsets.ModelViewSet):
             video.is_processing = False
             video.save()
             return Response("Fail to summarize", status=status.HTTP_400_BAD_REQUEST)
-            
-        # try:
-        #     summary_bert = speech_to_text.summarize(video.audioText, loads(video.transcript), model='Bert')
-        #     summary_gpt2 = speech_to_text.summarize(video.audioText, loads(video.transcript), model='GPT-2')
-        #     summary_xlnet = speech_to_text.summarize(video.audioText, loads(video.transcript), model='XLNet')
-        #     summary_total = dumps({"Bert":summary_bert, "GPT-2":summary_gpt2, "XLNet":summary_xlnet})
-        #     print("Bert")
-        #     pprint(summary_bert)
-        #     print("GPT-2")
-        #     pprint(summary_gpt2)
-        #     print("XLNet")
-        #     pprint(summary_xlnet)
-            
-        #     video.summarization = summary_total
-        #     video.save()
-        #     print(f"Three bundle summarization time spent: {time()-t1:.2f}")
-        #     return Response(summary_total, status=status.HTTP_200_OK)
-
-        # except:
-        #     return Response("Fail to summarize", status=status.HTTP_400_BAD_REQUEST)
+        '''
             
     '''
     Call this endpoint to delete a list of videos under one collection
@@ -381,7 +411,6 @@ class VideoViewSet(viewsets.ModelViewSet):
     @action(methods=['POST'], detail = True, permission_classes = [IsAuthenticated])
     def quiz(self, request, *args, **kwargs):
         print("recieved quiz video request")
-        t1 = time()
         user = request.user
         video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
         if not video:
@@ -391,23 +420,35 @@ class VideoViewSet(viewsets.ModelViewSet):
         based_text = request.data.get('based_text', 'summ')
         question = request.data.get('question', None)
         if video.summarization == None:
-            print("this is aaa")
-            return Response({'Message':"Summarization Can't be empty"}, status = 204)
+            print("Empty summarization")
+            return Response({'Message':"Summarization Can't be empty"}, status = status.HTTP_204_NO_CONTENT)
         try:
             video.is_processing = True
             video.save()
-            Quiz = quiz_generation.Quiz_generation(loads(video.summarization), video.audioText, based_text=based_text)
-            res = Quiz.generate(task, question=question)       # question parameter can be modified if need
             
+            
+            video_info = (video.__class__.__name__.lower(), video.pk)
+            tuple_args = (loads(video.summarization), video.audioText, video_info)
+            res = tasks.pop_quiz_celery.delay(tuple_args, based_text = based_text, type_task = task, question = question)
+            print(res)
+            res = res.get()
+            
+            #Quiz = quiz_generation.Quiz_generation(loads(video.summarization), video.audioText, based_text=based_text)
+            #res = Quiz.generate(task, question=question)       # question parameter can be modified if need
+            #video.quiz = dumps(res)
+            
+            
+            print("Here")
+            video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))[0]
+            print(video.quiz)
             video.is_processing = False
-            video.quiz = dumps(res)
             video.save()
-            print(f"create time spent: {time()-t1:.2f}")
             return Response(res, status=status.HTTP_200_OK)
-        except:
+        
+        except Exception as e:
+            print(e)
             video.is_processing = False
             video.save()
-            print("this is reached")
             return Response({'Message':"Quiz Generation Failed"},status = status.HTTP_400_BAD_REQUEST)
         
 class CollectionViewSet(viewsets.ModelViewSet):
@@ -633,81 +674,30 @@ class AudioViewSet(viewsets.ModelViewSet):
     def transcribe_begin(self, request, *args, **kwargs):
         print("recieved transcribe request")
         user = request.user
-        # here video variable is just an audio, for the sake of convenience
         video = Audio.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
-
         if video:
             video = video[0]
             
             if not video.transcript:
                 try:
-                    # code to perform summarization process
-                    t1 = time()   
-                    
-                    video.is_processing = True
-                    video.save()
-                    
-                    video_path = video.audio.name.split('/')
-                    video_name, video_id, type, collection_name = video_path[3], video_path[2],video_path[1], video_path[0]   
-                    transcribe = speech_to_text.amazon_transcribe(video_name, collection_name, type, video_id)
-                    print('2')
-                    if not transcribe:
-                        return Response("Unknown failure during S3 transcribe", status=status.HTTP_400_BAD_REQUEST)
-                    #video.transcript = transcribe
-                    data = speech_to_text.load_json_output(transcribe)
-                    transcript, audioText, sentences = speech_to_text.read_output(data)
-                    print(f"transcribe time spent: {time()-t1:.2f}")
-                    print("transcript: (for dev purpose only! delete before deploy)")
-                    pprint(transcript)
-                    print("audioText: (for dev purpose only! delete before deploy)")
-                    pprint(audioText)
-                    video.transcript = dumps(transcript)          #json field
-                    video.audioText = audioText
-                    
-                    print(f"transcribe time spent: {time()-t1:.2f}")
-                    
-                    # call default summarize
-                    self.default_summarize(video)
-                    video.is_processing = False
-                    video.save()
-                    # call to send email
+                    video_info = (video.__class__.__name__.lower(), video.pk)
                     d = { 'username': video.collection.owner.first_name, 
-                        'mediaType': video.__class__.__name__.lower(), 
-                        'mediaName': video.title,
-                        'collection': video.collection.name,
-                        'MEDIA_URL': settings.MEDIA_URL,
-                        'TO': video.collection.owner.email}
-                    send_email(d)
-                except:
-                    return Response("Fail to transcribe", status=status.HTTP_400_BAD_REQUEST)
-
-            return Response("Success!")
+                            'mediaType': video.__class__.__name__.lower(), 
+                            'mediaName': video.title,
+                            'collection': video.collection.name,
+                            'MEDIA_URL': settings.MEDIA_URL,
+                            'TO': video.collection.owner.email}
+                    # In fact, we do not need to delay this one
+                    tasks.chain_initial_process_video(video_info, d)
+                    return Response("Your request has been recieved", status=status.HTTP_200_OK)
+                except Exception as e:
+                    print(e)
+                    return Response("Failed to recieve initial process request", status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response("You have transcribed already", status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response("No such video found", status=status.HTTP_404_NOT_FOUND)
 
-    def default_summarize(self, audio):
-        print("recieved default summarize request")
-        t1 = time()
-        try:
-            summary, num_sentence = speech_to_text.summarize(audio.audioText, loads(audio.transcript), model ="XLNet")
-            print("default\n")
-            pprint(summary)
-            audio.model_type = "XLNet"       # XLNet is fastest and uses less memory
-            audio.num_sentences = num_sentence
-            audio.summarization = dumps(summary)
-            audio.is_summarized = True
-
-            Quiz = quiz_generation.Quiz_generation(loads(audio.summarization), audio.audioText, based_text="summ")
-            res = Quiz.generate("QA_pair_gen", question=None)       # question parameter can be modified if need
-            
-            audio.quiz = dumps(res)
-            print(f"Default summarization  time spent: {time()-t1:.2f}")
-            return True
-        except:
-            return Response("Fail to generate default summarization", status=status.HTTP_400_BAD_REQUEST)
-    
-    
-    
     '''
     Call this endpoint to start summarization with all models,
     This endpoint is avaliable if video.audioText is provided.
@@ -721,9 +711,9 @@ class AudioViewSet(viewsets.ModelViewSet):
          
     URL: api/<int: collection_id>/audio/<int: audio_id>/summary_begin/
     '''
-    @action(methods=['POST'],detail=True)
-    def summary_begin(self, request, *args, **kwargs):  
-        t1 = time()
+    @action(methods=['POST'],detail=True, permission_classes = [IsAuthenticated])
+    def summary_begin(self, request, *args, **kwargs):
+        print("recieved summarize request")
         user = request.user
         video = Audio.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
         
@@ -731,57 +721,43 @@ class AudioViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_404_NOT_FOUND)
         video = video[0]
         if not video.audioText:
-            return Response("Cannot find the audioText for this audio", status=status.HTTP_400_BAD_REQUEST)
+            return Response("Cannot find the audioText for this video", status=status.HTTP_400_BAD_REQUEST)
         if video.is_processing:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
+            return Response("Processing already", status=status.HTTP_400_BAD_REQUEST)
+        if video.is_summarized:
+            return Response("You have to reset before summarize", status=status.HTTP_400_BAD_REQUEST)
+        
         try:
-            video.is_processing = True
-            video.save()
-            
             model = request.data.get('model', "Bert")
-            
+                
             num_sentence = request.data.get('num_sentence', None)
             if num_sentence is not None:
                 num_sentence = int(num_sentence)
             max_sentence = int(request.data.get('max_sentence', 20))
-            summary, num_sentence = speech_to_text.summarize(video.audioText, loads(video.transcript), model=model, num_sentence=num_sentence, max_sentence=max_sentence)
-            pprint(summary)
-            with transaction.atomic():
-                video.model_type = model
-                video.num_sentences = num_sentence
-                video.summarization = dumps(summary)
-                video.is_summarized = True
-                print(f"Individual {model} summarization  time spent: {time()-t1:.2f}")
-                print(model)
-                video.is_processing = False
-                video.save()
-                return Response(summary, status=status.HTTP_200_OK)
-        except:
+            
+            video.is_processing = True
+            video.save()
+            
+            video_info = (video.__class__.__name__.lower(), video.pk)
+            tuple_args = (video.audioText, loads(video.transcript), video_info)
+            if model == "Bert":
+                res = tasks.Bert_summarize_celery.delay(tuple_args, num_sentence=num_sentence, max_sentence = max_sentence)
+            elif model == "XLNet":
+                res = tasks.XLNet_summarize_celery.delay(tuple_args, num_sentence=num_sentence, max_sentence = max_sentence)
+            elif model == "GPT-2":
+                res = tasks.GPT2_summarize_celery.delay(tuple_args, num_sentence=num_sentence, max_sentence = max_sentence)
+            res = res.get(timeout=300)
+            
+            video = Audio.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))[0]
+            video.is_processing = False
+            video.save()
+            return Response(res[0], status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            print(e)
             video.is_processing = False
             video.save()
             return Response("Fail to summarize", status=status.HTTP_400_BAD_REQUEST)
-            
-        # # this is for method=="GET"
-        # try:
-        #     summary_bert = speech_to_text.summarize(audio.audioText, loads(audio.transcript), model='Bert')
-        #     summary_gpt2 = speech_to_text.summarize(audio.audioText, loads(audio.transcript), model='GPT-2')
-        #     summary_xlnet = speech_to_text.summarize(audio.audioText, loads(audio.transcript), model='XLNet')
-        #     summary_total = dumps({"Bert":summary_bert, "GPT-2":summary_gpt2, "XLNet":summary_xlnet})
-        #     print("Bert")
-        #     pprint(summary_bert)
-        #     print("GPT-2")
-        #     pprint(summary_gpt2)
-        #     print("XLNet")
-        #     pprint(summary_xlnet)
-            
-        #     audio.summarization = summary_total
-        #     audio.save()
-        #     print(f"Three bundle summarization time spent: {time()-t1:.2f}")
-        #     return Response(summary_total, status=status.HTTP_200_OK)
-
-        # except:
-        #     return Response("Fail to summarize", status=status.HTTP_400_BAD_REQUEST)
         
     @action(methods=['GET'],detail=True, permission_classes=[IsAuthenticated])
     def reset(self, request, *args, **kwargs):
@@ -827,7 +803,6 @@ class AudioViewSet(viewsets.ModelViewSet):
     @action(methods=['POST'], detail = True, permission_classes = [IsAuthenticated])
     def quiz(self, request, *args, **kwargs):
         print("recieved quiz video request")
-        t1 = time()
         user = request.user
         video = Audio.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
         if not video:
@@ -836,19 +811,32 @@ class AudioViewSet(viewsets.ModelViewSet):
         task = request.data.get('task', 'QA_pair_gen')
         based_text = request.data.get('based_text', 'summ')
         question = request.data.get('question', None)
+        if video.summarization == None:
+            print("Empty summarization")
+            return Response({'Message':"Summarization Can't be empty"}, status = status.HTTP_204_NO_CONTENT)
         try:
             video.is_processing = True
             video.save()
-            Quiz = quiz_generation.Quiz_generation(loads(video.summarization), video.audioText, based_text=based_text)
-            res = Quiz.generate(task, question=question)       # question parameter can be modified if need
             
+            
+            video_info = (video.__class__.__name__.lower(), video.pk)
+            tuple_args = (loads(video.summarization), video.audioText, video_info)
+            res = tasks.pop_quiz_celery.delay(tuple_args, based_text = based_text, type_task = task, question = question)
+            print(res)
+            res = res.get()
+            
+            print("Here")
+            video = Audio.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))[0]
+            print(video.quiz)
             video.is_processing = False
-            video.quiz = dumps(res)
             video.save()
-            print(f"create time spent: {time()-t1:.2f}")
             return Response(res, status=status.HTTP_200_OK)
-        except:
-            return Response("Quiz generation FAILED", status = status.HTTP_400_BAD_REQUEST)
+        
+        except Exception as e:
+            print(e)
+            video.is_processing = False
+            video.save()
+            return Response({'Message':"Quiz Generation Failed"},status = status.HTTP_400_BAD_REQUEST)
         
    
 class TextViewSet(viewsets.ModelViewSet):
@@ -871,59 +859,91 @@ class TextViewSet(viewsets.ModelViewSet):
     @action(methods=['POST'],detail=True, permission_classes = [IsAuthenticated])
     def summary_begin(self, request, *args, **kwargs):
         print("recieved summarize request")
-        
-        t1 = time()
         user = request.user
-        text = Text.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
+        video = Text.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
         
-        if not text:
+        if not video:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        text = text[0]
-        if not text.text:
-            return Response("Cannot find the Text for this text", status=status.HTTP_400_BAD_REQUEST)
-        if text.is_processing:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
+        video = video[0]
+        if not video.audioText:
+            return Response("Cannot find the audioText for this video", status=status.HTTP_400_BAD_REQUEST)
+        if video.is_processing:
+            return Response("Processing already", status=status.HTTP_400_BAD_REQUEST)
+        if video.is_summarized:
+            return Response("You have to reset before summarize", status=status.HTTP_400_BAD_REQUEST)
+        
         try:
-            text.is_processing = True
-            text.save()
-            
-            default = request.data.get('default', 0)
-            if default:
-                model = "XLNet"
-            else:
-                model = request.data.get('model', "Bert")
-            
+            model = request.data.get('model', "Bert")
+                
             num_sentence = request.data.get('num_sentence', None)
             if num_sentence is not None:
                 num_sentence = int(num_sentence)
             max_sentence = int(request.data.get('max_sentence', 20))
-            #TODO
-            summary, num_sentence = speech_to_text.summarize(text.text, loads(text.transcript), model=model, num_sentence=num_sentence, max_sentence=max_sentence)
-            pprint(summary)
             
-            if default:
-                Quiz = quiz_generation.Quiz_generation(summary, text.text, based_text="summ")
-                res = Quiz.generate("QA_pair_gen", question=None)       # question parameter can be modified if need
-                text.quiz = dumps(res)
+            video.is_processing = True
+            video.save()
             
-            with transaction.atomic():
-                text.model_type = model
-                text.num_sentences = num_sentence
-                text.summarization = dumps(summary)
-                text.is_summarized = True
-                text.is_processing = False
-                text.save()
-                print(f"Individual {model} summarization  time spent: {time()-t1:.2f}")
-                print(model)
-                text.save()
-                
-                return Response(summary, status=status.HTTP_200_OK)
-        except:
-            text.is_processing = False
-            text.save()
-            return Response("Fail to summarize", status=status.HTTP_400_BAD_REQUEST)
+            video_info = (video.__class__.__name__.lower(), video.pk)
+            tuple_args = (video.audioText, loads(video.transcript), video_info)
+            if model == "Bert":
+                res = tasks.Bert_summarize_celery.delay(tuple_args, num_sentence=num_sentence, max_sentence = max_sentence)
+            elif model == "XLNet":
+                res = tasks.XLNet_summarize_celery.delay(tuple_args, num_sentence=num_sentence, max_sentence = max_sentence)
+            elif model == "GPT-2":
+                res = tasks.GPT2_summarize_celery.delay(tuple_args, num_sentence=num_sentence, max_sentence = max_sentence)
+            res = res.get()
+            
+            video = Text.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))[0]
+            video.is_processing = False
+            video.save()
+            return Response(res[0], status=status.HTTP_200_OK)
         
+        except Exception as e:
+            print(e)
+            video.is_processing = False
+            video.save()
+            return Response("Fail to summarize", status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(methods=['POST'], detail = True, permission_classes = [IsAuthenticated])
+    def quiz(self, request, *args, **kwargs):
+        print("recieved quiz video request")
+        user = request.user
+        video = Text.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
+        if not video:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        video = video[0]
+        task = request.data.get('task', 'QA_pair_gen')
+        based_text = request.data.get('based_text', 'summ')
+        question = request.data.get('question', None)
+        if video.summarization == None:
+            print("Empty summarization")
+            return Response({'Message':"Summarization Can't be empty"}, status = status.HTTP_204_NO_CONTENT)
+        try:
+            video.is_processing = True
+            video.save()
+            
+            
+            video_info = (video.__class__.__name__.lower(), video.pk)
+            tuple_args = (loads(video.summarization), video.audioText, video_info)
+            res = tasks.pop_quiz_celery.delay(tuple_args, based_text = based_text, type_task = task, question = question)
+            print(res)
+            res = res.get()
+            
+            print("Here")
+            video = Text.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))[0]
+            print(video.quiz)
+            video.is_processing = False
+            video.save()
+            return Response(res, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            print(e)
+            video.is_processing = False
+            video.save()
+            return Response({'Message':"Quiz Generation Failed"},status = status.HTTP_400_BAD_REQUEST)
+    
+    
+       
     '''
     Call this endpoint to delete a list of texts under one collection
     URL: api/<int: collection_id>/texts/delete_list_texts/
@@ -985,38 +1005,44 @@ class TextViewSet(viewsets.ModelViewSet):
     "task":  "Question_Ans" | "QA_pair_gen" | "Question_gen"
     "based_text": "summ" | "full"
     "question": this parameter is especially needed for Question_Ans
-    '''
+    
     @action(methods=['POST'], detail = True, permission_classes = [IsAuthenticated])
     def quiz(self, request, *args, **kwargs):
-        print("recieved quiz text request")
-        t1 = time()
+        print("recieved quiz video request")
         user = request.user
-        text = Text.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
-        if not text:
+        video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
+        if not video:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        text = text[0]
+        video = video[0]
         task = request.data.get('task', 'QA_pair_gen')
         based_text = request.data.get('based_text', 'summ')
         question = request.data.get('question', None)
-        if text.summarization == None:
-            print("this is aaa")
-            return Response({'Message':"Summarization Can't be empty"}, status = 204)
+        if video.summarization == None:
+            print("Empty summarization")
+            return Response({'Message':"Summarization Can't be empty"}, status = status.HTTP_204_NO_CONTENT)
         try:
-            text.is_processing = True
-            text.save()
-            Quiz = quiz_generation.Quiz_generation(loads(text.summarization), text.text, based_text=based_text)
-            res = Quiz.generate(task, question=question)       # question parameter can be modified if need
+            video.is_processing = True
+            video.save()
             
-            text.is_processing = False
-            text.quiz = dumps(res)
-            text.save()
-            print(f"create time spent: {time()-t1:.2f}")
+            
+            video_info = (video.__class__.__name__.lower(), video.pk)
+            tuple_args = (loads(video.summarization), video.audioText, video_info)
+            res = tasks.pop_quiz_celery.delay(tuple_args, based_text = based_text, type_task = task, question = question)
+            print(res)
+            res = res.get()
+            
+            video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))[0]
+            print(video.quiz)
+            video.is_processing = False
+            video.save()
             return Response(res, status=status.HTTP_200_OK)
-        except:
-            text.is_processing = False
-            text.save()
-            print("this is reached")
-            return Response({'Message':"Quiz Generation Failed"},status = status.HTTP_400_BAD_REQUEST) 
+        
+        except Exception as e:
+            print(e)
+            video.is_processing = False
+            video.save()
+            return Response({'Message':"Quiz Generation Failed"},status = status.HTTP_400_BAD_REQUEST)
+    '''
     
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -1046,7 +1072,7 @@ def get_remaining(request):
                         'MEDIA_URL': settings.MEDIA_URL,
                         'TO': video.collection.owner.email}
         print(d)
-        x = send_email(d)
+        x = tasks.send_email_celery.delay(d)
         
         return Response({'remaining_size': request.user.userprofile.remaining_size})
 

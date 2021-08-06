@@ -206,10 +206,15 @@ MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
 AWS_S3_FILE_OVERWRITE = False
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+
+#EMAIL_PORT = 587
+#EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_SSL = False
 EMAIL_USE_TLS = True
-EMAIL_PORT = 587
+
+EMAIL_HOST = 'smtp.qq.com'
+EMAIL_PORT = 25
+
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 
@@ -227,10 +232,21 @@ CORS_ALLOWED_ORIGINS = [
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_TASK_TRACK_STARTED = True
-
+# django setting.
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'my_cache_table',
+    }
+}
 
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = 'None'
 SESSION_COOKIE_SAMESITE = 'None'
 
+CELERY_TASK_ROUTES = {'api.tasks.Bert_summarize_celery': {'queue': 'bert'},
+                      'api.tasks.GPT2_summarize_celery': {'queue': 'gpt2'},
+                      'api.tasks.XLNet_summarize_celery': {'queue': 'xlnet'},
+                      'api.tasks.pop_quiz_celery': {'queue': 'quiz'},
+                      }
