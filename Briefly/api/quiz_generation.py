@@ -1,4 +1,3 @@
-
 from .Question_gen.pipelines import pipeline
 from . import speech_to_text
 import warnings
@@ -24,12 +23,14 @@ class Quiz_generation:
     def abstract_summary(self, full_text):
         return speech_to_text.abstract_summary(full_text)
         
-    def clean_answer(self, result):
+    def clean_answer(self, result, return_object=False):
         for pair in result:
             pair['answer'] = pair['answer'][6::]
+        if return_object:
+            return result
         return len(result)
 
-    def generate(self, task, question=None):
+    def generate(self, task, question=None, quiz_set='large'):
 
         if task not in self.task_list:
             print(f'{task} does not exist.')
@@ -64,8 +65,15 @@ class Quiz_generation:
                 return quiz
 
             elif self.based_text == 'full':
-                summarzed_text = self.abstract_summary(self.full_body)
-                result = nlp(summarzed_text)
+                result=None
+                if quiz_set=='small':
+                    summarzed_text = self.abstract_summary(self.full_body)
+                    result = self.clean_answer(nlp(summarzed_text), return_object=True)
+                elif quiz_set=='large':
+                    result = self.clean_answer(nlp(self.full_body), return_object=True)
+                else:
+                    print("wrong quiz type")
+
                 return result
 
         elif task == 'Question_gen':
@@ -74,9 +82,9 @@ class Quiz_generation:
             return result
 
 # full = "The Olympic Games, which originated in ancient Greece as many as 3,000 years ago, were revived in the late 19th century and have become the world’s preeminent sporting competition. From the 8th century B.C. to the 4th century A.D., the Games were held every four years in Olympia, located in the western Peloponnese peninsula, in honor of the god Zeus. The first modern Olympics took place in 1896 in Athens, and featured 280 participants from 12 nations, competing in 43 events. Since 1994, the Summer and Winter Olympic Games have been held separately and have alternated every two years. The 2020 Summer Olympics, delayed one year because of the COVID-19 pandemic, will be held from July 23 to August 8, 2021 in Tokyo, Japan."
-# full2 = "The curvature of this equation is the most important point of differential equation"
-# summ = [{'id': 1, 'sentence': 'This video will briefly review the principles related to progress monitoring.', 'time': 0.022768341163715212, 'displayed_time': '[0:00:05]'}, {'id': 7, 'sentence': 'And finally we need data to determine if what we are doing in the classroom is working.', 'time': 0.25587278641127575, 'displayed_time': '[0:00:57]'}, {'id': 19, 'sentence': 'Common CBM progress monitoring measures include oral reading, fluency, phoneme identification, nays and written expression.', 'time': 0.759938561619082, 'displayed_time': '[0:02:48]'}, {'id': 23, 'sentence': 'In summary progress monitoring is a process to gather useful data that can be used with confidence to impact construction that will lead to student growth.', 'time': 0.9368901337188289, 'displayed_time': '[0:03:27]'}]
-# qz = Quiz_generation(summ, full2)
-# result = qz.generate("QA_pair_gen")
+# # full2 = "The curvature of this equation is the most important point of differential equation"
+# # summ = [{'id': 1, 'sentence': 'This video will briefly review the principles related to progress monitoring.', 'time': 0.022768341163715212, 'displayed_time': '[0:00:05]'}, {'id': 7, 'sentence': 'And finally we need data to determine if what we are doing in the classroom is working.', 'time': 0.25587278641127575, 'displayed_time': '[0:00:57]'}, {'id': 19, 'sentence': 'Common CBM progress monitoring measures include oral reading, fluency, phoneme identification, nays and written expression.', 'time': 0.759938561619082, 'displayed_time': '[0:02:48]'}, {'id': 23, 'sentence': 'In summary progress monitoring is a process to gather useful data that can be used with confidence to impact construction that will lead to student growth.', 'time': 0.9368901337188289, 'displayed_time': '[0:03:27]'}]
+# qz = Quiz_generation(None, full)
+# result = qz.generate("QA_pair_gen", quiz_set='large')
 # print(result)
 # # print(full)

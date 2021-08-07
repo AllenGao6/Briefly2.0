@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { loadVideosInCollection } from "../../redux/actions/video_actions";
 import { loadAudiosInCollection } from "../../redux/actions/audio_actions";
+import { loadTextsInCollection } from "../../redux/actions/text_actions";
 // material-ui
 import { withStyles } from "@material-ui/styles";
 import { Grid, Button, Typography } from "@material-ui/core";
@@ -40,8 +41,11 @@ class Workspace extends Component {
       if(key !== 'accessToken')
         store.remove(key);
     })
+    //this part can be optimized later, we don't need to get all three type on each render
+    // we can only load media of interest based on mediaType
     this.props.loadVideosInCollection(this.props.match.params.id);
     this.props.loadAudiosInCollection(this.props.match.params.id);
+    this.props.loadTextsInCollection(this.props.match.params.id);
   };
 
   setSearch = (search) => {
@@ -64,7 +68,7 @@ class Workspace extends Component {
       case "audio":
         return this.props.audios;
       case "text":
-        return this.props.audios;
+        return this.props.texts;
       default:
         return [];
     }
@@ -112,12 +116,14 @@ function mapStateToProps(state) {
   return {
     videos: state.videoReducer.videos,
     audios: state.audioReducer.audios,
+    texts: state.textReducer.texts,
   };
 }
 
 const mapDispatchToProps = {
   loadVideosInCollection,
   loadAudiosInCollection,
+  loadTextsInCollection,
 };
 
 export default connect(

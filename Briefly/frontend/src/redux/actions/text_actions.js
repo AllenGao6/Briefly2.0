@@ -48,3 +48,30 @@ export const createTextInCollection = (id, text) => async (dispatch) => {
         });
       });
   };
+
+  export const updateTextInCollection = (id, text, TextId) => (dispatch) => {
+    dispatch({ type: type.CREATING_TEXT });
+    return axios
+      .patch(
+        `${COLLECTIONS_BASE_URL}${id}/text/${TextId}/`,
+        JSON.stringify(text),
+        {
+          headers: {
+            "content-type": "application/json",
+            "X-CSRFToken": Cookies.get("csrftoken"),
+          },
+        }
+      )
+      .then((res) => {
+        dispatch({
+          type: type.UPDATE_TEXT_SUCCESS,
+          text: res.data,
+        });
+      })
+      .catch((err) => {
+        dispatch({
+          type: type.UPDATE_TEXT_FAILURE,
+        });
+        console.log(err);
+      });
+  };

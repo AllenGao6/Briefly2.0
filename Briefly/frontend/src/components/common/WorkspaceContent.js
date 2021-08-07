@@ -16,6 +16,7 @@ import SummaryContent from "../workspace/SummaryContent";
 import MediaDisplay from "../workspace/MediaDisplay";
 import Transcripts from "../workspace/Transcripts";
 import ReactPlayer from "react-player";
+import TextDisplay from "./TextDisplay";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -155,7 +156,7 @@ export default function WorkspaceContent({
             backgroundColor: matchesDark ? "#515151" : null,
           }}
         >
-          <MediaDisplay media={media} mediaType={mediaType} ref={mediaRef} />
+          <TextDisplay media={media} collectionId={collectionId} />
           <SummaryContent
             media={media}
             mediaType={mediaType}

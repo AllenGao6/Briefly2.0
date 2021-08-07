@@ -46,6 +46,21 @@ export default function textReducer(state = initialState, action) {
               ...state,
               isLoading: false,
             };
+        case type.UPDATE_TEXT_SUCCESS:
+            toast.success("😎 Your texts has been updated!");
+            return {
+              ...state,
+              texts: [...state.texts].map((text) =>
+                text.id === action.text.id ? action.text : text
+              ),
+              isCreating: false,
+            };
+        case type.UPDATE_TEXT_FAILURE:
+            toast.error("Fail to update text.");
+            return {
+              ...state,
+              isCreating: false,
+            };
         default:
             return state;
     }
