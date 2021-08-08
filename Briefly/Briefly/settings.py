@@ -245,8 +245,8 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = 'None'
 SESSION_COOKIE_SAMESITE = 'None'
 
-# CELERY_TASK_ROUTES = {'api.tasks.Bert_summarize_celery': {'queue': 'bert'},
-#                       'api.tasks.GPT2_summarize_celery': {'queue': 'gpt2'},
-#                       'api.tasks.XLNet_summarize_celery': {'queue': 'xlnet'},
-#                       'api.tasks.pop_quiz_celery': {'queue': 'quiz'},
-#                       }
+CELERY_TASK_ROUTES = {'api.tasks.Bert_summarize_celery': {'queue': 'bert'},
+                      'api.tasks.GPT2_summarize_celery': {'queue': 'gpt2'},
+                      'api.tasks.XLNet_summarize_celery': {'queue': 'xlnet'},
+                      'api.tasks.pop_quiz_celery': {'queue': 'quiz'},
+                      }
