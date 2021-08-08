@@ -229,7 +229,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://143.244.190.3",
 ]
 
-CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL')
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_TASK_TRACK_STARTED = True
 # django setting.
@@ -245,8 +245,8 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = 'None'
 SESSION_COOKIE_SAMESITE = 'None'
 
-CELERY_TASK_ROUTES = {'api.tasks.Bert_summarize_celery': {'queue': 'bert'},
-                      'api.tasks.GPT2_summarize_celery': {'queue': 'gpt2'},
-                      'api.tasks.XLNet_summarize_celery': {'queue': 'xlnet'},
-                      'api.tasks.pop_quiz_celery': {'queue': 'quiz'},
-                      }
+# CELERY_TASK_ROUTES = {'api.tasks.Bert_summarize_celery': {'queue': 'bert'},
+#                       'api.tasks.GPT2_summarize_celery': {'queue': 'gpt2'},
+#                       'api.tasks.XLNet_summarize_celery': {'queue': 'xlnet'},
+#                       'api.tasks.pop_quiz_celery': {'queue': 'quiz'},
+#                       }

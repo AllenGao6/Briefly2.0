@@ -855,7 +855,7 @@ class TextViewSet(viewsets.ModelViewSet):
         max_sentence (if None, default: 20)
         default: set to 1 if this is the default summarization (if None, default: 0),
     URL: api/<int: collection_id>/text/<int: text_id>/summary_begin/
-    '''
+    
     @action(methods=['POST'],detail=True, permission_classes = [IsAuthenticated])
     def summary_begin(self, request, *args, **kwargs):
         print("recieved summarize request")
@@ -903,43 +903,42 @@ class TextViewSet(viewsets.ModelViewSet):
             video.is_processing = False
             video.save()
             return Response("Fail to summarize", status=status.HTTP_400_BAD_REQUEST)
-    
+        '''
     @action(methods=['POST'], detail = True, permission_classes = [IsAuthenticated])
     def quiz(self, request, *args, **kwargs):
         print("recieved quiz video request")
         user = request.user
-        video = Text.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
-        if not video:
+        text = Text.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
+        if not text:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        video = video[0]
+        text = text[0]
         task = request.data.get('task', 'QA_pair_gen')
-        based_text = request.data.get('based_text', 'summ')
+        # Unknown usage
+        question_count = request.data.get("question_count", 10)
+        
         question = request.data.get('question', None)
-        if video.summarization == None:
-            print("Empty summarization")
-            return Response({'Message':"Summarization Can't be empty"}, status = status.HTTP_204_NO_CONTENT)
+        
         try:
-            video.is_processing = True
-            video.save()
+            text.is_processing = True
+            text.save()
             
-            
-            video_info = (video.__class__.__name__.lower(), video.pk)
-            tuple_args = (loads(video.summarization), video.audioText, video_info)
-            res = tasks.pop_quiz_celery.delay(tuple_args, based_text = based_text, type_task = task, question = question)
+            text_info = (text.__class__.__name__.lower(), text.pk)
+            tuple_args = (None, text.text, text_info)
+            res = tasks.pop_quiz_celery.delay(tuple_args, based_text = 'full', type_task = task, question = question)
             print(res)
             res = res.get()
             
             print("Here")
-            video = Text.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))[0]
-            print(video.quiz)
-            video.is_processing = False
-            video.save()
+            text = Text.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))[0]
+            print(text.quiz)
+            text.is_processing = False
+            text.save()
             return Response(res, status=status.HTTP_200_OK)
         
         except Exception as e:
             print(e)
-            video.is_processing = False
-            video.save()
+            text.is_processing = False
+            text.save()
             return Response({'Message':"Quiz Generation Failed"},status = status.HTTP_400_BAD_REQUEST)
     
     

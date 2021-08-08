@@ -49,7 +49,7 @@ class Quiz_generation:
 
         elif task == 'QA_pair_gen':
             print("generating...")
-            nlp = pipeline("question-generation", model="valhalla/t5-small-qg-prepend", qg_format="prepend")
+            nlp = pipeline("question-generation", model="valhalla/t5-small-qg-prepend", qg_format="prepend") #TODO
             quiz = []
             if self.based_text == 'summ':
                 # print(self.summarization)

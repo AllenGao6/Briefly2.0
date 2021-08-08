@@ -46,7 +46,7 @@ def retrieve_media(video_info):
         return Text.objects.filter(pk=video_info[1])[0]
 
 
-@shared_task
+@shared_task(time_limit=60)
 def send_email_celery(d):
     email_subject = 'You Default Summarization Is Ready at Briefly-AI!'
     
@@ -68,7 +68,7 @@ def send_email_celery(d):
     )
     return None
 
-@shared_task
+@shared_task(time_limit=1200)
 def amazon_transcribe_celery(video_info, audio_file_name, collection_name, type, video_id,  max_speakers = -1):
     # when entering the queue, video.is_processing has been set to True
     
@@ -84,7 +84,7 @@ def amazon_transcribe_celery(video_info, audio_file_name, collection_name, type,
     
     return (audioText, transcript, video_info)
 
-@shared_task(base=BertTask)
+@shared_task(base=BertTask, time_limit=600)
 def Bert_summarize_celery(tuple_args, num_sentence=None, max_sentence = 20):
     audioText, transcript, video_info = tuple_args
     summary, num_sentence = summarize(audioText, transcript, model = "Bert", instance = Bert_summarize_celery.model, num_sentence=num_sentence, max_sentence = max_sentence)
@@ -97,7 +97,7 @@ def Bert_summarize_celery(tuple_args, num_sentence=None, max_sentence = 20):
     video.save()
     return (summary, audioText, video_info)
 
-@shared_task(base=GPT2Task)
+@shared_task(base=GPT2Task, time_limit=600)
 def GPT2_summarize_celery(tuple_args, num_sentence=None, max_sentence = 20):
     audioText, transcript, video_info = tuple_args
     summary, num_sentence = summarize(audioText, transcript, model = "GPT-2", instance = GPT2_summarize_celery.model, num_sentence=num_sentence, max_sentence = max_sentence)
@@ -110,7 +110,7 @@ def GPT2_summarize_celery(tuple_args, num_sentence=None, max_sentence = 20):
     video.save()
     return (summary, audioText, video_info)
 
-@shared_task(base=XLNetTask)
+@shared_task(base=XLNetTask, time_limit=600)
 def XLNet_summarize_celery(tuple_args, num_sentence=None, max_sentence = 20):
     audioText, transcript, video_info = tuple_args 
     summary, num_sentence = summarize(audioText, transcript, model = "XLNet", instance = XLNet_summarize_celery.model, num_sentence=num_sentence, max_sentence = max_sentence)
@@ -123,7 +123,7 @@ def XLNet_summarize_celery(tuple_args, num_sentence=None, max_sentence = 20):
     video.save()
     return (summary, audioText, video_info)
 
-@shared_task
+@shared_task(time_limit=600)
 def pop_quiz_celery(tuple_args, based_text = "summ", type_task = "QA_pair_gen", question=None):
     summary, audioText, video_info = tuple_args
     Quiz = Quiz_generation(summary, audioText, based_text=based_text)
@@ -134,7 +134,8 @@ def pop_quiz_celery(tuple_args, based_text = "summ", type_task = "QA_pair_gen", 
     video.save()
     return res
 
-@shared_task
+# transcribe + XLNet summarize + pop quiz + send email
+@shared_task(time_limit=1200)
 def chain_initial_process_video(video_info, d):
     video = retrieve_media(video_info)
     video_path = video.video.name.split('/')
@@ -150,7 +151,3 @@ def chain_initial_process_video(video_info, d):
     video.save()
     
     return None
-    
-    
-    
-    
