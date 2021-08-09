@@ -162,9 +162,11 @@ def chain_initial_process_video(video_info, d):
     video_path = video.video.name.split('/')
     video_name, video_id, type, collection_name = video_path[3], video_path[2],video_path[1], video_path[0]
     chain1 = (amazon_transcribe_celery.s(video_info, video_name, collection_name, type, video_id) |
-            XLNet_summarize_celery.s(num_sentence=None, max_sentence = 20))
+            XLNet_summarize_celery.s(num_sentence=None, max_sentence = 20)
+            )
+    chain1 |= signature("api.tasks.pop_quiz_celery", kwargs={"based_text" : "summ", "type_task" : "QA_pair_gen", "question" : None})
     
-    quiz_result = current_app.send_task("api.tasks.pop_quiz_celery", chain1, {"based_text" : "summ", "type_task" : "QA_pair_gen", "question" : None}).get(timeout=7200)
+    quiz_result = chain1.get(timeout=7200)
 
     send_email_celery.delay(d)
     video = retrieve_media(video_info)
