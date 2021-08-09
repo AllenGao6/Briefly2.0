@@ -250,3 +250,7 @@ CELERY_TASK_ROUTES = {'api.tasks.Bert_summarize_celery': {'queue': 'bert'},
                       'api.tasks.XLNet_summarize_celery': {'queue': 'xlnet'},
                       'api.tasks.pop_quiz_celery': {'queue': 'quiz'},
                       }
+
+CELERY_ACCEPT_CONTENT=['json'],
+CELERY_TASK_SERIALIZER ='json',
+CELERY_RESULT_SERIALIZER = 'json'

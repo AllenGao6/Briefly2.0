@@ -139,11 +139,11 @@ def XLNet_summarize_celery(tuple_args, num_sentence=None, max_sentence = 20):
 def pop_quiz_celery(*tuple_args, **kwargs):
     print('starting process quiz...')
     summary, audioText, video_info = tuple_args
-    
+
     based_text = kwargs.get('based_text',"summ")
     type_task = kwargs.get('type_task', 'QA_pair_gen')
     question = kwargs.get('question', None)
-    
+
     Quiz = Quiz_generation(summary, audioText, based_text=based_text, model = pop_quiz_celery.model)
     res = Quiz.generate(type_task, question=question)
 
