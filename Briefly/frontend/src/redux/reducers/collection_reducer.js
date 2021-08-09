@@ -17,7 +17,7 @@ export default function collectionReducer(state = initialState, action) {
         isLoading: true,
       };
     case type.LOAD_COLLECTIONS_SUCCESS:
-      toast.success("😎 Your collections has been loaded!");
+      // toast.success("😎 Your collections has been loaded!");
       return {
         ...state,
         collections: action.collections,

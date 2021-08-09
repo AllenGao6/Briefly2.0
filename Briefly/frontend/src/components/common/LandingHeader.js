@@ -21,7 +21,6 @@ import {
   Typography,
   Grid,
   Hidden,
-  ListItemIcon,
   Avatar,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
@@ -52,7 +51,7 @@ const data = {
   username: "Shawn",
   email: "ypx5110@psu.edu",
   school: "Penn State",
-  major: "Computer Science"
+  major: "Computer Science",
 };
 
 const useStyles = makeStyles((theme) => ({
@@ -404,8 +403,8 @@ function LandingHeader({
       color="primary"
       PaperProps={{
         style: {
-          backgroundColor: "#ecf0f1"
-        }
+          backgroundColor: "#ecf0f1",
+        },
       }}
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
@@ -425,9 +424,7 @@ function LandingHeader({
         <ListItemIcon>
           <SchoolRoundedIcon style={{ color: primaryColor }} />
         </ListItemIcon>
-        <Typography style={{ fontFamily: "Ubuntu" }}>
-          {data.school}
-        </Typography>
+        <Typography style={{ fontFamily: "Ubuntu" }}>{data.school}</Typography>
       </ListItem>
 
       <Divider />
@@ -447,8 +444,8 @@ function LandingHeader({
         </ListItemIcon>
         <Typography style={{ fontFamily: "Ubuntu" }}>{data.email}</Typography>
       </ListItem>
-    </Dialog>
-  }
+    </Dialog>;
+  };
 
   return (
     <React.Fragment>

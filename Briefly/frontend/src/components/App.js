@@ -46,7 +46,7 @@ class App extends Component {
       <ThemeProvider theme={this.state.theme}>
         <BrowserRouter>
           <ToastContainer
-            position="top-right"
+            position="bottom-right"
             autoClose={1500}
             hideProgressBar={false}
             newestOnTop={false}

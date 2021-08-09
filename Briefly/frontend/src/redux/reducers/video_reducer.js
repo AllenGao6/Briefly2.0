@@ -21,7 +21,7 @@ export default function videoReducer(state = initialState, action) {
         isCreating: true,
       };
     case type.LOAD_VIDEOS_SUCCESS:
-      toast.success("😎 Your videos has been loaded!");
+      // toast.success("😎 Your videos has been loaded!");
       return {
         ...state,
         videos: action.videos,
