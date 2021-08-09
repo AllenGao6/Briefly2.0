@@ -26,6 +26,7 @@ from . import quiz_generation, tasks
 from django.template.loader import render_to_string
 from .tasks import send_email_celery
 from django.core.mail import send_mail
+from celery import current_app
 
 class VideoViewSet(viewsets.ModelViewSet):
 
@@ -429,7 +430,7 @@ class VideoViewSet(viewsets.ModelViewSet):
             
             video_info = (video.__class__.__name__.lower(), video.pk)
             tuple_args = (loads(video.summarization), video.audioText, video_info)
-            res = tasks.pop_quiz_celery.delay(tuple_args, based_text = based_text, type_task = task, question = question)
+            res = current_app.send_task("api.tasks.pop_quiz_celery", args=tuple_args, kwargs = {"based_text" : based_text, "type_task" : task, "question" : question})
             print(res)
             res = res.get()
             
@@ -821,7 +822,7 @@ class AudioViewSet(viewsets.ModelViewSet):
             
             video_info = (video.__class__.__name__.lower(), video.pk)
             tuple_args = (loads(video.summarization), video.audioText, video_info)
-            res = tasks.pop_quiz_celery.delay(tuple_args, based_text = based_text, type_task = task, question = question)
+            res = current_app.send_task("api.tasks.pop_quiz_celery", tuple_args, based_text = based_text, type_task = task, question = question)
             print(res)
             res = res.get()
             
@@ -925,8 +926,7 @@ class TextViewSet(viewsets.ModelViewSet):
             text_info = (text.__class__.__name__.lower(), text.pk)
             tuple_args = (None, text.text, text_info)
             summary, audioText = None, text.text
-            print(1)
-            res = tasks.pop_quiz_celery.delay(tuple_args, based_text = 'full', type_task = task, question = question)
+            res = current_app.send_task("api.tasks.pop_quiz_celery", tuple_args, based_text = 'full', type_task = task, question = question)
             print(res.get())
             res = res.get()
             

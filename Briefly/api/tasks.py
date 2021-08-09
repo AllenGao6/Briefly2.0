@@ -150,9 +150,9 @@ def pop_quiz_celery(*tuple_args, **kwargs):
     # media cannot be retrieved since this task is ran by another instance without
     # proper setting for the database
 
-    video = retrieve_media(video_info)
-    video.quiz = dumps(res)
-    video.save()
+    # video = retrieve_media(video_info)
+    # video.quiz = dumps(res)
+    # video.save()
     return res
 
 # transcribe + XLNet summarize + pop quiz + send email
