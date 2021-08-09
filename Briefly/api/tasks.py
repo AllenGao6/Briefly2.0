@@ -134,6 +134,7 @@ def XLNet_summarize_celery(tuple_args, num_sentence=None, max_sentence = 20):
     video.save()
     return (summary, audioText, video_info)
 
+#This functionality has been removed to another server on another instance
 @shared_task(base=QuizTask, time_limit=600)
 def pop_quiz_celery(tuple_args, based_text = "summ", type_task = "QA_pair_gen", question=None):
     print('starting process quiz...')
@@ -141,9 +142,12 @@ def pop_quiz_celery(tuple_args, based_text = "summ", type_task = "QA_pair_gen", 
     Quiz = Quiz_generation(summary, audioText, based_text=based_text, model = pop_quiz_celery.model)
     res = Quiz.generate(type_task, question=question)
     
-    video = retrieve_media(video_info)
-    video.quiz = dumps(res)
-    video.save()
+    # media cannot be retrieved since this task is ran by another instance without
+    # proper setting for the database
+    
+    #video = retrieve_media(video_info)
+    #video.quiz = dumps(res)
+    #video.save()
     return res
 
 # transcribe + XLNet summarize + pop quiz + send email
