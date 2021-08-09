@@ -12,9 +12,10 @@ class Quiz_generation:
     '''
     task_list = ['Question_Ans', 'QA_pair_gen', 'Question_gen']
 
-    def __init__(self, summarization, full_body, based_text="summ"):
+    def __init__(self, summarization, full_body, based_text="summ", model = None):
         self.summarization = summarization
         self.full_body = full_body
+        self.model = model
         if not summarization:
             self.based_text = 'full'
         else:
@@ -49,7 +50,8 @@ class Quiz_generation:
 
         elif task == 'QA_pair_gen':
             print("generating...")
-            nlp = pipeline("question-generation", model="valhalla/t5-small-qg-prepend", qg_format="prepend") #TODO
+            #nlp = pipeline("question-generation", model="valhalla/t5-small-qg-prepend", qg_format="prepend")
+            nlp = self.model
             quiz = []
             if self.based_text == 'summ':
                 # print(self.summarization)

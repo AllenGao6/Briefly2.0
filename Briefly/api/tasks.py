@@ -9,6 +9,7 @@ from celery import chain, signature, Task
 from summarizer import Summarizer, TransformerSummarizer
 from .models import Collection, Video, Audio, Text
 from django.db import transaction
+from .Question_gen.pipelines import pipeline
 
 class GPT2Task(Task):
     _model = None
@@ -36,6 +37,16 @@ class XLNetTask(Task):
         if self._model is None:
             self._model = TransformerSummarizer(transformer_type="XLNet",transformer_model_key="xlnet-base-cased")
         return self._model
+
+class QuizTask(Task):
+    _model = None
+    
+    @property
+    def model(self):
+        if self._model is None:
+            self._model = pipeline("question-generation", model="valhalla/t5-small-qg-prepend", qg_format="prepend")
+        return self._model
+
 
 def retrieve_media(video_info):
     if video_info[0] == 'video':
@@ -123,11 +134,11 @@ def XLNet_summarize_celery(tuple_args, num_sentence=None, max_sentence = 20):
     video.save()
     return (summary, audioText, video_info)
 
-@shared_task(time_limit=600)
+@shared_task(base=QuizTask, time_limit=600)
 def pop_quiz_celery(tuple_args, based_text = "summ", type_task = "QA_pair_gen", question=None):
     print('starting process quiz...')
     summary, audioText, video_info = tuple_args
-    Quiz = Quiz_generation(summary, audioText, based_text=based_text)
+    Quiz = Quiz_generation(summary, audioText, based_text=based_text, model = pop_quiz_celery.model)
     res = Quiz.generate(type_task, question=question)
     
     video = retrieve_media(video_info)
