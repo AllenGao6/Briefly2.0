@@ -21,7 +21,7 @@ export default function audioReducer(state = initialState, action) {
         isCreating: true,
       };
     case type.LOAD_AUDIOS_SUCCESS:
-      toast.success("😎 Your audios has been loaded!");
+      // toast.success("😎 Your audios has been loaded!");
       return {
         ...state,
         audios: action.audios,

@@ -29,17 +29,16 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: "1rem",
   },
   root: {
-    '& label.Mui-focused': {
-      color: 'green',
+    "& label.Mui-focused": {
+      color: "green",
     },
-    '& .MuiTextField-root': {
+    "& .MuiTextField-root": {
       margin: theme.spacing(1),
-      width: '25ch',
+      width: "25ch",
     },
-    '& .MuiOutlinedInput-root': {
-      
-      '&.Mui-focused fieldset': {
-        borderColor: 'green',
+    "& .MuiOutlinedInput-root": {
+      "&.Mui-focused fieldset": {
+        borderColor: "green",
       },
     },
   },
@@ -63,7 +62,7 @@ export default function MediaUploader({
   }
   return (
     <React.Fragment>
-      {mediaUrl && mediaType === "video"? (
+      {mediaUrl && mediaType === "video" ? (
         <ControlledVideoPlayer
           mediaUrl={mediaUrl}
           played={played}
@@ -72,13 +71,17 @@ export default function MediaUploader({
           ref={playerRef}
         />
       ) : null}
-      {mediaType === 'text' ? 
-      
-        (<Grid item xs={12} className={classes.padding}>
-          <form className={classes.root} fullwidth="true" noValidate autoComplete="off">
+      {mediaType === "text" ? (
+        <Grid item xs={12} className={classes.padding}>
+          <form
+            className={classes.root}
+            fullwidth="true"
+            noValidate
+            autoComplete="off"
+          >
             <TextField
               key={`textarea_create`}
-              style={{width: "100%", justifyItems: "center"}}
+              style={{ width: "100%", justifyItems: "center" }}
               color="primary"
               value={textInput}
               onChange={onUploadFinish}
@@ -88,24 +91,25 @@ export default function MediaUploader({
               rows={5}
               variant="outlined"
               error={false}
-            />               
+            />
           </form>
-          </Grid>) : null}
-          {action === "Update" || mediaType === "text" ? null : (
-            <Grid item xs={12} className={classes.padding}>
-              <input
-                type="file"
-                style={{ display: "none" }}
-                ref={fileInputRef}
-                accept={`${mediaType}/*`}
-                onChange={onUploadFinish}
-              />
-              <Button
-                variant="outlined"
-                onClick={() => fileInputRef.current.click()}
-                className={classes.uploadButton}
-                disabled={isCreating}
-              >
+        </Grid>
+      ) : null}
+      {action === "Update" || mediaType === "text" ? null : (
+        <Grid item xs={12} className={classes.padding}>
+          <input
+            type="file"
+            style={{ display: "none" }}
+            ref={fileInputRef}
+            accept={`${mediaType}/*`}
+            onChange={onUploadFinish}
+          />
+          <Button
+            variant="outlined"
+            onClick={() => fileInputRef.current.click()}
+            className={classes.uploadButton}
+            disabled={isCreating}
+          >
             <PublishRoundedIcon
               style={{ fontSize: "2.5rem", paddingRight: "1rem" }}
             />
@@ -113,7 +117,6 @@ export default function MediaUploader({
           </Button>
         </Grid>
       )}
-      
     </React.Fragment>
   );
 }
