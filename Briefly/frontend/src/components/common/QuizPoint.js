@@ -87,7 +87,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function QuizPoint({ pair, seekTo, answerVisible, time, count, index }) {
+function QuizPoint({ pair, seekTo, answerVisible, time, count, index, mediaType }) {
   const classes = useStyles();
   const theme = useTheme();
 
@@ -103,7 +103,7 @@ function QuizPoint({ pair, seekTo, answerVisible, time, count, index }) {
     store.set(id, value);
     setValue(store.get(id));
   };
-
+ 
   useEffect(() => {
     const result = store.get(id);
     if (result === null) {
@@ -118,10 +118,12 @@ function QuizPoint({ pair, seekTo, answerVisible, time, count, index }) {
     <ListItem dense={true}>
       <Grid container direction="column" style={{ paddingTop: 10 }}>
         <Grid item container justify="space-between" alignItems="center">
-          <Typography className={classes.title} variant="h5">{`Question ${
-            count + index
-          }:`}</Typography>
-
+          <Typography className={classes.title} variant="h5">
+            {mediaType === 'text' ? 
+            `Question ${index}:` :
+            `Question ${count + index}:`}
+          </Typography>
+          {mediaType==='text' ? null : 
           <Tooltip title="Review" arrow>
             <ReviewIcon
               style={{
@@ -132,9 +134,10 @@ function QuizPoint({ pair, seekTo, answerVisible, time, count, index }) {
               onClick={() => seekTo(time)}
             />
           </Tooltip>
+          }
         </Grid>
         <Grid item style={{ paddingTop: 10 }}>
-          <Typography>{pair[0]}</Typography>
+          <Typography>{mediaType==='text' ? pair['question'] : pair[0]}</Typography>
         </Grid>
         <Grid
           item
@@ -174,7 +177,7 @@ function QuizPoint({ pair, seekTo, answerVisible, time, count, index }) {
             <Box display="inline" variant="h5" fontWeight="fontWeightBold">
               Answer:
             </Box>{" "}
-            {pair[1]}
+            {mediaType==='text' ? pair['answer'] : pair[1]}
           </Typography>
         ) : null}
       </Grid>

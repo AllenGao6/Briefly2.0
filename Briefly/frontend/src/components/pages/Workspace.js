@@ -80,7 +80,7 @@ class Workspace extends Component {
     const media_type = match.params.mediaType;
     const filter = this.filter_media;
 
-    // console.log('this is ',videos);
+    console.log('this is ', this.getMedia().filter((item) => item.id == match.params.mediaId)[0]);
     return (
       <React.Fragment>
         <MediaScrollbar

@@ -906,7 +906,7 @@ class TextViewSet(viewsets.ModelViewSet):
         '''
     @action(methods=['POST'], detail = True, permission_classes = [IsAuthenticated])
     def quiz(self, request, *args, **kwargs):
-        print("recieved quiz video request")
+        print("recieved quiz text request")
         user = request.user
         text = Text.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
         if not text:
@@ -923,13 +923,21 @@ class TextViewSet(viewsets.ModelViewSet):
             text.save()
             
             text_info = (text.__class__.__name__.lower(), text.pk)
-            tuple_args = (None, text.text, text_info)
-            res = tasks.pop_quiz_celery.delay(tuple_args, based_text = 'full', type_task = task, question = question)
-            print(res)
-            res = res.get()
+            #tuple_args = (None, text.text, text_info)
+            summary, audioText = None, text.text
+            print(1)
+            # res = tasks.pop_quiz_celery.delay(tuple_args, based_text = 'full', type_task = task, question = question)
+            # print(res.get())
+            # res = res.get()
             
-            print("Here")
+            Quiz = quiz_generation.Quiz_generation(summary, audioText)
+            res = Quiz.generate(task, question=question)
             text = Text.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))[0]
+            text.quiz = dumps(res)
+            text.save()
+
+            
+            # text = Text.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))[0]
             print(text.quiz)
             text.is_processing = False
             text.save()

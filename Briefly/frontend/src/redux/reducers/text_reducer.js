@@ -61,6 +61,24 @@ export default function textReducer(state = initialState, action) {
               ...state,
               isCreating: false,
             };
+        case type.RESET_TEXT_QUIZ_SUCCESS:
+          toast.success("😎 Your PopQuiz has been reset!");
+          console.log(action.textId);
+          return {
+            ...state,
+            texts: [...state.texts].filter((text) =>
+              text.id === action.textId
+                ? {
+                    ...text,
+                    quiz: null,
+                    
+                  }
+                : text
+            ),
+          };
+        case type.RESET_TEXT_QUIZ_FAILURE:
+          toast.error("Fail to reset pop quiz.");
+          return state;
         default:
             return state;
     }

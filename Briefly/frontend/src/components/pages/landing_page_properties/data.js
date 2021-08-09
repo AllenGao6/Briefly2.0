@@ -97,10 +97,10 @@ export const icons2 = [
 
 export const captions2 = [
   <p>Video Summarization</p>,
-  <p>Translation</p>,
+  <p>Note Export</p>,
   <p>Pop Quiz Generation</p>,
   <p>Mind Map Generation</p>,
-  <p>Ebbinghaus Forgetting Curve</p>,
+  <p>Speech Recognition</p>,
   <p>Final Review Sheet</p>,
 ]
 
@@ -117,32 +117,30 @@ export const descriptions2 = [
     We provide a video summarization tools that extract crucial information for preview and review.
   </p>,
   <p>
-    Understand faster in your native language?
+    Want to have your own note?
     <br></br><br></br>
-    We offer a powerful translation engine that covers 71 languages for the video summary, user uploaded notes, and generated mind map.
+    We provide user an option to export the note they created with Briefly for their own benefit.
   </p>,
   <p>
     Prefer active thinking? 
     <br></br><br></br>
-    Briefly can generate quizzes from videos or uploaded notes that suits your needs.
-    <p style={hoveringStyles}> Learn more :) </p>
+    Briefly can generate quizzes from videos or uploaded texts that suits your needs.
+    {/* <p style={hoveringStyles}> Learn more :) </p> */}
   </p>,
   <p>
     Want to visualize information?
     <br></br><br></br>
-    Mind Map is a useful tool to do this job. If you have taken notes from lecture, you can upload it, and we will generate Mind Map for you to download.
-    <p style={hoveringStyles}> Learn more :) </p>
+    Mind Map is a useful tool to do this job. We will build a Name Entity Recognition Model to extract key concepts in each uploaded media, which will show the latent knowledge structure of all files.
   </p>,
   <p>
-    Not good at memorization?
+    Want to locate passage in video faster?
     <br></br><br></br>
-    We use Ebbinghaus forgetting curve theory to generate your personal reviewing plan in the calendar, allowing you to memorize info with minimum effort.
-    <p style={hoveringStyles}> Learn more :) </p>
+    We apply speech recognition on all uploaded media file, and we built an smart search tool to help you locate your desired text with ease.
   </p>,
   <p>
-    Worrying about your final exam?
+    Studying about your final exam?
     <br></br><br></br>
-    Select the files or videos that you have uploaded past, we can generate final review sheet to aid your success.
+    We organize all your uploaded files and store them for your exam reviews. You can retrieve all your desired content at a snatch. 
     <p style={hoveringStyles}> Learn more :) </p>
   </p>,
 ]

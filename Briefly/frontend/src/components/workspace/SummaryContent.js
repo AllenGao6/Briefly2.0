@@ -46,16 +46,19 @@ import {
   updateAudioInCollection,
   resetAudioSummarization,
 } from "../../redux/actions/audio_actions";
+
 import {
   generateQuiz,
   resetAudioQuiz,
   resetVideoQuiz,
+  resetTextQuiz,
 } from "../../redux/actions/quizGeneration_actions";
 import clsx from "clsx";
 import store from "store";
 //pdf
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import PdfNote from "../common/PdfNote";
+import { loadTextsInCollection } from "../../redux/actions/text_actions";
 
 
 const format = (seconds) => {
@@ -136,6 +139,7 @@ function SummaryContent({
   summarizeMedia,
   loadVideosInCollection,
   loadAudiosInCollection,
+  loadTextsInCollection,
   updateVideoInCollection,
   updateAudioInCollection,
   resetVideoSummarization,
@@ -144,6 +148,7 @@ function SummaryContent({
   getScreenshot,
   resetAudioQuiz,
   resetVideoQuiz,
+  resetTextQuiz
 }) {
   const classes = useStyles();
   const theme = useTheme();
@@ -206,7 +211,7 @@ function SummaryContent({
         await resetAudioQuiz(id, mediaId);
         break;
       case "text":
-        await resetAudioQuiz(id, mediaId);
+        await resetTextQuiz(id, mediaId);
         break;
       default:
         break;
@@ -292,7 +297,7 @@ function SummaryContent({
           loadAudiosInCollection(collectionId);
           break;
         case "text":
-          loadAudiosInCollection(collectionId);
+          loadTextsInCollection(collectionId);
           break;
         default:
           break;
@@ -323,7 +328,7 @@ function SummaryContent({
           loadAudiosInCollection(collectionId);
           break;
         case "text":
-          loadAudiosInCollection(collectionId);
+          loadTextsInCollection(collectionId);
           break;
         default:
           break;
@@ -366,7 +371,7 @@ function SummaryContent({
   };
 
   const PopQuiz = () => {
-    //console.log(media);
+    console.log(media);
     if (media.quiz === null) {
       return (
         <React.Fragment>
@@ -481,6 +486,7 @@ function SummaryContent({
               <QuizList
                 quizes={JSON.parse(media.quiz)}
                 answerVisible={answerVisible}
+                mediaType={mediaType}
               />
             </Paper>
           </Grid>
@@ -824,6 +830,7 @@ const mapDispatchToProps = {
   summarizeMedia,
   loadVideosInCollection,
   loadAudiosInCollection,
+  loadTextsInCollection,
   updateVideoInCollection,
   updateAudioInCollection,
   resetVideoSummarization,
@@ -831,6 +838,7 @@ const mapDispatchToProps = {
   generateQuiz,
   resetAudioQuiz,
   resetVideoQuiz,
+  resetTextQuiz,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SummaryContent);

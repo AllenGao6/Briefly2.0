@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function QuizList({ quizes, answerVisible }) {
+export default function QuizList({ quizes, answerVisible, mediaType }) {
   const classes = useStyles();
 
   const construct_pair = (pair_list) => {
@@ -26,9 +26,29 @@ export default function QuizList({ quizes, answerVisible }) {
     for (let i = 0; i < pair_list.length; i++) {
       QA_pair.push([pair_list[i].question, pair_list[i].answer]);
     }
+    console.log(QA_pair);
     return QA_pair;
   };
-
+  if(mediaType === 'text'){
+    return (
+      <List className={classes.root} disablePadding>
+        {quizes
+          .map((quiz, i) => (
+            <React.Fragment key={i}>
+              <QuizPoint
+                    pair={quiz}
+                    answerVisible={answerVisible}
+                    time={null}
+                    count={null}
+                    index={i+1}
+                    mediaType={mediaType}
+                  />
+                  <Divider variant="middle" className={classes.divider} />
+            </React.Fragment>
+          ))}
+      </List>
+    );
+  } else{
   return (
     <List className={classes.root} disablePadding>
       {quizes
@@ -43,6 +63,7 @@ export default function QuizList({ quizes, answerVisible }) {
                   time={quiz.time}
                   count={quiz.count}
                   index={i}
+                  mediaType={mediaType}
                 />
                 <Divider variant="middle" className={classes.divider} />
               </React.Fragment>
@@ -51,4 +72,5 @@ export default function QuizList({ quizes, answerVisible }) {
         ))}
     </List>
   );
+ }
 }

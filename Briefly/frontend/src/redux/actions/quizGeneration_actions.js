@@ -52,19 +52,36 @@ export const generateQuiz =
       });
   };
 
-  export const resetVideoQuiz = (id, videoId) => (dispatch) => {
-    return axios
-      .get(`${SUMMARIZE_BASE_URL}${id}/video/${videoId}/resetQuiz/`)
-      .then((res) => {
-        dispatch({
-          type: type.RESET_VIDEO_QUIZ_SUCCESS,
-          videoId: videoId,
-        });
-      })
-      .catch((err) => {
-        dispatch({
-          type: type.RESET_VIDEO_QUIZ_FAILURE,
-        });
-        console.log(err);
+export const resetVideoQuiz = (id, videoId) => (dispatch) => {
+  return axios
+    .get(`${SUMMARIZE_BASE_URL}${id}/video/${videoId}/resetQuiz/`)
+    .then((res) => {
+      dispatch({
+        type: type.RESET_VIDEO_QUIZ_SUCCESS,
+        videoId: videoId,
       });
-  };
+    })
+    .catch((err) => {
+      dispatch({
+        type: type.RESET_VIDEO_QUIZ_FAILURE,
+      });
+      console.log(err);
+    });
+};
+
+export const resetTextQuiz = (id, textId) => (dispatch) => {
+  return axios
+    .get(`${SUMMARIZE_BASE_URL}${id}/text/${textId}/resetQuiz/`)
+    .then((res) => {
+      dispatch({
+        type: type.RESET_TEXT_QUIZ_SUCCESS,
+        textId: textId,
+      });
+    })
+    .catch((err) => {
+      dispatch({
+        type: type.RESET_TEXT_QUIZ_FAILURE,
+      });
+      console.log(err);
+    });
+};
