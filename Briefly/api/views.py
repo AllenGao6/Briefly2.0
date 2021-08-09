@@ -923,22 +923,20 @@ class TextViewSet(viewsets.ModelViewSet):
             text.save()
             
             text_info = (text.__class__.__name__.lower(), text.pk)
-            #tuple_args = (None, text.text, text_info)
+            tuple_args = (None, text.text, text_info)
             summary, audioText = None, text.text
             print(1)
-            # res = tasks.pop_quiz_celery.delay(tuple_args, based_text = 'full', type_task = task, question = question)
-            # print(res.get())
-            # res = res.get()
+            res = tasks.pop_quiz_celery.delay(tuple_args, based_text = 'full', type_task = task, question = question)
+            print(res.get())
+            res = res.get()
             
-            Quiz = quiz_generation.Quiz_generation(summary, audioText)
-            res = Quiz.generate(task, question=question)
-            text = Text.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))[0]
-            text.quiz = dumps(res)
-            text.save()
+            #Quiz = quiz_generation.Quiz_generation(summary, audioText)
+            #res = Quiz.generate(task, question=question)
+            #text = Text.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))[0]
+            #text.quiz = dumps(res)
+            #text.save()
 
-            
-            # text = Text.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))[0]
-            print(text.quiz)
+            text = Text.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))[0]
             text.is_processing = False
             text.save()
             return Response(res, status=status.HTTP_200_OK)

@@ -5,10 +5,10 @@ import datetime
 from .sentence_process import SentenceHandler
 import random
 # from django.conf import settings
-
-AWS_ACCESS_KEY_ID = 'AKIA4Q6A67QESQQAFLMF'
-AWS_SECRET_ACCESS_KEY = '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'
-AWS_STORAGE_BUCKET_NAME = 'briefly41'
+import os
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
 
 transcribe = boto3.client('transcribe', region_name='us-west-1', aws_access_key_id=AWS_ACCESS_KEY_ID,
          aws_secret_access_key= AWS_SECRET_ACCESS_KEY)
