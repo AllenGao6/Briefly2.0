@@ -5,7 +5,7 @@ from django.conf import settings
 from .speech_to_text_celery import amazon_transcribe, load_json_output, read_output, summarize
 from json import dumps
 from .quiz_generation import Quiz_generation
-from celery import chain, signature, Task
+from celery import chain, signature, Task, current_app
 from summarizer import Summarizer, TransformerSummarizer
 from .models import Collection, Video, Audio, Text
 from django.db import transaction
@@ -40,7 +40,7 @@ class XLNetTask(Task):
 
 class QuizTask(Task):
     _model = None
-    
+
     @property
     def model(self):
         if self._model is None:
@@ -134,20 +134,23 @@ def XLNet_summarize_celery(tuple_args, num_sentence=None, max_sentence = 20):
     video.save()
     return (summary, audioText, video_info)
 
-#This functionality has been removed to another server on another instance
+'''This functionality has been removed to another server on another instance'''
 @shared_task(base=QuizTask, time_limit=600)
-def pop_quiz_celery(tuple_args, based_text = "summ", type_task = "QA_pair_gen", question=None):
+def pop_quiz_celery(tuple_args, kwargs):
     print('starting process quiz...')
     summary, audioText, video_info = tuple_args
+    based_text = kwargs.get('based_text',"summ")
+    type_task = kwargs.get('type_task', 'QA_pair_gen')
+    question = kwargs.get('question', None)
     Quiz = Quiz_generation(summary, audioText, based_text=based_text, model = pop_quiz_celery.model)
     res = Quiz.generate(type_task, question=question)
-    
+
     # media cannot be retrieved since this task is ran by another instance without
     # proper setting for the database
-    
-    #video = retrieve_media(video_info)
-    #video.quiz = dumps(res)
-    #video.save()
+
+    video = retrieve_media(video_info)
+    video.quiz = dumps(res)
+    video.save()
     return res
 
 # transcribe + XLNet summarize + pop quiz + send email
@@ -156,14 +159,14 @@ def chain_initial_process_video(video_info, d):
     video = retrieve_media(video_info)
     video_path = video.video.name.split('/')
     video_name, video_id, type, collection_name = video_path[3], video_path[2],video_path[1], video_path[0]
-    chain = (amazon_transcribe_celery.s(video_info, video_name, collection_name, type, video_id) |
-            XLNet_summarize_celery.s(num_sentence=None, max_sentence = 20) |
-            pop_quiz_celery.s(based_text = "summ", type_task = "QA_pair_gen", question=None)
-            )().get(timeout=7200)
+    chain1 = (amazon_transcribe_celery.s(video_info, video_name, collection_name, type, video_id) |
+            XLNet_summarize_celery.s(num_sentence=None, max_sentence = 20))
+    
+    quiz_result = current_app.send_task("api.tasks.pop_quiz_celery", chain1, {"based_text" : "summ", "type_task" : "QA_pair_gen", "question" : None}).get(timeout=7200)
 
     send_email_celery.delay(d)
     video = retrieve_media(video_info)
-    video.quiz = dumps(chain)
+    video.quiz = dumps(quiz_result)
     video.is_processing = False
     video.save()
     
