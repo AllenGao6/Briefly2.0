@@ -440,7 +440,7 @@ class VideoViewSet(viewsets.ModelViewSet):
             
             print("Here")
             video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))[0]
-            print(video.quiz)
+            video.quiz = res
             video.is_processing = False
             video.save()
             return Response(res, status=status.HTTP_200_OK)
@@ -827,7 +827,7 @@ class AudioViewSet(viewsets.ModelViewSet):
             
             print("Here")
             video = Audio.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))[0]
-            print(video.quiz)
+            video.quiz = res
             video.is_processing = False
             video.save()
             return Response(res, status=status.HTTP_200_OK)
@@ -937,6 +937,8 @@ class TextViewSet(viewsets.ModelViewSet):
             #text.save()
 
             text = Text.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))[0]
+            text.quiz = res
+            
             text.is_processing = False
             text.save()
             return Response(res, status=status.HTTP_200_OK)

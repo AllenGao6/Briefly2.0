@@ -159,6 +159,7 @@ def chain_initial_process_video(video_info, d):
 
     send_email_celery.delay(d)
     video = retrieve_media(video_info)
+    video.quiz = dumps(chain)
     video.is_processing = False
     video.save()
     
