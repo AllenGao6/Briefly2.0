@@ -3,7 +3,7 @@ import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
-// import NotFound from "./pages/NotFound";
+import NotFound from "./pages/NotFound";
 import Workspace from "./pages/Workspace";
 //ui interface module
 import theme from "./Theme";
@@ -127,7 +127,7 @@ class App extends Component {
               path="/dashboard/:id/:mediaType/:mediaId"
               render={(props) => <Workspace {...props} {...stateProps} />}
             />
-            <Route path="/not-found" component={<div>SADA</div>} />
+            <Route path="/not-found" component={() => <NotFound />} />
             <Redirect to="/not-found" />
           </Switch>
         </BrowserRouter>

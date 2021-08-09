@@ -25,8 +25,9 @@ const useStyles = makeStyles((theme) => ({
   },
   infoFont: {
     ...theme.typography.secondaryCaption,
+    fontFamily: "Roboto Arial",
     color: "inherit",
-    fontSize: "25px",
+    fontSize: "16px",
   },
   disabledButtonFont: {
     ...theme.typography.secondaryCaption,
@@ -66,7 +67,7 @@ const InfoStrip = (props) => {
       </Grid>
       <Typography
         className={classes.infoFont}
-        style={{ marginLeft: 40, color: "#bdc3c7", fontSize: "30px" }}
+        style={{ marginLeft: 40, color: "#bdc3c7"}}
       >
         {props.data.info}
       </Typography>

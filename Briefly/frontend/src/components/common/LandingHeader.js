@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   AppBar,
+  Dialog,
+  DialogTitle,
+  Divider,
   Toolbar,
   useScrollTrigger,
   Tabs,
@@ -13,6 +16,7 @@ import {
   SwipeableDrawer,
   List,
   ListItem,
+  ListItemIcon,
   ListItemText,
   Typography,
   Grid,
@@ -30,6 +34,9 @@ import DemoIcon from "@material-ui/icons/MovieOutlined";
 import TeamIcon from "@material-ui/icons/GroupOutlined";
 import AboutIcon from "@material-ui/icons/BusinessOutlined";
 import MoreIcon from "@material-ui/icons/MoreHorizOutlined";
+import SchoolRoundedIcon from "@material-ui/icons/SchoolRounded";
+import MenuBookRoundedIcon from "@material-ui/icons/MenuBookRounded";
+import EmailRoundedIcon from "@material-ui/icons/EmailRounded";
 
 import logo from "../../assets/logo/png/colorLogo.png";
 import MenuPopper from "./MenuPopper";
@@ -40,6 +47,13 @@ import LoginDialog from "../social_login/LoginDialog";
 
 import { connect } from "react-redux";
 import { login, logout } from "../../redux/actions/auth_actions";
+
+const data = {
+  username: "Shawn",
+  email: "ypx5110@psu.edu",
+  school: "Penn State",
+  major: "Computer Science"
+};
 
 const useStyles = makeStyles((theme) => ({
   appbar: {
@@ -158,6 +172,7 @@ function LandingHeader({
   const [openMenu, setOpenMenu] = useState(false);
   const [openLoginDialog, setOpenLoginDiaog] = useState(false);
   const [openSideNavbar, setOpenSideNavbar] = useState(false);
+  const [openProfileDialog, setOpenProfileDialog] = useState(false);
 
   // json array of objects used for mapping
   const tabs = [
@@ -178,7 +193,7 @@ function LandingHeader({
       label: "My Profile",
       color: matchesDark ? "white" : "black",
       backgroundColor: matchesDark ? theme.palette.primary.main : "white",
-      onClick: () => history.push("/profile"),
+      onClick: () => openProfile(),
     },
     {
       icon: (
@@ -235,6 +250,14 @@ function LandingHeader({
 
   const handleSocialLoginFailure = (err) => {
     console.log(err);
+  };
+
+  const openProfile = () => {
+    setOpenProfileDialog(true);
+  };
+
+  const closeProfile = () => {
+    setOpenProfileDialog(false);
   };
 
   const initial = (user) => {
@@ -373,6 +396,59 @@ function LandingHeader({
       </SwipeableDrawer>
     </React.Fragment>
   );
+
+  const profileDialog = () => {
+    <Dialog
+      open={openProfileDialog}
+      onClose={closeProfile}
+      color="primary"
+      PaperProps={{
+        style: {
+          backgroundColor: "#ecf0f1"
+        }
+      }}
+      aria-labelledby="alert-dialog-title"
+      aria-describedby="alert-dialog-description"
+    >
+      <DialogTitle
+        id="alert-dialog-title"
+        style={{ backgroundColor: primaryColor }}
+      >
+        <Typography
+          style={{ fontFamily: "Ubuntu", fontSize: "30px", color: "#ecf0f1" }}
+        >
+          Hello, {data.username}!
+        </Typography>
+      </DialogTitle>
+
+      <ListItem button>
+        <ListItemIcon>
+          <SchoolRoundedIcon style={{ color: primaryColor }} />
+        </ListItemIcon>
+        <Typography style={{ fontFamily: "Ubuntu" }}>
+          {data.school}
+        </Typography>
+      </ListItem>
+
+      <Divider />
+
+      <ListItem button>
+        <ListItemIcon>
+          <MenuBookRoundedIcon style={{ color: primaryColor }} />
+        </ListItemIcon>
+        <Typography style={{ fontFamily: "Ubuntu" }}>{data.major}</Typography>
+      </ListItem>
+
+      <Divider />
+
+      <ListItem button>
+        <ListItemIcon>
+          <EmailRoundedIcon style={{ color: primaryColor }} />
+        </ListItemIcon>
+        <Typography style={{ fontFamily: "Ubuntu" }}>{data.email}</Typography>
+      </ListItem>
+    </Dialog>
+  }
 
   return (
     <React.Fragment>
