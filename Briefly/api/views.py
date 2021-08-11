@@ -41,11 +41,12 @@ class VideoViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         # storage check
         user = request.user
-        fileSize = 0
+        fileSize = 0       
         if request.FILES.get('video'):
             fileSize = int(ceil(request.FILES['video'].size))
             if fileSize >= user.userprofile.remaining_size:
                 return Response(f"video size {fileSize//1024//1024} mb has exceeded your remaining size: {user.userprofile.remaining_size//1024//1024} mb.", status=status.HTTP_400_BAD_REQUEST)
+        
         return super().create(request, *args, **kwargs)
     
     
@@ -59,12 +60,13 @@ class VideoViewSet(viewsets.ModelViewSet):
         fileSize = 0
         if serializer.context['request'].FILES.get('video'):
             fileSize = int(ceil(serializer.context['request'].FILES['video'].size))
-        
+       
         # save twice for gainning the id of currently constructed video instance
         instance = serializer.save()
-        instance.video.delete(save=False)
-        instance.fileSize = fileSize
-        serializer.save() 
+        if instance.video:
+            instance.video.delete(save=False)
+            instance.fileSize = fileSize    
+            serializer.save() 
         
         if fileSize:
             profile = UserProfile.objects.select_for_update().filter(user=user)[0]
@@ -73,6 +75,24 @@ class VideoViewSet(viewsets.ModelViewSet):
                 profile.save()
                 print(f"creating after: remaining: {profile.remaining_size}")
                 print(f"video create time spent: {time()-t1:.2f}")
+                
+        # if it is fetched from YouTube:
+        if serializer.context['request'].data['is_youtube']:
+            print("recieved upload from youtube request")
+            youtube_url = serializer.context['request'].data.get('youtube_url', None)
+            if youtube_url:
+                video_id = youtube_url.split("=")[-1]
+                video_info = (instance.__class__.__name__.lower(), instance.pk)
+                
+                d = { 'username': instance.collection.owner.first_name, 
+                            'mediaType': instance.__class__.__name__.lower(), 
+                            'mediaName': instance.title,
+                            'collection': instance.collection.name,
+                            'MEDIA_URL': settings.MEDIA_URL,
+                            'TO': instance.collection.owner.email}
+                
+                tasks.chain_initial_process_video_youtube.delay(video_info, youtube_url, video_id, user.pk, d) 
+                #without delay: run Synchronously
         
     #     '''another way: update from instance itself, also worked but lengthy'''
     #     # update from instance itself
@@ -154,7 +174,28 @@ class VideoViewSet(viewsets.ModelViewSet):
     #     newest = self.get_queryset().order_by("created").last()
     #     serializer = self.get_serializer_class()(newest)
     #     return Response(serializer.data)
-    
+    '''
+    Call this url to upload a Youtube video
+    URL: api/<int:collection_id>/video/upload-from-youtube/
+    Method: POST
+    Arguments: youtube_url: a string specifies the video's youtube url
+               title      : a string specifies title of the video by user
+    '''
+    @action(methods=['POST'], detail=False)
+    def upload_from_youtube(self, request, *args, **kwargs):
+        print("recieved upload from youtube request")
+        user = request.user
+        youtube_url = request.data.get('youtube_url', None)
+        title = request.data.get('title', "New video")
+        if youtube_url:
+            video_id = youtube_url.split("=")[-1]
+            transcript, audio_text = tasks.get_transcript(video_id) #without delay: run Synchronously 
+            video = Video.objects.create(collection = self.kwargs['collection_pk'],
+                                         title = title,
+                                         ) 
+            
+        return
+        
     
     '''
     Call this url to begin transcribe from Amazon

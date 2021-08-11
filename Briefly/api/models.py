@@ -80,8 +80,10 @@ class Video(models.Model):
     fileSize = models.IntegerField(default=0)
     is_processing = models.BooleanField(blank=True, default=False)
     quiz = models.JSONField(null=True, blank=True)
+    is_youtube = models.BooleanField(blank=True, default=False)
+    youtube_url = models.CharField(max_length=300, null=True, blank=True)
     def __str__(self):
-        return f"Video: {self.title}"
+        return f"Video: {self.title}"   
     
 #audio model
 def upload_audio_name(instance, filename):

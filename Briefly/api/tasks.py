@@ -7,9 +7,17 @@ from json import dumps
 from .quiz_generation import Quiz_generation
 from celery import chain, signature, Task, current_app
 from summarizer import Summarizer, TransformerSummarizer
-from .models import Collection, Video, Audio, Text
+from .models import Video, Audio, Text
+from social_login.models import UserProfile
 from django.db import transaction
 from .Question_gen.pipelines import pipeline
+from youtube_transcript_api import YouTubeTranscriptApi
+import xml.etree.ElementTree as ET
+import urllib.request
+import html
+from pytube import YouTube
+import os
+from django.core.files import File
 
 class GPT2Task(Task):
     _model = None
@@ -155,6 +163,72 @@ def chain_initial_process_video(video_info, d):
     video_path = video.video.name.split('/')
     video_name, video_id, type, collection_name = video_path[3], video_path[2],video_path[1], video_path[0]
     chain = (amazon_transcribe_celery.s(video_info, video_name, collection_name, type, video_id) |
+            XLNet_summarize_celery.s(num_sentence=None, max_sentence = 20) |
+            pop_quiz_celery.s(based_text = "summ", type_task = "QA_pair_gen", question=None)
+            )().get(timeout=7200)
+    
+    send_email_celery.delay(d)
+    video = retrieve_media(video_info)
+    video.quiz = dumps(chain)
+    video.is_processing = False
+    video.save()
+    
+    return None
+
+@shared_task
+def get_video_Transcript(video_info, url, video_id, user_id):
+    transcript = YouTubeTranscriptApi.get_transcript(video_id)
+    yt = YouTube(url)
+    
+    file = yt.captions['.en'] if '.en' in yt.captions else yt.captions['a.en']
+    tree = ET.fromstring(file.xml_captions)
+    notags = ET.tostring(tree, encoding='unicode', method='text')
+    notags = html.unescape(notags)
+    notags = notags.replace('\n', ' ')
+    notags = ' '.join(notags.split())
+    video = None
+    video = yt.streams.filter(progressive=True, file_extension='mp4', res='720p').first()
+    if not video:
+        video = yt.streams.filter(progressive=True, file_extension='mp4', res='480p').first()
+    elif not video:
+        video = yt.streams.filter(progressive=True, file_extension='mp4', res='360p').first()
+    elif not video:
+        video = yt.streams.filter(progressive=True, file_extension='mp4', res='240p').first()
+    elif not video:
+        video = yt.streams.filter(progressive=True, file_extension='mp4', res='144p').first()
+    
+    instance = retrieve_media(video_info)
+    
+    # for Allen: change transcript format based on your defined format, start here
+
+    # end
+    instance.transcript = dumps(transcript)     
+    instance.audioText = notags
+    
+    video_path = video.download()
+    video_file = open(video_path, 'rb')
+    djangofile = File(video_file)
+    
+    instance.video = djangofile
+    instance.fileSize = djangofile.size
+    
+    
+    profile = UserProfile.objects.select_for_update().filter(user=user_id)[0]
+    with transaction.atomic():
+        profile.remaining_size -= djangofile.size
+        profile.save()
+        
+    instance.save()
+    
+    video_file.close()
+    os.remove(video_path)
+    return (notags, transcript, video_info)
+
+# upload YouTube video + XLNet summarize + pop quiz + send email
+@shared_task(time_limit=1200)
+def chain_initial_process_video_youtube(video_info, url, video_id, user_id, d):
+    video = retrieve_media(video_info)
+    chain = (get_video_Transcript.s(video_info, url, video_id, user_id) |
             XLNet_summarize_celery.s(num_sentence=None, max_sentence = 20) |
             pop_quiz_celery.s(based_text = "summ", type_task = "QA_pair_gen", question=None)
             )().get(timeout=7200)
