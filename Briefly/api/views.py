@@ -27,6 +27,7 @@ from django.template.loader import render_to_string
 from .tasks import send_email_celery
 from django.core.mail import send_mail
 from celery import current_app
+import re
 
 class VideoViewSet(viewsets.ModelViewSet):
 
@@ -46,6 +47,8 @@ class VideoViewSet(viewsets.ModelViewSet):
             fileSize = int(ceil(request.FILES['video'].size))
             if fileSize >= user.userprofile.remaining_size:
                 return Response(f"video size {fileSize//1024//1024} mb has exceeded your remaining size: {user.userprofile.remaining_size//1024//1024} mb.", status=status.HTTP_400_BAD_REQUEST)
+        if request.data.get("is_youtube") and not re.match(r"^(https\:\/\/|http\:\/\/)?(www\.youtube\.com|youtube\.com)\/watch\?v=.+$",request.data.get("youtube_url")):
+            return Response(f"Please enter a correct YouTube url in format: https://www.youtube.com/watch?v=xxxxx... or its similar form.", status=status.HTTP_400_BAD_REQUEST)
         
         return super().create(request, *args, **kwargs)
     
