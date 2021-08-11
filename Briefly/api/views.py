@@ -174,29 +174,8 @@ class VideoViewSet(viewsets.ModelViewSet):
     #     newest = self.get_queryset().order_by("created").last()
     #     serializer = self.get_serializer_class()(newest)
     #     return Response(serializer.data)
-    '''
-    Call this url to upload a Youtube video
-    URL: api/<int:collection_id>/video/upload-from-youtube/
-    Method: POST
-    Arguments: youtube_url: a string specifies the video's youtube url
-               title      : a string specifies title of the video by user
-    '''
-    @action(methods=['POST'], detail=False)
-    def upload_from_youtube(self, request, *args, **kwargs):
-        print("recieved upload from youtube request")
-        user = request.user
-        youtube_url = request.data.get('youtube_url', None)
-        title = request.data.get('title', "New video")
-        if youtube_url:
-            video_id = youtube_url.split("=")[-1]
-            transcript, audio_text = tasks.get_transcript(video_id) #without delay: run Synchronously 
-            video = Video.objects.create(collection = self.kwargs['collection_pk'],
-                                         title = title,
-                                         ) 
-            
-        return
-        
-    
+
+
     '''
     Call this url to begin transcribe from Amazon
     URL: api/<int: collection_id>/video/<int: video_id>/transcribe_begin/

@@ -224,7 +224,7 @@ def get_video_Transcript(video_info, url, video_id, user_id):
     os.remove(video_path)
     return (notags, transcript, video_info)
 
-# upload YouTube video + XLNet summarize + pop quiz + send email
+# download YouTube video + XLNet summarize + pop quiz + send email
 @shared_task(time_limit=1200)
 def chain_initial_process_video_youtube(video_info, url, video_id, user_id, d):
     video = retrieve_media(video_info)
