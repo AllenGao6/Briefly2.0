@@ -28,7 +28,7 @@ export const teamInfo = [
     name: "Allen",
     headImage: head1,
     position: "Team Lead",
-    description: dummyText,
+    description: "The team lead of Briefly, hold experience in all algorithm, frontend UI design, and backend development. A rising junior in Penn State University studying computer science and Math. Love reading, programming, and exercising.",
   },
   {
     name: "Brian",

@@ -18,6 +18,9 @@ import html
 from pytube import YouTube
 import os
 from django.core.files import File
+from .sentence_process import SentenceHandler
+from punctuator import Punctuator
+import datetime
 
 class GPT2Task(Task):
     _model = None
@@ -175,6 +178,25 @@ def chain_initial_process_video(video_info, d):
     
     return None
 
+def get_sentence_words_count(sentences):
+    count = 0
+    words_counter = []
+    for index, sentence in enumerate(sentences):
+        words_count = len(sentence.split(' '))
+        words_counter.append([count, sentence])
+        count += words_count
+    return words_counter
+
+def process_transcript(transcript):
+    counter_trans = []
+    counter = 0
+    for sen in transcript:
+        counter += len(sen['text'].split(' '))
+        sen['word_count'] = counter
+        counter_trans.append(sen)
+
+    return counter_trans
+
 @shared_task
 def get_video_Transcript(video_info, url, video_id, user_id):
     transcript = YouTubeTranscriptApi.get_transcript(video_id)
@@ -201,9 +223,44 @@ def get_video_Transcript(video_info, url, video_id, user_id):
     
     # for Allen: change transcript format based on your defined format, start here
 
+    #the original audiotext does not have puntuation, this two lines will add punturation in for you
+    p = Punctuator('puntuator_model/model.pcl')
+    result = p.punctuate(notags)
+    # sentence piece the whole audiotext
+    sentence_handler = SentenceHandler()
+    sentences = sentence_handler(result, 5, 600)
+
+    sentence_count = get_sentence_words_count(sentences)
+    term_count = process_transcript(transcript)
+    lines = [] 
+    total_time = transcript[-1]['start'] + transcript[-1]['duration']
+
+    sentence_index = 0
+    sentence_num = len(sentence_count)
+    for term in term_count:
+        if sentence_index >= sentence_num:
+            break
+
+        target_sen = sentence_count[sentence_index]
+    
+        while term['word_count'] >= target_sen[0] and sentence_index < sentence_num:
+            lines.append({'id': sentence_index, 'sentence': target_sen[1],'time': term['start'] })
+            sentence_index += 1
+            if sentence_index >= sentence_num:
+                break
+            target_sen = sentence_count[sentence_index]
+        
+    if sentence_index < sentence_num - 1:
+        print("alert!! timestamp error, please check speech_to_text file read output function")
+
+    for line_data in lines:
+        line_data['displayed_time'] = '[' + str(datetime.timedelta(seconds=int(round(float(line_data['time']))))) + ']'
+        line_data['time'] = float(line_data['time']) / float(total_time)
+
     # end
-    instance.transcript = dumps(transcript)     
-    instance.audioText = notags
+
+    instance.transcript = dumps(lines)     
+    instance.audioText = result
     
     video_path = video.download()
     video_file = open(video_path, 'rb')

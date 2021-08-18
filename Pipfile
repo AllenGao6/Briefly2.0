@@ -36,6 +36,7 @@ django-celery-results = "*"
 youtube-transcript-api = "*"
 lxml = "*"
 pytube = "*"
+punctuator = "*"
 
 [dev-packages]
 
