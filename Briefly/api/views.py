@@ -80,7 +80,7 @@ class VideoViewSet(viewsets.ModelViewSet):
                 print(f"video create time spent: {time()-t1:.2f}")
                 
         # if it is fetched from YouTube:
-        if serializer.context['request'].data['is_youtube']:
+        if serializer.context['request'].data.get('is_youtube',None):
             print("recieved upload from youtube request")
             youtube_url = serializer.context['request'].data.get('youtube_url', None)
             if youtube_url:
@@ -94,7 +94,7 @@ class VideoViewSet(viewsets.ModelViewSet):
                             'MEDIA_URL': settings.MEDIA_URL,
                             'TO': instance.collection.owner.email}
                 
-                tasks.chain_initial_process_video_youtube.delay(video_info, youtube_url, video_id, user.pk, d) 
+                tasks.chain_initial_process_video_youtube(video_info, youtube_url, video_id, user.pk, d) 
                 #without delay: run Synchronously
         
     #     '''another way: update from instance itself, also worked but lengthy'''

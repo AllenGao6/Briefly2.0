@@ -19,7 +19,7 @@ from pytube import YouTube
 import os
 from django.core.files import File
 from .sentence_process import SentenceHandler
-from punctuator import Punctuator
+from .Punc.punctuator import Punctuator
 import datetime
 
 class GPT2Task(Task):

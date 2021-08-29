@@ -509,7 +509,11 @@ function CollectionTable({
       formData.append("collection", match.params.id);
       if(mediaType === 'text'){
         formData.append(mediaType, textInput);
-      }else{
+      }else if(mediaType === 'video'){
+        formData.append(mediaType, mediaStream, mediaStream.name);
+        // pass whether input is youtube link or uploaded file
+        formData.append("is_youtube", false);
+      } else {
         formData.append(mediaType, mediaStream, mediaStream.name);
       }
 

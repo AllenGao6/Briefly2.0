@@ -37,6 +37,7 @@ youtube-transcript-api = "*"
 lxml = "*"
 pytube = "*"
 punctuator = "*"
+gevent = "*"
 
 [dev-packages]
 
