@@ -16,6 +16,7 @@ import {
   LinearProgress,
   IconButton,
   Paper,
+  ButtonGroup
 } from "@material-ui/core";
 import { darken, lighten } from "@material-ui/core/styles";
 import {
@@ -192,6 +193,8 @@ function CollectionTable({
 
   const [selectionModel, setSelectionModel] = useState([]);
   const [pageSize, setPageSize] = useState(25);
+  const [youtube, setYoutube] = useState("");
+  const [isYoutube, changeYoutube] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
   const [title, setTitle] = useState("");
   const [archived, setArchived] = useState(false);
@@ -509,10 +512,10 @@ function CollectionTable({
       formData.append("collection", match.params.id);
       if(mediaType === 'text'){
         formData.append(mediaType, textInput);
-      }else if(mediaType === 'video'){
-        formData.append(mediaType, mediaStream, mediaStream.name);
+      }else if(mediaType === 'video' && isYoutube){
         // pass whether input is youtube link or uploaded file
-        formData.append("is_youtube", false);
+        formData.append("is_youtube", isYoutube);
+        formData.append("youtube_url", youtube)
       } else {
         formData.append(mediaType, mediaStream, mediaStream.name);
       }
@@ -637,6 +640,16 @@ function CollectionTable({
     );
   }
 
+  //check if youtube url is valid
+  function matchYoutubeUrl(url) {
+    var p = /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
+    var matches = url.match(p);
+    if(matches){
+        return true;
+    }
+    return false;
+  }
+
   function ArchiveIcon({ archived }) {
     return (
       <Button
@@ -736,6 +749,12 @@ function CollectionTable({
                 labelPlacement="start"
               />
             </Grid>
+            {mediaType === 'video' && action === 'Create'? (<Grid container item justify='center'>
+              <ButtonGroup variant="contained" color="primary">
+                <Button onClick={() => changeYoutube(true)}>Youtube Url</Button>
+                <Button onClick={() => { changeYoutube(false); }}>File Upload</Button>
+              </ButtonGroup> 
+            </Grid>) : null}
             <Grid
               item
               container
@@ -748,6 +767,9 @@ function CollectionTable({
                 isCreating={isCreating}
                 onUploadFinish={handleUploadFinish}
                 mediaUrl={mediaUrl}
+                youtube={youtube}
+                setYoutube={setYoutube}
+                isYoutube = {isYoutube}
               />
             </Grid>
             <Grid item container style={{ paddingLeft: 36, paddingRight: 36 }}>
@@ -771,7 +793,7 @@ function CollectionTable({
                 <Button
                   variant="contained"
                   disabled={
-                    title.length === 0 || (mediaType !== 'text' && mediaUrl === null) || isCreating
+                    title.length === 0 || (mediaType !== 'text' && mediaUrl === null && isYoutube === false) || isCreating || (isYoutube && matchYoutubeUrl(youtube) === false)
                   }
                   className={classes.createButton}
                   onClick={() => {

@@ -35,7 +35,7 @@ export const createVideoInCollection = (id, video) => async (dispatch) => {
       },
     }
   );
-
+  alert(response.status);
   if (response.status === 201) {
     dispatch({
       type: type.CREATE_VIDEO_SUCCESS,
@@ -43,6 +43,7 @@ export const createVideoInCollection = (id, video) => async (dispatch) => {
     });
     return response.data;
   } else {
+    alert("failed!");
     dispatch({
       type: type.CREATE_VIDEO_FAILURE,
     });

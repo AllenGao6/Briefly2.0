@@ -201,7 +201,7 @@ def process_transcript(transcript):
 def get_video_Transcript(video_info, url, video_id, user_id):
     transcript = YouTubeTranscriptApi.get_transcript(video_id)
     yt = YouTube(url)
-    
+    print("check1")
     file = yt.captions['.en'] if '.en' in yt.captions else yt.captions['a.en']
     tree = ET.fromstring(file.xml_captions)
     notags = ET.tostring(tree, encoding='unicode', method='text')
@@ -220,7 +220,7 @@ def get_video_Transcript(video_info, url, video_id, user_id):
         video = yt.streams.filter(progressive=True, file_extension='mp4', res='144p').first()
     
     instance = retrieve_media(video_info)
-    
+    print("check2")
     # for Allen: change transcript format based on your defined format, start here
 
     #the original audiotext does not have puntuation, this two lines will add punturation in for you

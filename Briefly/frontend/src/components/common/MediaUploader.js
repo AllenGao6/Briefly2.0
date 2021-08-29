@@ -10,6 +10,7 @@ import {
   Typography,
   Grid,
   Button,
+  ButtonGroup,
 } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
@@ -51,6 +52,9 @@ export default function MediaUploader({
   isCreating,
   action,
   mediaUrl,
+  youtube,
+  setYoutube,
+  isYoutube
 }) {
   const fileInputRef = useRef(null);
   const classes = useStyles();
@@ -59,6 +63,21 @@ export default function MediaUploader({
   const playerRef = useRef(null);
   function capitalize(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
+  if (isYoutube && action === 'Create') {
+    return (
+      <React.Fragment>
+        <TextField
+          id="outlined-basic"
+          label="Youtube Url"
+          variant="outlined"
+          value={youtube}
+          onChange={(e) => setYoutube(e.currentTarget.value)}
+          fullWidth
+      />
+      </React.Fragment>
+    )
   }
   return (
     <React.Fragment>
@@ -71,6 +90,7 @@ export default function MediaUploader({
           ref={playerRef}
         />
       ) : null}
+
       {mediaType === "text" ? (
         <Grid item xs={12} className={classes.padding}>
           <form

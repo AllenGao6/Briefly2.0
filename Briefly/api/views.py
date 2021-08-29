@@ -94,7 +94,7 @@ class VideoViewSet(viewsets.ModelViewSet):
                             'MEDIA_URL': settings.MEDIA_URL,
                             'TO': instance.collection.owner.email}
                 
-                tasks.chain_initial_process_video_youtube(video_info, youtube_url, video_id, user.pk, d) 
+                tasks.chain_initial_process_video_youtube.delay(video_info, youtube_url, video_id, user.pk, d) 
                 #without delay: run Synchronously
         
     #     '''another way: update from instance itself, also worked but lengthy'''
