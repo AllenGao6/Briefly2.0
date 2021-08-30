@@ -279,7 +279,7 @@ def get_video_Transcript(video_info, url, video_id, user_id):
     
     video_file.close()
     os.remove(video_path)
-    return (notags, transcript, video_info)
+    return (notags, lines, video_info)
 
 # download YouTube video + XLNet summarize + pop quiz + send email
 @shared_task(time_limit=1200)
