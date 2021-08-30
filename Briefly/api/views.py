@@ -46,7 +46,7 @@ class VideoViewSet(viewsets.ModelViewSet):
         if request.FILES.get('video'):
             fileSize = int(ceil(request.FILES['video'].size))
             if fileSize >= user.userprofile.remaining_size:
-                return Response(f"video size {fileSize//1024//1024} mb has exceeded your remaining size: {user.userprofile.remaining_size//1024//1024} mb.", status=status.HTTP_400_BAD_REQUEST)
+                return Response(f"video size {fileSize//1024//1024} mb has exceeded your remaining size: {user.userprofile.remaining_size//1024//1024} mb.", status=status.HTTP_426_UPGRADE_REQUIRED)
         if request.data.get("is_youtube") and not re.match(r"^(https\:\/\/|http\:\/\/)?(www\.youtube\.com|youtube\.com)\/watch\?v=.+$",request.data.get("youtube_url")):
             return Response(f"Please enter a correct YouTube url in format: https://www.youtube.com/watch?v=xxxxx... or its similar form.", status=status.HTTP_400_BAD_REQUEST)
         
@@ -590,7 +590,7 @@ class AudioViewSet(viewsets.ModelViewSet):
         if request.FILES.get('audio'):
             fileSize = int(ceil(request.FILES['audio'].size))
             if fileSize >= user.userprofile.remaining_size:
-                return Response(f"audio size {fileSize//1024//1024} mb has exceeded your remaining size: {user.userprofile.remaining_size//1024//1024} mb.", status=status.HTTP_400_BAD_REQUEST)
+                return Response(f"audio size {fileSize//1024//1024} mb has exceeded your remaining size: {user.userprofile.remaining_size//1024//1024} mb.", status=status.HTTP_426_UPGRADE_REQUIRED)
         return super().create(request, *args, **kwargs)
     
     

@@ -165,3 +165,4 @@ Briefly/api/migrations/0001_initial.py
 Briefly/frontend/static/frontend/main.js
 Briefly/frontend/static/frontend/main.js.LICENSE.txt
 Briefly/frontend/src/redux/constant.js
+Briefly/puntuator_model/model.pcl
