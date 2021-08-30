@@ -6,8 +6,8 @@ import Cookies from "js-cookie";
 const SUMMARIZE_BASE_URL = BASE_URL + "api/collection/";
 
 export const transcribeMedia =
-  (collectionId, mediaId, mediaType) => async (dispatch) => {
-    if(mediaType === "text"){
+  (collectionId, mediaId, mediaType, isYoutube) => async (dispatch) => {
+    if(mediaType === "text" || isYoutube){
       dispatch({
         type: type.TRANSCRIBE_SUCCESS,
         mediaType: mediaType,

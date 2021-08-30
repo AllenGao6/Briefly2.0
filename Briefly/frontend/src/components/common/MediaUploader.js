@@ -65,7 +65,7 @@ export default function MediaUploader({
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
 
-  if (isYoutube && action === 'Create') {
+  if (isYoutube && action === 'Create' && mediaType === 'video') {
     return (
       <React.Fragment>
         <TextField
