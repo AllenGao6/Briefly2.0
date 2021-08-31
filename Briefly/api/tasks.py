@@ -58,6 +58,14 @@ class QuizTask(Task):
             self._model = pipeline("question-generation", model="valhalla/t5-small-qg-prepend", qg_format="prepend")
         return self._model
 
+class Transcript(Task):
+    _model = None
+
+    @property
+    def model(self):
+        if self._model is None:
+            self._model = Punctuator('puntuator_model/model.pcl')
+        return self._model
 
 def retrieve_media(video_info):
     if video_info[0] == 'video':
@@ -143,6 +151,7 @@ def XLNet_summarize_celery(tuple_args, num_sentence=None, max_sentence = 20):
     video.summarization = dumps(summary)
     video.is_summarized = True
     video.save()
+    print(video.summarization)
     return (summary, audioText, video_info)
 
 '''This functionality has been removed to another server on another instance'''
@@ -197,7 +206,7 @@ def process_transcript(transcript):
 
     return counter_trans
 
-@shared_task
+@shared_task(base=Transcript)
 def get_video_Transcript(video_info, url, video_id, user_id):
     transcript = YouTubeTranscriptApi.get_transcript(video_id)
     yt = YouTube(url)
@@ -224,7 +233,7 @@ def get_video_Transcript(video_info, url, video_id, user_id):
     # for Allen: change transcript format based on your defined format, start here
 
     #the original audiotext does not have puntuation, this two lines will add punturation in for you
-    p = Punctuator('puntuator_model/model.pcl')
+    p = get_video_Transcript.model
     result = p.punctuate(notags)
     # sentence piece the whole audiotext
     sentence_handler = SentenceHandler()
@@ -279,7 +288,7 @@ def get_video_Transcript(video_info, url, video_id, user_id):
     
     video_file.close()
     os.remove(video_path)
-    return (notags, lines, video_info)
+    return (result, lines, video_info)
 
 # download YouTube video + XLNet summarize + pop quiz + send email
 @shared_task(time_limit=1200)
