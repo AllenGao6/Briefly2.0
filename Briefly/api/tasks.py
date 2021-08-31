@@ -297,7 +297,7 @@ def chain_initial_process_video_youtube(video_info, url, video_id, user_id, d):
     chain = (get_video_Transcript.s(video_info, url, video_id, user_id) |
             XLNet_summarize_celery.s(num_sentence=None, max_sentence = 20) |
             pop_quiz_celery.s(based_text = "summ", type_task = "QA_pair_gen", question=None)
-            )().get(timeout=7200)
+            )().get(timeout=7200, disable_sync_subtasks=False)
     
     send_email_celery.delay(d)
     video = retrieve_media(video_info)
