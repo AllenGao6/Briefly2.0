@@ -296,13 +296,44 @@ def chain_initial_process_video_youtube(video_info, url, video_id, user_id, d):
     video = retrieve_media(video_info)
     chain = (get_video_Transcript.s(video_info, url, video_id, user_id) |
             XLNet_summarize_celery.s(num_sentence=None, max_sentence = 20) |
-            pop_quiz_celery.s(based_text = "summ", type_task = "QA_pair_gen", question=None)
+            pop_quiz_celery.s(based_text = "summ", type_task = "QA_pair_gen", question=None) |
+            send_email_celery_youtube.s(d=d)
             )().get(timeout=7200)
     
-    send_email_celery.delay(d)
+    #send_email_celery.delay(d)
     video = retrieve_media(video_info)
     video.quiz = dumps(chain)
     video.is_processing = False
     video.save()
     
+    return None
+
+'''
+Because celery requires a whole task function to be chained if order of running tasks is required,
+and arguments will be passed in the chain,
+I have to leave a position for the extra argument passed from pop_quiz_celery 
+'''
+@shared_task(time_limit=60)
+def send_email_celery_youtube(chained_args = None, d = None):
+    if not d:
+        return None
+    
+    email_subject = 'You Default Summarization Is Ready at Briefly-AI!'
+    
+    # {{ username }}
+    # {{ mediaType }}
+    # {{ mediaName }}
+    # {{ collection }}
+    
+    plaintext = render_to_string('email.txt', d)
+    htmly     = render_to_string('email.html', d)
+    from_email, to = settings.EMAIL_HOST_USER, d['TO']
+    send_mail(
+        email_subject,
+        plaintext,
+        from_email,
+        [to],
+        html_message=htmly,
+        fail_silently=False
+    )
     return None
