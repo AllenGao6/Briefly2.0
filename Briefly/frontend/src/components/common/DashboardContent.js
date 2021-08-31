@@ -12,17 +12,19 @@ import {
   Tab,
   Hidden,
   useScrollTrigger,
+  CircularProgress,
+  Box,
 } from "@material-ui/core";
 import clsx from "clsx";
 import { darken, lighten } from "@material-ui/core/styles";
 import collectionImage from "../../assets/hero/statistics.svg";
-import ParticleBackground from "../ParticleBackground";
+import learningImage from "../../assets/online-learning.svg";
+import axios from "axios";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     paddingTop: 69,
-    background:
-      theme.palette.type === "dark" ? theme.palette.primary.main : "white",
+    background: theme.palette.type === "dark" ? theme.palette.primary.main : "white",
     transition: theme.transitions.create(["margin", "width"], {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
@@ -73,17 +75,21 @@ export default function DashboardContent({
   const matchesSM = useMediaQuery(theme.breakpoints.down("sm"));
   const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
 
-  const collection = collections.filter(
-    (collection) => collection.id == match.params.id
-  )[0];
+  const collection = collections.filter((collection) => collection.id == match.params.id)[0];
 
   const [value, setValue] = useState(0);
+  const [progress, setProgress] = useState(10);
+
   const descriptionHeight = 400;
   const trigger = useScrollTrigger({
     target: window ? window : undefined,
     disableHysteresis: true,
     threshold: descriptionHeight,
   });
+
+  useEffect(() => {
+    axios.get();
+  }, []);
 
   const handleChange = (e, newValue) => {
     setValue(newValue);
@@ -92,6 +98,40 @@ export default function DashboardContent({
   const filterCollectionByArchive = () => {
     if (value === 1) return collections.filter((item) => item.is_archived);
     return collections;
+  };
+
+  const CircularProgressWithLabel = (props) => {
+    return (
+      <Box position="relative" display="inline-flex">
+        <CircularProgress variant="determinate" {...props} style={{ zIndex: 1305 }} />
+        <Box
+          top={0}
+          left={0}
+          bottom={0}
+          right={0}
+          position="absolute"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Typography variant="h5" style={{ color: "white", fontSize: "1.8rem" }}>{`${Math.round(
+            props.value
+          )}%`}</Typography>
+        </Box>
+        <Box
+          top={0}
+          left={0}
+          bottom={0}
+          right={0}
+          position="absolute"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <CircularProgress variant="determinate" value={100} size={props.size} color="secondary" />
+        </Box>
+      </Box>
+    );
   };
 
   const CollectionHero = () => (
@@ -152,16 +192,48 @@ export default function DashboardContent({
     <Grid
       container
       alignItems="center"
+      justify="space-between"
       style={{
         height: descriptionHeight,
-        paddingLeft: "2rem",
-        paddingRight: "2rem",
+        paddingLeft: "5rem",
+        paddingRight: "5rem",
         background: darken(theme.palette.common.grey, 0.4),
       }}
     >
-      <Typography variant="h2" style={{ color: "white" }}>
-        Dashboard 
-      </Typography>
+      <Grid item container xs={4}>
+        <Grid item container direction="column" alignItems="center" style={{ maxWidth: 435 }}>
+          <Grid item container justify={matchesSM ? "center" : "flex-start"}>
+            <Typography variant="h2" style={{ color: "white" }}>
+              Dashboard
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Typography
+              variant="h4"
+              style={{
+                color: "#f9ca24",
+                fontStyle: "italic",
+                textAlign: "center",
+              }}
+            >
+              Create a new collection to start Briefly!
+            </Typography>
+          </Grid>
+          <Grid item container alignItems="center" justify="center">
+            <img src={learningImage} style={{ height: "13rem", width: "13rem" }} />
+          </Grid>
+        </Grid>
+      </Grid>
+      <Grid item container xs={8} justify="center" alignItems="center">
+        <Grid item>
+          <CircularProgressWithLabel
+            variant="determinate"
+            value={progress}
+            size={"15rem"}
+            style={{ transition: "all 1s" }}
+          />
+        </Grid>
+      </Grid>
     </Grid>
   );
 
@@ -175,12 +247,7 @@ export default function DashboardContent({
       justify="flex-start"
       style={{ position: "relative" }}
     >
-      <Grid
-        item
-        container
-        style={{ paddingBottom: "0.7rem" }}
-        direction="column"
-      >
+      <Grid item container style={{ paddingBottom: "0.7rem" }} direction="column">
         <Grid item>{isDashboard ? <DashboardHero /> : <CollectionHero />}</Grid>
         <Grid
           item
