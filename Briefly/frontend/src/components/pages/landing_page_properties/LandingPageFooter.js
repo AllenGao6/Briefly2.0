@@ -191,7 +191,7 @@ export const PageFooter = (props) => {
                 </Grid>
 
                 <Grid item xs={12} sm={6}>
-                  <Box borderBottom={1}>Rate The Page</Box>
+                  <Box borderBottom={1}>Give Feedback</Box>
                   <Box>
                     <Grid item style={{ marginTop: "1rem" }}>
                       <Rating />

@@ -14,14 +14,12 @@ import MenuBookOutlinedIcon from '@material-ui/icons/MenuBookOutlined';
 import MenuBookTwoToneIcon from '@material-ui/icons/MenuBookTwoTone';
 
 //heads
-import head1 from "../../../assets/heads/head1.jpg";
-import head2 from "../../../assets/heads/head2.jpg";
-import head3 from "../../../assets/heads/head3.jpg";
-import head4 from "../../../assets/heads/head4.jpg";
-import head5 from "../../../assets/heads/head5.jpg";
-
-const dummyText =
-  "There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable. If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything embarrassing hidden in the middle of text. All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary, making this the first true generator on the Internet. ";
+import head1 from "../../../assets/heads/Allen.png";
+import head2 from "../../../assets/heads/Brian.png";
+import head3 from "../../../assets/heads/Shawn.png";
+import head4 from "../../../assets/heads/Hugh.png";
+import head5 from "../../../assets/heads/Stanford.png";
+import head6 from "../../../assets/heads/Perry.png";
 
 export const teamInfo = [
   {
@@ -34,25 +32,33 @@ export const teamInfo = [
     name: "Brian",
     headImage: head2,
     position: "Frontend Director",
-    description: dummyText,
+    description: `His name is Brian. His a motivated and enthusiastic junior at the University of Illinois Urbana-Champaign majored in Computer Science and Math. He has experienced in doing frontend and machine learning; specifically, he worked with Python, JavaScript, Java, React.js, Redux, Material-UI, Android, PyTorch, and Tensorflow across multiple projects.
+    
+      His academic goal is to become experienced in every aspect of computer science with a heavy focus on software engineering and artificial intelligence. His career goal is to build AI-powered web platforms to make social changes.`,
   },
   {
     name: "Shawn",
     headImage: head3,
     position: "Frontend Dev",
-    description: dummyText,
+    description: "Shawn had experience with web-related languages, and he has a strong inclination towards frontend application development. His skillset includes Java, Python, and Kotlin. Shawn also has skills in HTML5, CSS3 and JavaScript, helping team formatting the documentation and held responsible for the construction of web page.",
   },
   {
     name: "Hugo",
     headImage: head4,
-    position: "Frontend Dev",
-    description: dummyText,
+    position: "Backend Lead & DevOps Engineer",
+    description: "Lucheng is a junior student majoring in Computer Science with experience in backend development with Django REST Framework.  He is highly enthusiastic about creating a robust, safe, and high-efficiency Briefly backend and making Briefly as a helpful tool for students on their learning path. Also, he is responsible for Briefly site deployment and daily maintenance. In a nutshell, Lucheng aims to become a full-stack developer, wishing to utilize what he learned to make this world better. ❤",
   },
   {
     name: "Stanford",
     headImage: head5,
+    position: "Marketing",
+    description: "Self-learned Harvard MBA books, Doing computer vision research as an undergrad with a PSU professor, Love Basketball and swimming",
+  },
+  {
+    name: "Perry",
+    headImage: head6,
     position: "Frontend Dev",
-    description: dummyText,
+    description: "As a meticulous person, Perry is demonstrating his skills on the frontend of briefly. Using react and javascript, he is making briefly's frontend more concise and clean. He also has fruitful coding experience using Java, Python, C language, and MATLAB. Aside from his dedication in programming, you can also find him enjoying playing saxophone, basketball, or exercising in the gym.",
   }
 ];
 
@@ -67,19 +73,19 @@ export const ratingComment = [
 export const contactInfo = [
   {
     type: "Tel",
-    info: "814-846-2770",
+    info: "949-228-6289",
   },
   {
     type: "Email",
-    info: "thevalley@homesteadcos.com",
+    info: "allengaosh@icloud.com",
   },
   {
     type: "Address",
-    info: "870 Toftrees Ave. State College, PA 16803",
+    info: "1164 Elena Privada, Mountain View, 94040, CA",
   },
   {
-    type: "Office Hours",
-    info: "M-F 9am-7pm",
+    type: "Availability",
+    info: "M-F 9am-5pm",
   },
 ];
 

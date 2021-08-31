@@ -160,7 +160,7 @@ export default function DashboardContent({
       }}
     >
       <Typography variant="h2" style={{ color: "white" }}>
-        To be Implemented...
+        Dashboard 
       </Typography>
     </Grid>
   );

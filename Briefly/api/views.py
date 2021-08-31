@@ -29,6 +29,8 @@ from django.core.mail import send_mail
 from celery import current_app
 import re
 
+#celery -A Briefly worker -l info -P gevent
+
 class VideoViewSet(viewsets.ModelViewSet):
 
     serializer_class = VideoSerializer

@@ -401,7 +401,7 @@ function CollectionTable({
     }
   };
 
-  const createMediaInCollection = async (id, media, isYoutube) => {
+  const createMediaInCollection = async (id, media) => {
     let createdMedia;
     switch (mediaType) {
       case "video":
@@ -417,15 +417,14 @@ function CollectionTable({
         break;
     }
     handleDialogClose();
-    handleMediaTranscription(createdMedia.id, isYoutube);
+    handleMediaTranscription(createdMedia.id);
   };
 
-  const handleMediaTranscription = async (mediaId, isYoutube) => {
+  const handleMediaTranscription = async (mediaId) => {
     const transcribeSuccess = await transcribeMedia(
       match.params.id,
       mediaId,
       mediaType,
-      isYoutube,
     );
     if (transcribeSuccess) loadMediaInCollection(match.params.id);
   };
@@ -521,7 +520,7 @@ function CollectionTable({
         formData.append(mediaType, mediaStream, mediaStream.name);
       }
 
-      createMediaInCollection(match.params.id, formData, isYoutube);
+      createMediaInCollection(match.params.id, formData);
     }
   };
 
