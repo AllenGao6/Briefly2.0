@@ -10,7 +10,6 @@ import {
   Typography,
   Grid,
   Button,
-  ButtonGroup,
 } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
@@ -19,9 +18,7 @@ const useStyles = makeStyles((theme) => ({
     transition: "all 0.3s",
     "&:hover": {
       background:
-        theme.palette.type === "dark"
-          ? theme.palette.common.orange
-          : theme.palette.common.blue,
+        theme.palette.type === "dark" ? theme.palette.common.orange : theme.palette.common.blue,
     },
   },
   padding: {
@@ -54,7 +51,7 @@ export default function MediaUploader({
   mediaUrl,
   youtube,
   setYoutube,
-  isYoutube
+  isYoutube,
 }) {
   const fileInputRef = useRef(null);
   const classes = useStyles();
@@ -65,7 +62,8 @@ export default function MediaUploader({
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
 
-  if (isYoutube && action === 'Create' && mediaType === 'video') {
+  if (isYoutube && action === "Create" && mediaType === "video") {
+    console.log("1");
     return (
       <React.Fragment>
         <TextField
@@ -75,10 +73,12 @@ export default function MediaUploader({
           value={youtube}
           onChange={(e) => setYoutube(e.currentTarget.value)}
           fullWidth
-      />
+        />
       </React.Fragment>
-    )
+    );
   }
+  console.log("2");
+
   return (
     <React.Fragment>
       {mediaUrl && mediaType === "video" ? (
@@ -93,12 +93,7 @@ export default function MediaUploader({
 
       {mediaType === "text" ? (
         <Grid item xs={12} className={classes.padding}>
-          <form
-            className={classes.root}
-            fullwidth="true"
-            noValidate
-            autoComplete="off"
-          >
+          <form className={classes.root} fullwidth="true" noValidate autoComplete="off">
             <TextField
               key={`textarea_create`}
               style={{ width: "100%", justifyItems: "center" }}
@@ -130,9 +125,7 @@ export default function MediaUploader({
             className={classes.uploadButton}
             disabled={isCreating}
           >
-            <PublishRoundedIcon
-              style={{ fontSize: "2.5rem", paddingRight: "1rem" }}
-            />
+            <PublishRoundedIcon style={{ fontSize: "2.5rem", paddingRight: "1rem" }} />
             {`Upload ${capitalize(mediaType)}`}
           </Button>
         </Grid>

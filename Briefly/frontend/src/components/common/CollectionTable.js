@@ -16,7 +16,7 @@ import {
   LinearProgress,
   IconButton,
   Paper,
-  ButtonGroup
+  ButtonGroup,
 } from "@material-ui/core";
 import { darken, lighten } from "@material-ui/core/styles";
 import {
@@ -87,9 +87,7 @@ const useStyles = makeStyles((theme) => {
     },
     toolbar: {
       color:
-        theme.palette.type === "dark"
-          ? theme.palette.common.orange
-          : theme.palette.common.blue,
+        theme.palette.type === "dark" ? theme.palette.common.orange : theme.palette.common.blue,
     },
     button: {
       ...theme.typography.roundedButton,
@@ -105,10 +103,7 @@ const useStyles = makeStyles((theme) => {
         color: theme.palette.type === "dark" ? "white" : undefined,
       },
       "& .MuiFilledInput-root": {
-        backgroundColor:
-          theme.palette.type === "dark"
-            ? undefined
-            : "rgba(30, 144, 255, 0.08)",
+        backgroundColor: theme.palette.type === "dark" ? undefined : "rgba(30, 144, 255, 0.08)",
       },
     },
     createButton: {
@@ -186,7 +181,7 @@ function CollectionTable({
   search,
   transcribeMedia,
   createTextInCollection,
-  loadTextsInCollection
+  loadTextsInCollection,
 }) {
   const theme = useTheme();
   const classes = useStyles();
@@ -226,11 +221,7 @@ function CollectionTable({
               className={classes.titleButton}
               onClick={() => handleTitleClick(params.id)}
             >
-              <Typography
-                variant="body1"
-                className={classes.title}
-                style={{ color: "white" }}
-              >
+              <Typography variant="body1" className={classes.title} style={{ color: "white" }}>
                 {params.value}
               </Typography>
             </Button>
@@ -265,9 +256,7 @@ function CollectionTable({
       align: "center",
       headerAlign: "center",
       width: 200,
-      renderCell: (params) => (
-        <Typography variant="body1">{params.value}</Typography>
-      ),
+      renderCell: (params) => <Typography variant="body1">{params.value}</Typography>,
     },
     {
       field: "fileSize",
@@ -348,9 +337,7 @@ function CollectionTable({
       align: "center",
       headerAlign: "center",
       flex: 1.7,
-      renderCell: (params) => (
-        <Typography variant="body1">{params.value}</Typography>
-      ),
+      renderCell: (params) => <Typography variant="body1">{params.value}</Typography>,
     },
     {
       field: "fileSize",
@@ -421,11 +408,7 @@ function CollectionTable({
   };
 
   const handleMediaTranscription = async (mediaId) => {
-    const transcribeSuccess = await transcribeMedia(
-      match.params.id,
-      mediaId,
-      mediaType,
-    );
+    const transcribeSuccess = await transcribeMedia(match.params.id, mediaId, mediaType);
     if (transcribeSuccess) loadMediaInCollection(match.params.id);
   };
 
@@ -483,9 +466,7 @@ function CollectionTable({
 
   const filterMediaBySearch = () => {
     const media = filterMediaByArchive();
-    return media.filter((item) =>
-      item.title.toLowerCase().includes(search.toLowerCase())
-    );
+    return media.filter((item) => item.title.toLowerCase().includes(search.toLowerCase()));
   };
 
   const handlePageSizeChange = (params) => {
@@ -510,12 +491,12 @@ function CollectionTable({
       formData.append("title", title);
       formData.append("is_archived", archived);
       formData.append("collection", match.params.id);
-      if(mediaType === 'text'){
+      if (mediaType === "text") {
         formData.append(mediaType, textInput);
-      }else if(mediaType === 'video' && isYoutube){
+      } else if (mediaType === "video" && isYoutube) {
         // pass whether input is youtube link or uploaded file
         formData.append("is_youtube", isYoutube);
-        formData.append("youtube_url", youtube)
+        formData.append("youtube_url", youtube);
       } else {
         formData.append(mediaType, mediaStream, mediaStream.name);
       }
@@ -532,9 +513,7 @@ function CollectionTable({
   const handleOpenDialog = (action) => {
     setAction(action);
     if (action == "Update") {
-      const media = getMediaInCollection().filter(
-        (item) => item.id === selectionModel[0]
-      )[0];
+      const media = getMediaInCollection().filter((item) => item.id === selectionModel[0])[0];
       setTitle(media.title);
       setArchived(media.is_archived);
       setMediaUrl(media[mediaType]);
@@ -552,9 +531,9 @@ function CollectionTable({
   };
 
   const handleUploadFinish = (e) => {
-    if(mediaType === "text"){
+    if (mediaType === "text") {
       setTextInput(e.currentTarget.value);
-    }else{
+    } else {
       setMediaStream(e.target.files[0]);
       setMediaUrl(URL.createObjectURL(e.target.files[0]));
     }
@@ -642,10 +621,11 @@ function CollectionTable({
 
   //check if youtube url is valid
   function matchYoutubeUrl(url) {
-    var p = /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
+    var p =
+      /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
     var matches = url.match(p);
-    if(matches){
-        return true;
+    if (matches) {
+      return true;
     }
     return false;
   }
@@ -668,12 +648,7 @@ function CollectionTable({
   }
 
   return (
-    <Grid
-      container
-      direction="column"
-      alignItems="center"
-      style={{ minHeight: "100vh" }}
-    >
+    <Grid container direction="column" alignItems="center" style={{ minHeight: "100vh" }}>
       <Grid
         item
         container
@@ -739,9 +714,7 @@ function CollectionTable({
                   <Switch
                     checked={archived}
                     disabled={isCreating}
-                    color={
-                      theme.palette.type === "dark" ? "secondary" : "primary"
-                    }
+                    color={theme.palette.type === "dark" ? "secondary" : "primary"}
                     onChange={() => setArchived(!archived)}
                   />
                 }
@@ -749,17 +722,21 @@ function CollectionTable({
                 labelPlacement="start"
               />
             </Grid>
-            {mediaType === 'video' && action === 'Create'? (<Grid container item justify='center'>
-              <ButtonGroup variant="contained" color="primary">
-                <Button onClick={() => changeYoutube(true)}>Youtube Url</Button>
-                <Button onClick={() => { changeYoutube(false); }}>File Upload</Button>
-              </ButtonGroup> 
-            </Grid>) : null}
-            <Grid
-              item
-              container
-              style={{ paddingTop: mediaUrl ? 0 : undefined }}
-            >
+            {mediaType === "video" && action === "Create" ? (
+              <Grid container item justify="center">
+                <ButtonGroup variant="contained" color="primary">
+                  <Button onClick={() => changeYoutube(true)}>Youtube Url</Button>
+                  <Button
+                    onClick={() => {
+                      changeYoutube(false);
+                    }}
+                  >
+                    File Upload
+                  </Button>
+                </ButtonGroup>
+              </Grid>
+            ) : null}
+            <Grid item container style={{ paddingTop: mediaUrl ? 0 : undefined }}>
               <MediaUploader
                 textInput={textInput}
                 action={action}
@@ -769,7 +746,7 @@ function CollectionTable({
                 mediaUrl={mediaUrl}
                 youtube={youtube}
                 setYoutube={setYoutube}
-                isYoutube = {isYoutube}
+                isYoutube={isYoutube}
               />
             </Grid>
             <Grid item container style={{ paddingLeft: 36, paddingRight: 36 }}>
@@ -782,18 +759,15 @@ function CollectionTable({
                 }}
               />
             </Grid>
-            <Grid
-              item
-              container
-              justify="center"
-              spacing={4}
-              style={{ width: inputWidth }}
-            >
+            <Grid item container justify="center" spacing={4} style={{ width: inputWidth }}>
               <Grid item>
                 <Button
                   variant="contained"
                   disabled={
-                    title.length === 0 || (mediaType !== 'text' && mediaUrl === null && isYoutube === false) || isCreating || (isYoutube && matchYoutubeUrl(youtube) === false)
+                    title.length === 0 ||
+                    (mediaType !== "text" && mediaUrl === null && isYoutube === false) ||
+                    isCreating ||
+                    (mediaType !== "audio" && isYoutube && matchYoutubeUrl(youtube) === false)
                   }
                   className={classes.createButton}
                   onClick={() => {
@@ -826,8 +800,12 @@ function mapStateToProps(state) {
     videos: state.videoReducer.videos,
     audios: state.audioReducer.audios,
     texts: state.textReducer.texts,
-    isLoading: state.videoReducer.isLoading || state.audioReducer.isLoading || state.textReducer.isLoading,
-    isCreating: state.videoReducer.isCreating || state.audioReducer.isCreating || state.textReducer.isCreating,
+    isLoading:
+      state.videoReducer.isLoading || state.audioReducer.isLoading || state.textReducer.isLoading,
+    isCreating:
+      state.videoReducer.isCreating ||
+      state.audioReducer.isCreating ||
+      state.textReducer.isCreating,
   };
 }
 
