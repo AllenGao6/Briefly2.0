@@ -219,9 +219,6 @@ export default function DashboardContent({
               Create a new collection to start Briefly!
             </Typography>
           </Grid>
-          <Grid item container alignItems="center" justify="center">
-            <img src={learningImage} style={{ height: "13rem", width: "13rem" }} />
-          </Grid>
         </Grid>
       </Grid>
       <Grid item container xs={8} justify="center" alignItems="center">

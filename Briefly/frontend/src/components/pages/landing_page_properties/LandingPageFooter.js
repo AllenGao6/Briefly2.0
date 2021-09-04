@@ -1,17 +1,11 @@
 import { makeStyles, useTheme } from "@material-ui/styles";
 import React, { useState } from "react";
-import {
-  Container,
-  Grid,
-  Button,
-  Box,
-  Typography,
-  TextareaAutosize,
-} from "@material-ui/core";
+import { Container, Grid, Button, Box, Typography, TextareaAutosize } from "@material-ui/core";
 import { contactInfo, ratingComment } from "./data.js";
 import StarOutlineRoundedIcon from "@material-ui/icons/StarOutlineRounded";
 import StarRoundedIcon from "@material-ui/icons/StarRounded";
 import ArrowForwardIosRoundedIcon from "@material-ui/icons/ArrowForwardIosRounded";
+import { Divider } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   footer: {
@@ -46,6 +40,9 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "1.0rem",
     color: "#2c3e50",
   },
+  divider: {
+    background: "white",
+  },
 }));
 
 const InfoStrip = (props) => {
@@ -53,22 +50,13 @@ const InfoStrip = (props) => {
   const classes = useStyles();
   return (
     <Grid container direction="column">
-      <Grid
-        container
-        alignItems="center"
-        style={{ backgroundColor: "#2980b9", maxWidth: 400 }}
-      >
-        <ArrowForwardIosRoundedIcon
-          style={{ color: "#2c3e50", fontSize: "25px" }}
-        />
+      <Grid container alignItems="center" style={{ backgroundColor: "#2980b9", maxWidth: 400 }}>
+        <ArrowForwardIosRoundedIcon style={{ color: "#2c3e50", fontSize: "25px" }} />
         <Typography className={classes.infoFont} style={{ color: "#2c3e50" }}>
           {props.data.type}
         </Typography>
       </Grid>
-      <Typography
-        className={classes.infoFont}
-        style={{ marginLeft: 40, color: "#bdc3c7"}}
-      >
+      <Typography className={classes.infoFont} style={{ marginLeft: 40, color: "#bdc3c7" }}>
         {props.data.info}
       </Typography>
     </Grid>
@@ -88,15 +76,9 @@ const createArray = (length) => [...Array(length)];
 const MyStar = ({ selected = false, onSelect = (f) => f }) => {
   {
     return selected ? (
-      <StarRoundedIcon
-        style={{ fontSize: "500%", color: "#f1c40f" }}
-        onClick={onSelect}
-      />
+      <StarRoundedIcon style={{ fontSize: "500%", color: "#f1c40f" }} onClick={onSelect} />
     ) : (
-      <StarOutlineRoundedIcon
-        style={{ fontSize: "500%", color: "#7f8c8d" }}
-        onClick={onSelect}
-      />
+      <StarOutlineRoundedIcon style={{ fontSize: "500%", color: "#7f8c8d" }} onClick={onSelect} />
     );
   }
 };
@@ -147,7 +129,6 @@ const Rating = ({ totalStars = 5 }) => {
         <TextareaAutosize
           aria-label="minimum height"
           rowsMin={4}
-          style={{ width: "80%" }}
           placeholder="Some Feedbacks ..."
           cols={40}
           style={{ fontFamily: "Ubuntu", fontSize: "1.5rem" }}
@@ -160,9 +141,7 @@ const Rating = ({ totalStars = 5 }) => {
           onClick={() => alert("Thank you! Your feedback is valuable.")}
           style={{ margin: 10, textTransform: "none" }}
         >
-          <Typography
-            className={rated ? classes.buttonFont : classes.disabledButtonFont}
-          >
+          <Typography className={rated ? classes.buttonFont : classes.disabledButtonFont}>
             Submit
           </Typography>
         </Button>
@@ -199,13 +178,8 @@ export const PageFooter = (props) => {
                   </Box>
                 </Grid>
               </Grid>
-              <Box
-                textAlign="center"
-                pt={{ xs: 5, sm: 10 }}
-                pb={{ xs: 5, sm: 0 }}
-              >
-                copyright © 2021- &reg;{new Date().getFullYear()} Briefly Inc.
-                All rights reserved.
+              <Box textAlign="center" pt={{ xs: 5, sm: 10 }} pb={{ xs: 5, sm: 0 }}>
+                copyright © 2021- &reg;{new Date().getFullYear()} Briefly Inc. All rights reserved.
               </Box>
             </Container>
           </Box>
@@ -214,11 +188,23 @@ export const PageFooter = (props) => {
     );
   } else {
     return (
-      <div className={classes.footer} style={{ height: "40px" }}>
-        <Box textAlign="center">
-          copyright © 2021- &reg;{new Date().getFullYear()} Briefly Inc. All
-          rights reserved.
-        </Box>
+      <div className={classes.footer}>
+        <Grid
+          container
+          direction="column"
+          justify="center"
+          alignItems="center"
+          style={{ paddingTop: "2rem", paddingBottom: "1rem" }}
+        >
+          <Grid item container justify="center">
+            <Divider variant="middle" className={classes.divider} style={{ width: "94%" }} />
+          </Grid>
+          <Grid item>
+            <Typography variant="h5" style={{ color: "white", fontStyle: "italic", marginTop: 10 }}>
+              copyright © 2021- &reg;{new Date().getFullYear()} Briefly Inc. All rights reserved.
+            </Typography>
+          </Grid>
+        </Grid>
       </div>
     );
   }

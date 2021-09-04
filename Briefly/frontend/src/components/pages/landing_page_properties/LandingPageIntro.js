@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
   captionMargins: {
     marginTop: "100px",
     marginBottom: "50px",
-    fontSize: "60px",
+    fontSize: "45px",
   },
 }));
 
@@ -103,18 +103,8 @@ const lengthArray = (length) => [...Array(length)];
 export const IntroSection = () => {
   const classes = useStyles();
   return (
-    <Grid
-      justify="center"
-      alignItems="center"
-      container
-      direction="column"
-      id="new-intro"
-    >
-      <Typography
-        className={classes.captionMargins}
-        variant="h2"
-        align="center"
-      >
+    <Grid justify="center" alignItems="center" container direction="column" id="new-intro">
+      <Typography className={classes.captionMargins} variant="h2" align="center">
         What is Briefly?
       </Typography>
       <Grid container justify="space-evenly" className={classes.introContainer}>

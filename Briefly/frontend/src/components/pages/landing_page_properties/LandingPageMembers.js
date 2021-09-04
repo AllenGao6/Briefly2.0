@@ -3,6 +3,7 @@ import { Avatar, Card, Container, Grid, Typography } from "@material-ui/core";
 import { teamInfo } from "./data";
 import React from "react";
 import main from "../../../assets/heads/main.jpg";
+import stack from "../../../assets/background/stack.jpg";
 import "./style.css";
 
 const useStyles = makeStyles((theme) => ({
@@ -19,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
   captionMargins: {
     marginTop: "100px",
     marginBottom: "50px",
-    fontSize: "60px",
+    fontSize: "45px",
   },
   teamContainer: {
     width: "60%",
@@ -78,10 +79,7 @@ const MemberInfoStrip = (props) => {
             <></>
           </Container>
           <Grid container justify="center">
-            <Typography
-              variant="h5"
-              style={{ marginTop: `${radius}px`, fontSize: "1.5rem" }}
-            >
+            <Typography variant="h5" style={{ marginTop: `${radius}px`, fontSize: "1.5rem" }}>
               {props.name}
             </Typography>
           </Grid>
@@ -116,30 +114,23 @@ const MemberInfoStrip = (props) => {
 export const MemberSection = () => {
   const classes = useStyles();
   return (
-    <Grid
-      justify="center"
-      alignItems="center"
-      container
-      direction="column"
-      id="team"
-    >
-      <Grid styles={{ width: "87%" }}>
-        <Typography
-          className={classes.captionMargins}
-          variant="h2"
-          align="center"
-        >
+    <Grid container justify="center" alignItems="center" container direction="column" id="team">
+      <Grid item styles={{ width: "87%" }}>
+        <Typography className={classes.captionMargins} variant="h2" align="center">
           Team
         </Typography>
-        <Grid
-          container
-          alignItems="center"
-          justify="center"
-          className="scrollmenu"
-        >
+        <Grid container alignItems="center" justify="center" className="scrollmenu">
           {teamInfo.map((member, idx) => (
             <MemberInfoStrip key={idx} {...member} />
           ))}
+        </Grid>
+      </Grid>
+      <Grid item styles={{ width: "87%" }}>
+        <Typography className={classes.captionMargins} variant="h2" align="center">
+          Technical Stacks
+        </Typography>
+        <Grid container justify="center">
+          <img src={stack} alt="tech stack" style={{ width: "80%", height: "100%" }} />
         </Grid>
       </Grid>
     </Grid>
