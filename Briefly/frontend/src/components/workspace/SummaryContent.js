@@ -642,10 +642,10 @@ function SummaryContent({
           indicatorColor={matchesDark ? "secondary" : "primary"}
         >
           {mediaType !== "text" ? (
-            <Tab className={classes.tab} label="Summary"></Tab>
+            <Tab className={classes.tab} label="Smart Note"></Tab>
           ) : null}
           <Tab className={classes.tab} label="Pop Quiz"></Tab>
-          <Tab className={classes.tab} label="More..."></Tab>
+          <Tab className={classes.tab} label="Summarization"></Tab>
         </Tabs>
       </Grid>
       <Grid

@@ -38,6 +38,7 @@ lxml = "*"
 pytube = "*"
 punctuator = "*"
 gevent = "*"
+openai = "*"
 
 [dev-packages]
 

@@ -747,6 +747,7 @@ function CollectionTable({
                 youtube={youtube}
                 setYoutube={setYoutube}
                 isYoutube={isYoutube}
+                mediaStream={mediaStream}
               />
             </Grid>
             <Grid item container style={{ paddingLeft: 36, paddingRight: 36 }}>
@@ -767,7 +768,7 @@ function CollectionTable({
                     title.length === 0 ||
                     (mediaType !== "text" && mediaUrl === null && isYoutube === false) ||
                     isCreating ||
-                    (mediaType !== "audio" && isYoutube && matchYoutubeUrl(youtube) === false)
+                    (mediaType === "video" && isYoutube && matchYoutubeUrl(youtube) === false)
                   }
                   className={classes.createButton}
                   onClick={() => {

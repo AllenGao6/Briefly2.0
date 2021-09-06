@@ -52,6 +52,7 @@ export default function MediaUploader({
   youtube,
   setYoutube,
   isYoutube,
+  mediaStream,
 }) {
   const fileInputRef = useRef(null);
   const classes = useStyles();
@@ -128,6 +129,7 @@ export default function MediaUploader({
             <PublishRoundedIcon style={{ fontSize: "2.5rem", paddingRight: "1rem" }} />
             {`Upload ${capitalize(mediaType)}`}
           </Button>
+          { mediaStream ? <Typography >{mediaStream.name}</Typography> : null}
         </Grid>
       )}
     </React.Fragment>
