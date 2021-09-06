@@ -35,6 +35,7 @@ import { summarizeMedia } from "../../redux/actions/summarize_actions";
 import VisibilityIcon from "@material-ui/icons/Visibility";
 import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
 import GetAppIcon from "@material-ui/icons/GetApp";
+import Chatbot from "../common/Chatbot";
 
 import {
   loadVideosInCollection,
@@ -59,7 +60,6 @@ import store from "store";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import PdfNote from "../common/PdfNote";
 import { loadTextsInCollection } from "../../redux/actions/text_actions";
-
 
 const format = (seconds) => {
   if (isNaN(seconds)) {
@@ -90,9 +90,7 @@ const useStyles = makeStyles((theme) => {
       fontWeight: 800,
     },
     sectionContainer: {
-      background: matchesDark
-        ? theme.palette.primary.main
-        : theme.palette.common.cloud,
+      background: matchesDark ? theme.palette.primary.main : theme.palette.common.cloud,
       height: "-moz-calc(100vh - 99px - 48px)",
       height: "-webkit-calc(100vh - 99px - 48px)",
     },
@@ -123,9 +121,7 @@ const useStyles = makeStyles((theme) => {
     },
     specialText: {
       fontStyle: "italic",
-      color: matchesDark
-        ? theme.palette.common.orange
-        : theme.palette.common.blue,
+      color: matchesDark ? theme.palette.common.orange : theme.palette.common.blue,
       paddingLeft: "0.5rem",
       fontWeight: 1000,
     },
@@ -148,7 +144,7 @@ function SummaryContent({
   getScreenshot,
   resetAudioQuiz,
   resetVideoQuiz,
-  resetTextQuiz
+  resetTextQuiz,
 }) {
   const classes = useStyles();
   const theme = useTheme();
@@ -232,9 +228,7 @@ function SummaryContent({
 
   const handleTranscriptDelete = (transcript) => {
     const transcripts = JSON.parse(media.summarization);
-    const newTranscripts = transcripts.filter(
-      (item) => item.id !== transcript.id
-    );
+    const newTranscripts = transcripts.filter((item) => item.id !== transcript.id);
     const newMedia = {
       summarization: JSON.stringify(newTranscripts),
     };
@@ -282,12 +276,7 @@ function SummaryContent({
       model: getModelType(),
       num_sentence: optimalSentence ? null : numSentences,
     };
-    const summary = await summarizeMedia(
-      collectionId,
-      media.id,
-      mediaType,
-      summaryConfig
-    );
+    const summary = await summarizeMedia(collectionId, media.id, mediaType, summaryConfig);
     if (summary) {
       switch (mediaType) {
         case "video":
@@ -313,12 +302,7 @@ function SummaryContent({
       based_text: "summ",
       question: null,
     };
-    const quiz = await generateQuiz(
-      collectionId,
-      media.id,
-      mediaType,
-      QuizGenConfig
-    );
+    const quiz = await generateQuiz(collectionId, media.id, mediaType, QuizGenConfig);
     if (quiz) {
       switch (mediaType) {
         case "video":
@@ -377,10 +361,7 @@ function SummaryContent({
         <React.Fragment>
           <Grid item style={{ minHeight: isSummarizing ? "10rem" : undefined }}>
             <EmptyIcon
-              className={clsx(
-                classes.icon,
-                isGenerating ? "rotated" : undefined
-              )}
+              className={clsx(classes.icon, isGenerating ? "rotated" : undefined)}
               style={{ width: "7rem", height: "7rem" }}
             />
           </Grid>
@@ -407,12 +388,7 @@ function SummaryContent({
       );
     } else {
       return (
-        <Grid
-          item
-          container
-          className={classes.summaryStatus}
-          direction="column"
-        >
+        <Grid item container className={classes.summaryStatus} direction="column">
           <Grid item style={{ height: 60 }}>
             <Paper className={classes.cardOutline}>
               <Grid
@@ -431,12 +407,7 @@ function SummaryContent({
                         {"Short Answer"}
                       </Typography>
                     </Grid>
-                    <Grid
-                      item
-                      container
-                      alignItems="center"
-                      style={{ marginTop: 5 }}
-                    >
+                    <Grid item container alignItems="center" style={{ marginTop: 5 }}>
                       <Typography variant="h6" className={classes.text}>
                         Question count:
                       </Typography>
@@ -503,9 +474,8 @@ function SummaryContent({
     if (mediaType === "text") value += 1;
     if (value === 0) return <Summary />;
     else if (value === 1) return <PopQuiz />;
-    else return <More />;
+    else return <Chatbot mediaType={mediaType} mediaId={media.id} collectionId={collectionId} />;
   };
-
 
   const Summary = () => {
     if (!media.is_summarized) {
@@ -513,10 +483,7 @@ function SummaryContent({
         <React.Fragment>
           <Grid item style={{ minHeight: isSummarizing ? "10rem" : undefined }}>
             <EmptyIcon
-              className={clsx(
-                classes.icon,
-                isSummarizing ? "rotated" : undefined
-              )}
+              className={clsx(classes.icon, isSummarizing ? "rotated" : undefined)}
               style={{ width: "7rem", height: "7rem" }}
             />
           </Grid>
@@ -541,12 +508,7 @@ function SummaryContent({
       );
     } else {
       return (
-        <Grid
-          item
-          container
-          className={classes.summaryStatus}
-          direction="column"
-        >
+        <Grid item container className={classes.summaryStatus} direction="column">
           <Grid item style={{ height: 60 }}>
             <Paper className={classes.cardOutline}>
               <Grid container justify="space-between" alignItems="center">
@@ -565,12 +527,7 @@ function SummaryContent({
                         {media.model_type}
                       </Typography>
                     </Grid>
-                    <Grid
-                      item
-                      container
-                      alignItems="center"
-                      style={{ marginTop: 5 }}
-                    >
+                    <Grid item container alignItems="center" style={{ marginTop: 5 }}>
                       <Typography variant="h6" className={classes.text}>
                         Bullet Points:
                       </Typography>
@@ -596,7 +553,13 @@ function SummaryContent({
                     </Tooltip>
                   </IconButton>
                   <PDFDownloadLink
-                    document={<PdfNote mediaType={mediaType} summarization={JSON.parse(media.summarization)} title={media.title}/>}
+                    document={
+                      <PdfNote
+                        mediaType={mediaType}
+                        summarization={JSON.parse(media.summarization)}
+                        title={media.title}
+                      />
+                    }
                     fileName={media.title}
                   >
                     <IconButton>
@@ -641,11 +604,9 @@ function SummaryContent({
           className={classes.tabContainer}
           indicatorColor={matchesDark ? "secondary" : "primary"}
         >
-          {mediaType !== "text" ? (
-            <Tab className={classes.tab} label="Smart Note"></Tab>
-          ) : null}
+          {mediaType !== "text" ? <Tab className={classes.tab} label="Smart Note"></Tab> : null}
           <Tab className={classes.tab} label="Pop Quiz"></Tab>
-          <Tab className={classes.tab} label="Summarization"></Tab>
+          <Tab className={classes.tab} label="AI Chatbot (Beta)"></Tab>
         </Tabs>
       </Grid>
       <Grid
@@ -658,13 +619,7 @@ function SummaryContent({
       >
         {ServiceType(value)}
       </Grid>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        fullWidth
-        fullScreen={matchesXS}
-        maxWidth="xs"
-      >
+      <Dialog open={open} onClose={handleClose} fullWidth fullScreen={matchesXS} maxWidth="xs">
         <DialogTitle>
           <Typography variant="h5">Summarization Configuration</Typography>
         </DialogTitle>
@@ -729,10 +684,7 @@ function SummaryContent({
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button
-            onClick={handleClose}
-            color={matchesDark ? "secondary" : "primary"}
-          >
+          <Button onClick={handleClose} color={matchesDark ? "secondary" : "primary"}>
             Cancel
           </Button>
           <Button

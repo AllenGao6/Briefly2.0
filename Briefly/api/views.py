@@ -40,23 +40,23 @@ class VideoViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated,VideoUserPermission]
     def get_queryset(self, *args, **kwargs):
         user = self.request.user
-        
+
         return Video.objects.filter(Q(collection=self.kwargs['collection_pk']) & Q(collection__owner=user.pk))
 
     def create(self, request, *args, **kwargs):
         # storage check
         user = request.user
-        fileSize = 0       
+        fileSize = 0
         if request.FILES.get('video'):
             fileSize = int(ceil(request.FILES['video'].size))
             if fileSize >= user.userprofile.remaining_size:
                 return Response(f"video size {fileSize//1024//1024} mb has exceeded your remaining size: {user.userprofile.remaining_size//1024//1024} mb.", status=status.HTTP_426_UPGRADE_REQUIRED)
         if request.data.get("is_youtube") and not re.match(r"^(https\:\/\/|http\:\/\/)?(www\.youtube\.com|youtube\.com)\/watch\?v=.+$",request.data.get("youtube_url")):
             return Response(f"Please enter a correct YouTube url in format: https://www.youtube.com/watch?v=xxxxx... or its similar form.", status=status.HTTP_400_BAD_REQUEST)
-        
+
         return super().create(request, *args, **kwargs)
-    
-    
+
+
     '''
     similar to post_save: call save twice to know the id of the video just created and save to the correct directory
     '''
@@ -67,14 +67,14 @@ class VideoViewSet(viewsets.ModelViewSet):
         fileSize = 0
         if serializer.context['request'].FILES.get('video'):
             fileSize = int(ceil(serializer.context['request'].FILES['video'].size))
-       
+
         # save twice for gainning the id of currently constructed video instance
         instance = serializer.save()
         if instance.video:
             instance.video.delete(save=False)
-            instance.fileSize = fileSize    
-            serializer.save() 
-        
+            instance.fileSize = fileSize
+            serializer.save()
+
         if fileSize:
             profile = UserProfile.objects.select_for_update().filter(user=user)[0]
             with transaction.atomic():
@@ -82,7 +82,7 @@ class VideoViewSet(viewsets.ModelViewSet):
                 profile.save()
                 print(f"creating after: remaining: {profile.remaining_size}")
                 print(f"video create time spent: {time()-t1:.2f}")
-                
+
         # if it is fetched from YouTube:
         if serializer.context['request'].data.get('is_youtube',None):
             print("recieved upload from youtube request")
@@ -90,17 +90,17 @@ class VideoViewSet(viewsets.ModelViewSet):
             if youtube_url:
                 video_id = youtube_url.split("=")[-1]
                 video_info = (instance.__class__.__name__.lower(), instance.pk)
-                
-                d = { 'username': instance.collection.owner.first_name, 
-                            'mediaType': instance.__class__.__name__.lower(), 
+
+                d = { 'username': instance.collection.owner.first_name,
+                            'mediaType': instance.__class__.__name__.lower(),
                             'mediaName': instance.title,
                             'collection': instance.collection.name,
                             'MEDIA_URL': settings.MEDIA_URL,
                             'TO': instance.collection.owner.email}
-                
-                tasks.chain_initial_process_video_youtube.delay(video_info, youtube_url, video_id, user.pk, d) 
+
+                tasks.chain_initial_process_video_youtube.delay(video_info, youtube_url, video_id, user.pk, d)
                 #without delay: run Synchronously
-        
+
     #     '''another way: update from instance itself, also worked but lengthy'''
     #     # update from instance itself
     #     # url = instance.video.url
@@ -109,30 +109,30 @@ class VideoViewSet(viewsets.ModelViewSet):
     #     # print(file)
     #     # instance.video = file
     #     # instance.save()
-    
+
     #     ''' No need to do this step: but keep here as a reference'''
     #     #s3 = boto3.resource('s3')
     #     #s3.Object(settings.AWS_STORAGE_BUCKET_NAME, url).delete()
-    
 
-        
+
+
     def perform_destroy(self, instance):
         #storage back
         user = self.request.user
         fileSize = instance.fileSize
-        
+
         #delete the folder
         if instance.video:
             prefix = instance.video.url.split("/")[3:-1]
             prefix = "/".join(prefix)+"/"
-            
+
             s3 = boto3.resource('s3',
                 aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
                 aws_secret_access_key= settings.AWS_SECRET_ACCESS_KEY)
             bucket = s3.Bucket(settings.AWS_STORAGE_BUCKET_NAME)
             bucket.objects.filter(Prefix=prefix).delete()
             instance.video.delete(save=False)
-            
+
         if fileSize:
             profile = UserProfile.objects.select_for_update().filter(user=user)[0]
             with transaction.atomic():
@@ -141,8 +141,8 @@ class VideoViewSet(viewsets.ModelViewSet):
                 profile.save()
                 print(f"destroying after: remaining: {profile.remaining_size}")
         return super().perform_destroy(instance)
-    
-    
+
+
     def destroy(self, request, *args, **kwargs):
         id = self.get_object().pk
         name = self.get_object().title
@@ -151,11 +151,11 @@ class VideoViewSet(viewsets.ModelViewSet):
         return Response({'video_id':id,
                          "title": name,
                          'remaining_size': remaining}, status=status.HTTP_202_ACCEPTED)
-    
-    # Don't do any 
+
+    # Don't do any
     # This may not be used as the logic is reverted to the original one
     # def perform_update(self, serializer):
-        
+
     #     user = self.request.user
     #     instance = serializer.save()
     #     fileSize = instance.fileSize
@@ -167,14 +167,14 @@ class VideoViewSet(viewsets.ModelViewSet):
     #             profile.remaining_size -= fileSize
     #             profile.save()
     #             print(f"updating after: remaining: {profile.remaining_size}")
-    
-    
+
+
     #override create
     '''def create(self, request, *args, **kwargs):
         print(self.kwargs['collection_pk'])
         return Response({})
     '''
-    
+
     # # Test
     # @action(methods=['get'], detail=False)
     # def newest(self, request):
@@ -196,9 +196,9 @@ class VideoViewSet(viewsets.ModelViewSet):
         if not question:
             return Response("not question input", status=status.HTTP_400_BAD_REQUEST)
         openai.api_key = os.getenv("openai_api")
-        # engine_list = openai.Engine.list() 
+        # engine_list = openai.Engine.list()
         document_list = ["In these series of lessons we'll be talking about task queues, we begin with having a director setup of a message queue with the publisher and consumer. The purpose of the task queue is to be able to distribute the workload of one queue into multiple consumers. So, let's take a look at this scenario where the publisher can publish ten messages per second and the consumer can only consume one message per second. In this scenario, the queue will continue to grow, as the consumer is not fast enough to to consume the messages at the rate that the publisher is sending. This is known as the slow consumer problem, so one way to get around the slow consumer is to have multiple consumers consuming the same queue. So then, the workload is distributed amongst those consumers by having multiple consumers were able to consume the messages at a higher rate, because we are able to dispatch multiple messages to multiple consumers. This is general idea behind the task queue set up to have multiple consumers to be able to consume messages and a higher rate, and the publisher is publishing in order to not delay the messages from being consumed fast enough. In the following series of lessons, we will take a look at how to implement the task queues in RabbitMQ."]
-        
+
         response = openai.Answer.create(
             search_model="ada",
             model="curie",
@@ -209,9 +209,12 @@ class VideoViewSet(viewsets.ModelViewSet):
             max_tokens=150,
             stop=["\n", "<|endoftext|>"],
         )
-        
+        print('asdassa')
+
+        print(response['answers'])
+
         return Response({'ans': response['answers']}, status=status.HTTP_200_OK)
-        
+
     '''
     Call this url to begin transcribe from Amazon
     URL: api/<int: collection_id>/video/<int: video_id>/transcribe_begin/
@@ -223,12 +226,12 @@ class VideoViewSet(viewsets.ModelViewSet):
         video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
         if video:
             video = video[0]
-            
+
             if not video.transcript:
                 try:
                     video_info = (video.__class__.__name__.lower(), video.pk)
-                    d = { 'username': video.collection.owner.first_name, 
-                            'mediaType': video.__class__.__name__.lower(), 
+                    d = { 'username': video.collection.owner.first_name,
+                            'mediaType': video.__class__.__name__.lower(),
                             'mediaName': video.title,
                             'collection': video.collection.name,
                             'MEDIA_URL': settings.MEDIA_URL,
@@ -247,11 +250,11 @@ class VideoViewSet(viewsets.ModelViewSet):
                     #     # code to perform summarization process
                     #     video.is_processing = True
                     #     video.save()
-                        
+
                     #     video_path = video.video.name.split('/')
-                    #     video_name, video_id, type, collection_name = video_path[3], video_path[2],video_path[1], video_path[0]   
+                    #     video_name, video_id, type, collection_name = video_path[3], video_path[2],video_path[1], video_path[0]
                     #     transcribe = speech_to_text.amazon_transcribe(video_name, collection_name, type, video_id)
-                        
+
                     #     if not transcribe:
                     #        return Response("Unknown failure during S3 transcribe", status=status.HTTP_400_BAD_REQUEST)
                     #     video.transcript = transcribe
@@ -264,16 +267,16 @@ class VideoViewSet(viewsets.ModelViewSet):
                     #     pprint(audioText)
                     #     video.transcript = dumps(transcript)          #json field
                     #     video.audioText = audioText
-                        
+
                     #     print(f"transcribe time spent: {time()-t1:.2f}")
-                        
+
                     #     call default_summarize
                     #     self.default_summarize(video)
                     #     video.is_processing = False
                     #     video.save()
                     #     call to send email
-                    #     d = { 'username': video.collection.owner.first_name, 
-                    #         'mediaType': video.__class__.__name__.lower(), 
+                    #     d = { 'username': video.collection.owner.first_name,
+                    #         'mediaType': video.__class__.__name__.lower(),
                     #         'mediaName': video.title,
                     #         'collection': video.collection.name,
                     #         'MEDIA_URL': settings.MEDIA_URL,
@@ -283,7 +286,7 @@ class VideoViewSet(viewsets.ModelViewSet):
                     #     return Response("Fail to transcribe", status=status.HTTP_400_BAD_REQUEST)
             # else:
             #     return Response(status=status.HTTP_404_NOT_FOUND)
-    
+
     # moved to celery
     '''
     def default_summarize(self, audio):
@@ -297,31 +300,31 @@ class VideoViewSet(viewsets.ModelViewSet):
             audio.num_sentences = num_sentence
             audio.summarization = dumps(summary)
             audio.is_summarized = True
-            
+
             Quiz = quiz_generation.Quiz_generation(loads(audio.summarization), audio.audioText, based_text="summ")
             res = Quiz.generate("QA_pair_gen", question=None)       # question parameter can be modified if need
-            
+
             audio.quiz = dumps(res)
             print(f"Default summarization time spent: {time()-t1:.2f}")
             return True
-            
+
         except:
             return Response("Fail to generate default summarization", status=status.HTTP_400_BAD_REQUEST)
     '''
-        
-        
-        
+
+
+
     '''
     Call this endpoint to start summarization with all models,
     This endpoint is avaliable if video.audioText is provided.
-    
+
     Not avaliable: When method=="GET", no parameters are required, all three models will be to summarized.
-    
+
     When method=="POST", following fields are required:
         model (if None, default: "Bert"),
         num_sentence (if None, default: None),
         max_sentence (if None, default: 20)
-         
+
     URL: api/<int: collection_id>/video/<int: video_id>/summary_begin/
     '''
     @action(methods=['POST'],detail=True, permission_classes = [IsAuthenticated])
@@ -329,7 +332,7 @@ class VideoViewSet(viewsets.ModelViewSet):
         print("recieved summarize request")
         user = request.user
         video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
-        
+
         if not video:
             return Response(status=status.HTTP_404_NOT_FOUND)
         video = video[0]
@@ -339,18 +342,18 @@ class VideoViewSet(viewsets.ModelViewSet):
             return Response("Processing already", status=status.HTTP_400_BAD_REQUEST)
         if video.is_summarized:
             return Response("You have to reset before summarize", status=status.HTTP_400_BAD_REQUEST)
-        
+
         try:
             model = request.data.get('model', "Bert")
-                
+
             num_sentence = request.data.get('num_sentence', None)
             if num_sentence is not None:
                 num_sentence = int(num_sentence)
             max_sentence = int(request.data.get('max_sentence', 20))
-            
+
             video.is_processing = True
             video.save()
-            
+
             video_info = (video.__class__.__name__.lower(), video.pk)
             tuple_args = (video.audioText, loads(video.transcript), video_info)
             if model == "Bert":
@@ -360,12 +363,12 @@ class VideoViewSet(viewsets.ModelViewSet):
             elif model == "GPT-2":
                 res = tasks.GPT2_summarize_celery.delay(tuple_args, num_sentence=num_sentence, max_sentence = max_sentence)
             res = res.get(timeout=300)
-            
+
             video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))[0]
             video.is_processing = False
             video.save()
             return Response(res[0], status=status.HTTP_200_OK)
-        
+
         except Exception as e:
             print(e)
             video.is_processing = False
@@ -375,9 +378,9 @@ class VideoViewSet(viewsets.ModelViewSet):
         try:
             video.is_processing = True
             video.save()
-            
+
             model = request.data.get('model', "Bert")
-            
+
             num_sentence = request.data.get('num_sentence', None)
             if num_sentence is not None:
                 num_sentence = int(num_sentence)
@@ -393,14 +396,14 @@ class VideoViewSet(viewsets.ModelViewSet):
                 print(model)
                 video.is_processing = False
                 video.save()
-                
+
                 return Response(summary, status=status.HTTP_200_OK)
         except:
             video.is_processing = False
             video.save()
             return Response("Fail to summarize", status=status.HTTP_400_BAD_REQUEST)
         '''
-            
+
     '''
     Call this endpoint to delete a list of videos under one collection
     URL: api/<int: collection_id>/video/delete_list_videos/
@@ -412,16 +415,16 @@ class VideoViewSet(viewsets.ModelViewSet):
         videos_to_delete = request.data.get('list_id', None)
         if not videos_to_delete:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        
+
         print(videos_to_delete)
         total_size = 0
         for pk in videos_to_delete:
             video = get_object_or_404(Video, pk=pk, collection__owner=user.pk)
             total_size+=video.fileSize
             self.perform_destroy(video)
-                 
+
         return Response({"list_id": videos_to_delete, 'total_size': total_size, 'remaining_size': user.userprofile.remaining_size})
-    
+
     @action(methods=['GET'],detail=True, permission_classes=[IsAuthenticated])
     def reset(self, request, *args, **kwargs):
         print("recieved reset video request")
@@ -439,7 +442,7 @@ class VideoViewSet(viewsets.ModelViewSet):
             return Response(f"{video} RESET success", status=status.HTTP_200_OK)
         except :
             return Response("Fail to reset", status=status.HTTP_400_BAD_REQUEST)
-    
+
     @action(methods=['GET'],detail=True, permission_classes=[IsAuthenticated])
     def resetQuiz(self, request, *args, **kwargs):
         print("recieved video quiz reset request")
@@ -454,12 +457,12 @@ class VideoViewSet(viewsets.ModelViewSet):
             return Response(f"{video} RESET success", status=status.HTTP_200_OK)
         except :
             return Response("Fail to reset", status=status.HTTP_400_BAD_REQUEST)
-        
-    
+
+
     '''
     Call this endpoint to fetch Quiz data
     URL: api/<int: collection_id>/video/<int: video_id>/quiz/
-    
+
     Parameters to POST:
     "task":  "Question_Ans" | "QA_pair_gen" | "Question_gen"
     "based_text": "summ" | "full"
@@ -482,32 +485,32 @@ class VideoViewSet(viewsets.ModelViewSet):
         try:
             video.is_processing = True
             video.save()
-            
-            
+
+
             video_info = (video.__class__.__name__.lower(), video.pk)
             tuple_args = (loads(video.summarization), video.audioText, video_info)
             res = tasks.pop_quiz_celery.delay(tuple_args, based_text = based_text, type_task = task, question = question)
             print(res)
             res = res.get()
-            
+
             #Quiz = quiz_generation.Quiz_generation(loads(video.summarization), video.audioText, based_text=based_text)
             #res = Quiz.generate(task, question=question)       # question parameter can be modified if need
             #video.quiz = dumps(res)
-            
-            
+
+
             print("Here")
             video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))[0]
             video.quiz = dumps(res)
             video.is_processing = False
             video.save()
             return Response(res, status=status.HTTP_200_OK)
-        
+
         except Exception as e:
             print(e)
             video.is_processing = False
             video.save()
             return Response({'Message':"Quiz Generation Failed"},status = status.HTTP_400_BAD_REQUEST)
-        
+
 class CollectionViewSet(viewsets.ModelViewSet):
     serializer_class = CollectionSerializer
     authentication_classes = [SessionAuthentication, TokenAuthentication]
@@ -518,7 +521,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
         user = self.request.user
         print(user)
         return Collection.objects.filter(owner=user.pk)
-    
+
     def perform_create(self, serializer):
         instance = serializer.save()
         instance.image.delete(save=False)
@@ -529,24 +532,24 @@ class CollectionViewSet(viewsets.ModelViewSet):
         if serializer.context['request'].FILES.get('image'):
             original_collection.image.delete(save=False)
         return super().perform_update(serializer)
-    
+
     def custom_video_destroy(self, instance):
         #storage back
         user = self.request.user
         fileSize = instance.fileSize
-        
+
         #delete the folder
         if instance.video:
             prefix = instance.video.url.split("/")[3:-1]
             prefix = "/".join(prefix)+"/"
-            
+
             s3 = boto3.resource('s3',
                 aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
                 aws_secret_access_key= settings.AWS_SECRET_ACCESS_KEY)
             bucket = s3.Bucket(settings.AWS_STORAGE_BUCKET_NAME)
             bucket.objects.filter(Prefix=prefix).delete()
             instance.video.delete(save=False)
-            
+
         if fileSize:
             profile = UserProfile.objects.select_for_update().filter(user=user)[0]
             with transaction.atomic():
@@ -555,24 +558,24 @@ class CollectionViewSet(viewsets.ModelViewSet):
                 profile.save()
                 print(f"destroying after: remaining: {profile.remaining_size}")
         instance.delete()
-        
+
     def custom_audio_destroy(self, instance):
         fileSize = instance.fileSize
         user = self.request.user
-        
+
         #delete the folder
-        
+
         if instance.audio:
             prefix = instance.audio.url.split("/")[3:-1]
             prefix = "/".join(prefix)+"/"
-            
+
             s3 = boto3.resource('s3',
                 aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
                 aws_secret_access_key= settings.AWS_SECRET_ACCESS_KEY)
             bucket = s3.Bucket(settings.AWS_STORAGE_BUCKET_NAME)
             bucket.objects.filter(Prefix=prefix).delete()
             instance.audio.delete(save=False)
-            
+
         if fileSize:
             profile = UserProfile.objects.select_for_update().filter(user=user)[0]
             with transaction.atomic():
@@ -581,18 +584,18 @@ class CollectionViewSet(viewsets.ModelViewSet):
                 profile.save()
                 print(f"destroying after: remaining: {profile.remaining_size}")
         instance.delete()
-    
+
     def perform_destroy(self, instance):
         audios = instance.audio_set.all()
         videos = instance.video_set.all()
-        
+
         if audios:
             for a in audios:
                 self.custom_audio_destroy(a)
         if videos:
             for v in videos:
                 self.custom_video_destroy(v)
-        
+
         instance.image.delete(save=False)
         super().perform_destroy(instance)
 
@@ -601,21 +604,21 @@ class CollectionViewSet(viewsets.ModelViewSet):
         super().destroy(request,*args, **kwargs)
         print(f"\nID{id}")
         return Response({'collection_id':id}, status=status.HTTP_202_ACCEPTED)
-        
+
         ''' Return all info of the deleted Collection '''
         # serializer = self.get_serializer(self.get_object())
         # super().destroy(request,*args, **kwargs)
         # return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
 class AudioViewSet(viewsets.ModelViewSet):
     serializer_class = AudioSerializer
     authentication_classes = [SessionAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated,AudioUserPermission]
     def get_queryset(self, *args, **kwargs):
         user = self.request.user
-        
+
         return Audio.objects.filter(Q(collection=self.kwargs['collection_pk']) & Q(collection__owner=user.pk))
-    
+
     def create(self, request, *args, **kwargs):
         # storage check
         user = request.user
@@ -625,8 +628,8 @@ class AudioViewSet(viewsets.ModelViewSet):
             if fileSize >= user.userprofile.remaining_size:
                 return Response(f"audio size {fileSize//1024//1024} mb has exceeded your remaining size: {user.userprofile.remaining_size//1024//1024} mb.", status=status.HTTP_426_UPGRADE_REQUIRED)
         return super().create(request, *args, **kwargs)
-    
-    
+
+
     '''
     similar to post_save: call save twice to know the id of the audio just created and save to the correct directory
     '''
@@ -637,13 +640,13 @@ class AudioViewSet(viewsets.ModelViewSet):
         fileSize = 0
         if serializer.context['request'].FILES.get('audio'):
             fileSize = int(ceil(serializer.context['request'].FILES['audio'].size))
-        
+
         # save twice for gainning the id of currently constructed video instance
         instance = serializer.save()
         instance.audio.delete(save=False)
         instance.fileSize = fileSize
-        serializer.save() 
-        
+        serializer.save()
+
         if fileSize:
             profile = UserProfile.objects.select_for_update().filter(user=user)[0]
             with transaction.atomic():
@@ -652,24 +655,24 @@ class AudioViewSet(viewsets.ModelViewSet):
                 profile.save()
                 print(f"create after: remaining: {profile.remaining_size}")
                 print(f"create time spent: {time()-t1:.2f}")
-                
+
     def perform_destroy(self, instance):
         fileSize = instance.fileSize
         user = self.request.user
-        
+
         #delete the folder
-        
+
         if instance.audio:
             prefix = instance.audio.url.split("/")[3:-1]
             prefix = "/".join(prefix)+"/"
-            
+
             s3 = boto3.resource('s3',
                 aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
                 aws_secret_access_key= settings.AWS_SECRET_ACCESS_KEY)
             bucket = s3.Bucket(settings.AWS_STORAGE_BUCKET_NAME)
             bucket.objects.filter(Prefix=prefix).delete()
             instance.audio.delete(save=False)
-            
+
         if fileSize:
             profile = UserProfile.objects.select_for_update().filter(user=user)[0]
             with transaction.atomic():
@@ -678,24 +681,24 @@ class AudioViewSet(viewsets.ModelViewSet):
                 profile.save()
                 print(f"destroying after: remaining: {profile.remaining_size}")
         return super().perform_destroy(instance)
-        
+
     def destroy(self, request, *args, **kwargs):
         id = self.get_object().pk
         title = self.get_object().title
         super().destroy(request,*args, **kwargs)
         remaining = request.user.userprofile.remaining_size
         print(f"Destroying : remaining: {remaining}")
-    
+
         return Response({'audio_id':id,
                          "title": title,
                          'remaining_size': remaining}, status=status.HTTP_202_ACCEPTED)
-    
+
     # similarly, this may not be used
     # def perform_update(self, serializer):
     #     user = self.request.user
     #     instance = serializer.save()
     #     fileSize = instance.fileSize
-        
+
     #     if fileSize:
     #         profile = UserProfile.objects.select_for_update().filter(user=user)[0]
     #         with transaction.atomic():
@@ -703,7 +706,7 @@ class AudioViewSet(viewsets.ModelViewSet):
     #             profile.remaining_size -= fileSize
     #             profile.save()
     #             print(f"updating after: remaining: {profile.remaining_size}")
-        
+
     '''
     Call this endpoint to delete a list of videos under one collection
     URL: api/<int: collection_id>/audio/delete_list_audios/
@@ -714,15 +717,15 @@ class AudioViewSet(viewsets.ModelViewSet):
         audios_to_delete = request.data.get('list_id', None)
         if not audios_to_delete:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        
+
         total_size = 0
         for pk in audios_to_delete:
             audio = get_object_or_404(Audio, pk=pk, collection__owner=user.pk)
             total_size+=audio.fileSize
             self.perform_destroy(audio)
-                
+
         return Response({"list_id": audios_to_delete, 'total_size': total_size, 'remaining_size': user.userprofile.remaining_size})
-    
+
     '''
     Call this url to begin transcribe from Amazon
     URL: api/<int: collection_id>/audio/<int: audio_id>/transcribe_begin/
@@ -734,12 +737,12 @@ class AudioViewSet(viewsets.ModelViewSet):
         video = Audio.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
         if video:
             video = video[0]
-            
+
             if not video.transcript:
                 try:
                     video_info = (video.__class__.__name__.lower(), video.pk)
-                    d = { 'username': video.collection.owner.first_name, 
-                            'mediaType': video.__class__.__name__.lower(), 
+                    d = { 'username': video.collection.owner.first_name,
+                            'mediaType': video.__class__.__name__.lower(),
                             'mediaName': video.title,
                             'collection': video.collection.name,
                             'MEDIA_URL': settings.MEDIA_URL,
@@ -758,14 +761,14 @@ class AudioViewSet(viewsets.ModelViewSet):
     '''
     Call this endpoint to start summarization with all models,
     This endpoint is avaliable if video.audioText is provided.
-    
+
     Not avaliable: When method=="GET", no parameters are required, all three models will be to summarized.
-    
+
     When method=="POST", following fields are required:
         model (if None, default: "Bert"),
         num_sentence (if None, default: None),
         max_sentence (if None, default: 20)
-         
+
     URL: api/<int: collection_id>/audio/<int: audio_id>/summary_begin/
     '''
     @action(methods=['POST'],detail=True, permission_classes = [IsAuthenticated])
@@ -773,7 +776,7 @@ class AudioViewSet(viewsets.ModelViewSet):
         print("recieved summarize request")
         user = request.user
         video = Audio.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
-        
+
         if not video:
             return Response(status=status.HTTP_404_NOT_FOUND)
         video = video[0]
@@ -783,18 +786,18 @@ class AudioViewSet(viewsets.ModelViewSet):
             return Response("Processing already", status=status.HTTP_400_BAD_REQUEST)
         if video.is_summarized:
             return Response("You have to reset before summarize", status=status.HTTP_400_BAD_REQUEST)
-        
+
         try:
             model = request.data.get('model', "Bert")
-                
+
             num_sentence = request.data.get('num_sentence', None)
             if num_sentence is not None:
                 num_sentence = int(num_sentence)
             max_sentence = int(request.data.get('max_sentence', 20))
-            
+
             video.is_processing = True
             video.save()
-            
+
             video_info = (video.__class__.__name__.lower(), video.pk)
             tuple_args = (video.audioText, loads(video.transcript), video_info)
             if model == "Bert":
@@ -804,18 +807,18 @@ class AudioViewSet(viewsets.ModelViewSet):
             elif model == "GPT-2":
                 res = tasks.GPT2_summarize_celery.delay(tuple_args, num_sentence=num_sentence, max_sentence = max_sentence)
             res = res.get(timeout=300)
-            
+
             video = Audio.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))[0]
             video.is_processing = False
             video.save()
             return Response(res[0], status=status.HTTP_200_OK)
-        
+
         except Exception as e:
             print(e)
             video.is_processing = False
             video.save()
             return Response("Fail to summarize", status=status.HTTP_400_BAD_REQUEST)
-        
+
     @action(methods=['GET'],detail=True, permission_classes=[IsAuthenticated])
     def reset(self, request, *args, **kwargs):
         user = request.user
@@ -832,7 +835,7 @@ class AudioViewSet(viewsets.ModelViewSet):
             return Response(f"{audio} RESET success", status=status.HTTP_200_OK)
         except :
             return Response("Fail to reset", status=status.HTTP_400_BAD_REQUEST)
-    
+
     @action(methods=['GET'],detail=True, permission_classes=[IsAuthenticated])
     def resetQuiz(self, request, *args, **kwargs):
         print("recieved audio quiz reset request")
@@ -851,7 +854,7 @@ class AudioViewSet(viewsets.ModelViewSet):
     '''
     Call this endpoint to fetch Quiz data
     URL: api/<int: collection_id>/audio/<int: audio_id>/quiz/
-    
+
     Parameters to POST:
     "task":  "Question_Ans" | "QA_pair_gen" | "Question_gen"
     "based_text": "summ" | "full"
@@ -874,28 +877,28 @@ class AudioViewSet(viewsets.ModelViewSet):
         try:
             video.is_processing = True
             video.save()
-            
-            
+
+
             video_info = (video.__class__.__name__.lower(), video.pk)
             tuple_args = (loads(video.summarization), video.audioText, video_info)
             res = tasks.pop_quiz_celery.delay(tuple_args, based_text = based_text, type_task = task, question = question)
             print(res)
             res = res.get()
-            
+
             print("Here")
             video = Audio.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))[0]
             video.quiz = dumps(res)
             video.is_processing = False
             video.save()
             return Response(res, status=status.HTTP_200_OK)
-        
+
         except Exception as e:
             print(e)
             video.is_processing = False
             video.save()
             return Response({'Message':"Quiz Generation Failed"},status = status.HTTP_400_BAD_REQUEST)
-        
-   
+
+
 class TextViewSet(viewsets.ModelViewSet):
 
     serializer_class = TextSerializer
@@ -904,7 +907,7 @@ class TextViewSet(viewsets.ModelViewSet):
     def get_queryset(self, *args, **kwargs):
         user = self.request.user
         return Text.objects.filter(Q(collection=self.kwargs['collection_pk']) & Q(collection__owner=user.pk))
-    
+
     '''
     When method=="POST", following fields are required:
         model (if None, default: "Bert"),
@@ -912,13 +915,13 @@ class TextViewSet(viewsets.ModelViewSet):
         max_sentence (if None, default: 20)
         default: set to 1 if this is the default summarization (if None, default: 0),
     URL: api/<int: collection_id>/text/<int: text_id>/summary_begin/
-    
+
     @action(methods=['POST'],detail=True, permission_classes = [IsAuthenticated])
     def summary_begin(self, request, *args, **kwargs):
         print("recieved summarize request")
         user = request.user
         video = Text.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
-        
+
         if not video:
             return Response(status=status.HTTP_404_NOT_FOUND)
         video = video[0]
@@ -928,18 +931,18 @@ class TextViewSet(viewsets.ModelViewSet):
             return Response("Processing already", status=status.HTTP_400_BAD_REQUEST)
         if video.is_summarized:
             return Response("You have to reset before summarize", status=status.HTTP_400_BAD_REQUEST)
-        
+
         try:
             model = request.data.get('model', "Bert")
-                
+
             num_sentence = request.data.get('num_sentence', None)
             if num_sentence is not None:
                 num_sentence = int(num_sentence)
             max_sentence = int(request.data.get('max_sentence', 20))
-            
+
             video.is_processing = True
             video.save()
-            
+
             video_info = (video.__class__.__name__.lower(), video.pk)
             tuple_args = (video.audioText, loads(video.transcript), video_info)
             if model == "Bert":
@@ -949,12 +952,12 @@ class TextViewSet(viewsets.ModelViewSet):
             elif model == "GPT-2":
                 res = tasks.GPT2_summarize_celery.delay(tuple_args, num_sentence=num_sentence, max_sentence = max_sentence)
             res = res.get()
-            
+
             video = Text.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))[0]
             video.is_processing = False
             video.save()
             return Response(res[0], status=status.HTTP_200_OK)
-        
+
         except Exception as e:
             print(e)
             video.is_processing = False
@@ -972,20 +975,20 @@ class TextViewSet(viewsets.ModelViewSet):
         task = request.data.get('task', 'QA_pair_gen')
         # Unknown usage
         question_count = request.data.get("question_count", 10)
-        
+
         question = request.data.get('question', None)
-        
+
         try:
             text.is_processing = True
             text.save()
-            
+
             text_info = (text.__class__.__name__.lower(), text.pk)
             tuple_args = (None, text.text, text_info)
             summary, audioText = None, text.text
             res = tasks.pop_quiz_celery.delay(tuple_args, based_text = 'full', type_task = task, question = question)
             print(res.get())
             res = res.get()
-            
+
             #Quiz = quiz_generation.Quiz_generation(summary, audioText)
             #res = Quiz.generate(task, question=question)
             #text = Text.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))[0]
@@ -994,19 +997,19 @@ class TextViewSet(viewsets.ModelViewSet):
 
             text = Text.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))[0]
             text.quiz = dumps(res)
-            
+
             text.is_processing = False
             text.save()
             return Response(res, status=status.HTTP_200_OK)
-        
+
         except Exception as e:
             print(e)
             text.is_processing = False
             text.save()
             return Response({'Message':"Quiz Generation Failed"},status = status.HTTP_400_BAD_REQUEST)
-    
-    
-       
+
+
+
     '''
     Call this endpoint to delete a list of texts under one collection
     URL: api/<int: collection_id>/texts/delete_list_texts/
@@ -1018,14 +1021,14 @@ class TextViewSet(viewsets.ModelViewSet):
         texts_to_delete = request.data.get('list_id', None)
         if not texts_to_delete:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        
+
         print(texts_to_delete)
         for pk in texts_to_delete:
             text = get_object_or_404(Text, pk=pk, collection__owner=user.pk)
             self.perform_destroy(text)
-                 
+
         return Response({"list_id": texts_to_delete, 'remaining_size': user.userprofile.remaining_size})
-    
+
     @action(methods=['GET'],detail=True, permission_classes=[IsAuthenticated])
     def reset(self, request, *args, **kwargs):
         print("recieved reset text request")
@@ -1043,7 +1046,7 @@ class TextViewSet(viewsets.ModelViewSet):
             return Response(f"{text} RESET success", status=status.HTTP_200_OK)
         except :
             return Response("Fail to reset", status=status.HTTP_400_BAD_REQUEST)
-    
+
     @action(methods=['GET'],detail=True, permission_classes=[IsAuthenticated])
     def resetQuiz(self, request, *args, **kwargs):
         print("recieved text quiz reset request")
@@ -1058,17 +1061,17 @@ class TextViewSet(viewsets.ModelViewSet):
             return Response(f"{text} RESET success", status=status.HTTP_200_OK)
         except :
             return Response("Fail to reset", status=status.HTTP_400_BAD_REQUEST)
-        
-    
+
+
     '''
     Call this endpoint to fetch Quiz data
     URL: api/<int: collection_id>/text/<int: text_id>/quiz/
-    
+
     Parameters to POST:
     "task":  "Question_Ans" | "QA_pair_gen" | "Question_gen"
     "based_text": "summ" | "full"
     "question": this parameter is especially needed for Question_Ans
-    
+
     @action(methods=['POST'], detail = True, permission_classes = [IsAuthenticated])
     def quiz(self, request, *args, **kwargs):
         print("recieved quiz video request")
@@ -1086,27 +1089,27 @@ class TextViewSet(viewsets.ModelViewSet):
         try:
             video.is_processing = True
             video.save()
-            
-            
+
+
             video_info = (video.__class__.__name__.lower(), video.pk)
             tuple_args = (loads(video.summarization), video.audioText, video_info)
             res = tasks.pop_quiz_celery.delay(tuple_args, based_text = based_text, type_task = task, question = question)
             print(res)
             res = res.get()
-            
+
             video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))[0]
             print(video.quiz)
             video.is_processing = False
             video.save()
             return Response(res, status=status.HTTP_200_OK)
-        
+
         except Exception as e:
             print(e)
             video.is_processing = False
             video.save()
             return Response({'Message':"Quiz Generation Failed"},status = status.HTTP_400_BAD_REQUEST)
     '''
-    
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def search(request):
@@ -1118,25 +1121,25 @@ def search(request):
         return Response(serializer.data)
     else:
         return Response({'collection':[]})
-    
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_remaining(request):
     if request.method == 'GET':
-        
+
         # this simply used for test purpose
         user = request.user
         video = Video.objects.filter(collection__owner=user.pk)[0]
         print(video)
-        d = { 'username': video.collection.owner.first_name, 
-                        'mediaType': video.__class__.__name__.lower(), 
+        d = { 'username': video.collection.owner.first_name,
+                        'mediaType': video.__class__.__name__.lower(),
                         'mediaName': video.title,
                         'collection': video.collection.name,
                         'MEDIA_URL': settings.MEDIA_URL,
                         'TO': video.collection.owner.email}
         print(d)
         x = tasks.send_email_celery.delay(d)
-        
+
         return Response({'remaining_size': request.user.userprofile.remaining_size})
 
 '''
@@ -1147,12 +1150,12 @@ def get_remaining(request):
 def send_email(d):
 
     email_subject = 'You Default Summarization Is Ready at Briefly-AI!'
-    
+
     # {{ username }}
     # {{ mediaType }}
     # {{ mediaName }}
     # {{ collection }}
-    
+
     plaintext = render_to_string('email.txt', d)
     htmly     = render_to_string('email.html', d)
     from_email, to = settings.EMAIL_HOST_USER, d['TO']
@@ -1164,5 +1167,5 @@ def send_email(d):
         html_message=htmly,
         fail_silently=False
     )
-    
-    
+
+

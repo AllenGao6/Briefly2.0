@@ -29,48 +29,47 @@ export default function QuizList({ quizes, answerVisible, mediaType }) {
     console.log(QA_pair);
     return QA_pair;
   };
-  if(mediaType === 'text'){
+  if (mediaType === "text") {
+    return (
+      <List className={classes.root} disablePadding>
+        {quizes.map((quiz, i) => (
+          <React.Fragment key={i}>
+            <QuizPoint
+              pair={quiz}
+              answerVisible={answerVisible}
+              time={null}
+              count={null}
+              index={i + 1}
+              mediaType={mediaType}
+            />
+            <Divider variant="middle" className={classes.divider} />
+          </React.Fragment>
+        ))}
+      </List>
+    );
+  } else {
     return (
       <List className={classes.root} disablePadding>
         {quizes
+          .sort((a, b) => a.count - b.count)
           .map((quiz, i) => (
-            <React.Fragment key={i}>
-              <QuizPoint
-                    pair={quiz}
+            <React.Fragment>
+              {construct_pair(quiz.quiz).map((pair, i) => (
+                <React.Fragment key={`$quiz-${quiz.id}-${i}`}>
+                  <QuizPoint
+                    pair={pair}
                     answerVisible={answerVisible}
-                    time={null}
-                    count={null}
-                    index={i+1}
+                    time={quiz.time}
+                    count={quiz.count}
+                    index={i}
                     mediaType={mediaType}
                   />
                   <Divider variant="middle" className={classes.divider} />
+                </React.Fragment>
+              ))}
             </React.Fragment>
           ))}
       </List>
     );
-  } else{
-  return (
-    <List className={classes.root} disablePadding>
-      {quizes
-        .sort((a, b) => a.count - b.count)
-        .map((quiz, i) => (
-          <React.Fragment>
-            {construct_pair(quiz.quiz).map((pair, i) => (
-              <React.Fragment key={`$quiz-${quiz.id}-${i}`}>
-                <QuizPoint
-                  pair={pair}
-                  answerVisible={answerVisible}
-                  time={quiz.time}
-                  count={quiz.count}
-                  index={i}
-                  mediaType={mediaType}
-                />
-                <Divider variant="middle" className={classes.divider} />
-              </React.Fragment>
-            ))}
-          </React.Fragment>
-        ))}
-    </List>
-  );
- }
+  }
 }
