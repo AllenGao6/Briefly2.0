@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Grid,
   List,
@@ -59,6 +59,7 @@ function Chatbot({ mediaType, mediaId, collectionId, user }) {
   const [chatList, setChatList] = useState([]);
   const [content, setContent] = useState("");
   const [sending, setSending] = useState(false);
+  const scrollRef = useRef(null);
 
   useEffect(() => {
     setChatList([
@@ -71,6 +72,12 @@ function Chatbot({ mediaType, mediaId, collectionId, user }) {
       },
     ]);
   }, []);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollIntoView({ behaviour: "smooth" });
+    }
+  }, [chatList]);
 
   const handleSendQuestion = async () => {
     const chat = {
@@ -215,6 +222,7 @@ function Chatbot({ mediaType, mediaId, collectionId, user }) {
                       </Typography>
                     }
                   />
+                  {index === chatList.length - 1 && <div ref={scrollRef}></div>}
                 </ListItem>
               ))}
             </List>
