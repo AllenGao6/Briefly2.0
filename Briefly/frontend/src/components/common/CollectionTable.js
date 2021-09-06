@@ -80,8 +80,9 @@ const useStyles = makeStyles((theme) => {
     },
     title: {
       transition: "color 0.3s",
+      color: theme.palette.type === "dark" ? "white" : theme.palette.common.grey,
       "&:hover": {
-        color: theme.palette.common.blue,
+        color: "white",
         cursor: "pointer",
       },
     },
@@ -145,8 +146,6 @@ const useStyles = makeStyles((theme) => {
       width: "1.5rem",
     },
     titleButton: {
-      ...theme.typography.roundedButton,
-      background: theme.palette.common.blue,
       height: "1.7rem",
       padding: 10,
       paddingLeft: "1rem",
@@ -154,7 +153,8 @@ const useStyles = makeStyles((theme) => {
       fontSize: "1rem",
       width: undefined,
       "&:hover": {
-        background: darken(theme.palette.common.blue, 0.2),
+        background:
+          theme.palette.type === "dark" ? theme.palette.common.orange : theme.palette.common.blue,
       },
     },
   };
@@ -212,16 +212,15 @@ function CollectionTable({
       renderCell: (params) => (
         <React.Fragment>
           {params.row.transcript === null ? (
-            <Typography variant="body1" className={classes.title}>
-              {params.value}
-            </Typography>
+            <Typography variant="body1">{params.value}</Typography>
           ) : (
             <Button
-              variant="contained"
+              variant="outlined"
+              color={theme.palette.type === "dark" ? "secondary" : "primary"}
               className={classes.titleButton}
               onClick={() => handleTitleClick(params.id)}
             >
-              <Typography variant="body1" className={classes.title} style={{ color: "white" }}>
+              <Typography variant="body1" className={classes.title}>
                 {params.value}
               </Typography>
             </Button>
@@ -294,16 +293,17 @@ function CollectionTable({
       renderCell: (params) => (
         <React.Fragment>
           {params.row.transcript === null ? (
-            <Typography variant="body1" className={classes.title}>
-              {params.value}
-            </Typography>
+            <Typography variant="body1">{params.value}</Typography>
           ) : (
             <Button
-              variant="contained"
+              variant="outlined"
+              color={theme.palette.type === "dark" ? "secondary" : "primary"}
               className={classes.titleButton}
               onClick={() => handleTitleClick(params.id)}
             >
-              {params.value}
+              <Typography variant="body1" className={classes.title}>
+                {params.value}
+              </Typography>
             </Button>
           )}
         </React.Fragment>

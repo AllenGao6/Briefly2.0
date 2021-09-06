@@ -1,15 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import clsx from "clsx";
-import {
-  useTheme,
-  useMediaQuery,
-  Typography,
-  Grid,
-  Icon,
-  Paper,
-  Button,
-} from "@material-ui/core";
+import { useTheme, useMediaQuery, Typography, Grid, Icon, Paper, Button } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
 import Divider from "@material-ui/core/Divider";
 import Drawer from "@material-ui/core/Drawer";
@@ -114,9 +106,7 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: "0.7rem",
     paddingBottom: "0.7rem",
     background:
-      theme.palette.type === "dark"
-        ? theme.palette.common.orange
-        : theme.palette.common.blue,
+      theme.palette.type === "dark" ? theme.palette.common.orange : theme.palette.common.blue,
     transition: "all 0.3s",
     "&:hover": {
       background:
@@ -173,18 +163,21 @@ export default function Navigator(props) {
           className={clsx(classes.item, classes.itemCategory)}
           style={{ textAlign: "center", height: 69 }}
         >
-          <Typography
-            variant="h4"
-            style={{ color: theme.palette.secondary.main }}
-          >
+          <Typography variant="h4" style={{ color: theme.palette.secondary.main }}>
             Briefly
           </Typography>
         </ListItem>
-        <ListItem className={clsx(classes.item, classes.itemCategory)} onClick={()=>{props.history.push(`/dashboard`)}} button>
+        <ListItem
+          className={clsx(classes.item, classes.itemCategory)}
+          onClick={() => {
+            props.history.push(`/dashboard`);
+          }}
+          button
+        >
           <ListItemIcon className={classes.itemIcon}>
             <HomeIcon style={{ color: "white" }} />
           </ListItemIcon>
-          <Typography variant="h5" style={{ color: "white" }} >
+          <Typography variant="h5" style={{ color: "white" }}>
             Home
           </Typography>
         </ListItem>
@@ -229,15 +222,11 @@ export default function Navigator(props) {
                 {children.map(({ id: childId, icon, active }) => (
                   <ListItem
                     key={childId}
-                    onClick={
-                      id === "Config" ? () => change_category(childId) : null
-                    }
+                    onClick={id === "Config" ? () => change_category(childId) : null}
                     button
                   >
                     <ListItemIcon className={classes.icon}>{icon}</ListItemIcon>
-                    <ListItemText disableTypography className={classes.text}>
-                      {childId}
-                    </ListItemText>
+                    <ListItemText className={classes.text}>{childId}</ListItemText>
                   </ListItem>
                 ))}
 
