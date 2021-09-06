@@ -226,7 +226,15 @@ export default function Navigator(props) {
                     button
                   >
                     <ListItemIcon className={classes.icon}>{icon}</ListItemIcon>
-                    <ListItemText className={classes.text}>{childId}</ListItemText>
+                    <ListItemText disableTypography>
+                      <Typography
+                        variant="h5"
+                        className={classes.text}
+                        style={{ fontSize: "1.2rem" }}
+                      >
+                        {childId}
+                      </Typography>
+                    </ListItemText>
                   </ListItem>
                 ))}
 
