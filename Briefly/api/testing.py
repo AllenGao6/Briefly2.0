@@ -119,24 +119,4 @@
 # showPaperSummary(paperContent)
 # print(lines)
 
-import openai
-
-def GPT3(content):
-    tldr_tag = "\ntl;dr:"
-    openai.organization = 'org-VFp4IKfUIwVwgpZ77TGtjN2T'
-    openai.api_key = "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"
-    engine_list = openai.Engine.list() 
-    
-    text = content + tldr_tag
-    response = openai.Completion.create(
-        engine="davinci",
-        prompt=text,
-        temperature=0.3,
-        max_tokens=300,
-        top_p=1,
-        frequency_penalty=0.1,
-        presence_penalty=0.1,
-        stop=["\n"]
-    )
-    print(response["choices"][0]["text"])
 
