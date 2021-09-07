@@ -621,7 +621,7 @@ function SummaryContent({
       </Grid>
       <Dialog open={open} onClose={handleClose} fullWidth fullScreen={matchesXS} maxWidth="xs">
         <DialogTitle>
-          <Typography variant="h5">Summarization Configuration</Typography>
+          <Typography variant="h5">Summary Note Configuration</Typography>
         </DialogTitle>
         <Divider variant="middle" classes={{ root: classes.divider }} />
         <DialogContent>
@@ -643,9 +643,9 @@ function SummaryContent({
                   <MenuItem value={0}>
                     <em>None</em>
                   </MenuItem>
-                  <MenuItem value={1}>BERT</MenuItem>
-                  <MenuItem value={2}>GPT-2</MenuItem>
-                  <MenuItem value={3}>XLNet</MenuItem>
+                  <MenuItem value={1}>BERT, basic method with fast computation, by Google</MenuItem>
+                  <MenuItem value={2}>GPT-2, powerful language model, by openai</MenuItem>
+                  <MenuItem value={3}>XLNet, good at capturing dependencies, by CMU & Google</MenuItem>
                 </Select>
               </FormControl>
             </Grid>

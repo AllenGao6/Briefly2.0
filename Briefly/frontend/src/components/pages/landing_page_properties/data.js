@@ -105,9 +105,9 @@ export const captions2 = [
   <p>Video Summarization</p>,
   <p>Note Export</p>,
   <p>Pop Quiz Generation</p>,
-  <p>Mind Map Generation</p>,
+  <p>Question Answering</p>,
   <p>Speech Recognition</p>,
-  <p>Final Review Sheet</p>,
+  <p>Exam Preparation</p>,
 ]
 
 const hoveringStyles = {
@@ -120,7 +120,7 @@ export const descriptions2 = [
   <p>
     Many important videos are too long for us to stay focused throughout?
     <br></br><br></br>
-    We provide a video summarization tools that extract crucial information for preview and review.
+    We provide a smart note tools that extract crucial information for preview and review.
   </p>,
   <p>
     Want to have your own note?
@@ -131,12 +131,11 @@ export const descriptions2 = [
     Prefer active thinking? 
     <br></br><br></br>
     Briefly can generate quizzes from videos or uploaded texts that suits your needs.
-    {/* <p style={hoveringStyles}> Learn more :) </p> */}
   </p>,
   <p>
-    Want to visualize information?
+    Have question regaring your uploaded content?
     <br></br><br></br>
-    Mind Map is a useful tool to do this job. We will build a Name Entity Recognition Model to extract key concepts in each uploaded media, which will show the latent knowledge structure of all files.
+    We created a intelligent assistant bot powered by GPT3, that could answer any of your questions based on your uploaded cnotent. (Beta)
   </p>,
   <p>
     Want to locate passage in video faster?
@@ -144,9 +143,8 @@ export const descriptions2 = [
     We apply speech recognition on all uploaded media file, and we built an smart search tool to help you locate your desired text with ease.
   </p>,
   <p>
-    Studying about your final exam?
+    Studying for your exams?
     <br></br><br></br>
     We organize all your uploaded files and store them for your exam reviews. You can retrieve all your desired content at a snatch. 
-    <p style={hoveringStyles}> Learn more :) </p>
   </p>,
 ]
