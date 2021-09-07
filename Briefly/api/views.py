@@ -209,6 +209,7 @@ class VideoViewSet(viewsets.ModelViewSet):
             max_tokens=150,
             stop=["\n", "<|endoftext|>"],
         )
+        print('asdassa')
 
         print(response['answers'])
 
@@ -655,39 +656,6 @@ class AudioViewSet(viewsets.ModelViewSet):
                 print(f"create after: remaining: {profile.remaining_size}")
                 print(f"create time spent: {time()-t1:.2f}")
 
-    
-    #use open ai api to add question answering feature
-    @action(methods=['POST'], detail=True, permission_classes = [IsAuthenticated])
-    def question_ans(self, request, *args, **kwargs):
-        user = request.user
-        audio = Audio.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
-        #get the complete text from database
-        text = audio[0].audioText
-        print(text)
-        #get the question from frontend request
-        question = request.data.get('question', None)
-        #Abort if question is empty
-        if not question:
-            return Response("not question input", status=status.HTTP_400_BAD_REQUEST)
-        openai.api_key = os.getenv("openai_api")
-        # engine_list = openai.Engine.list()
-        document_list = ["In these series of lessons we'll be talking about task queues, we begin with having a director setup of a message queue with the publisher and consumer. The purpose of the task queue is to be able to distribute the workload of one queue into multiple consumers. So, let's take a look at this scenario where the publisher can publish ten messages per second and the consumer can only consume one message per second. In this scenario, the queue will continue to grow, as the consumer is not fast enough to to consume the messages at the rate that the publisher is sending. This is known as the slow consumer problem, so one way to get around the slow consumer is to have multiple consumers consuming the same queue. So then, the workload is distributed amongst those consumers by having multiple consumers were able to consume the messages at a higher rate, because we are able to dispatch multiple messages to multiple consumers. This is general idea behind the task queue set up to have multiple consumers to be able to consume messages and a higher rate, and the publisher is publishing in order to not delay the messages from being consumed fast enough. In the following series of lessons, we will take a look at how to implement the task queues in RabbitMQ."]
-
-        response = openai.Answer.create(
-            search_model="ada",
-            model="curie",
-            question=question,
-            documents=[text],
-            examples_context=document_list[0],
-            examples=[["What is RabbitMQ?","RabbitMQ is a message broker. It accepts and forwards messages. You can think about it as a post office: when you send mail to the post box you're guaranteed that somebody will eventually pick it up and take it where it needs to go. RabbitMQ is written in Erlang and uses AMQP, which is a protocol for message queuing."]],
-            max_tokens=150,
-            stop=["\n", "<|endoftext|>"],
-        )
-
-        print(response['answers'])
-
-        return Response({'ans': response['answers']}, status=status.HTTP_200_OK)
-
     def perform_destroy(self, instance):
         fileSize = instance.fileSize
         user = self.request.user
@@ -1041,37 +1009,6 @@ class TextViewSet(viewsets.ModelViewSet):
             return Response({'Message':"Quiz Generation Failed"},status = status.HTTP_400_BAD_REQUEST)
 
 
-    #use open ai api to add question answering feature
-    @action(methods=['POST'], detail=True, permission_classes = [IsAuthenticated])
-    def question_ans(self, request, *args, **kwargs):
-        user = request.user
-        text = Text.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
-        #get the complete text from database
-        text = text[0].text
-        print(text)
-        #get the question from frontend request
-        question = request.data.get('question', None)
-        #Abort if question is empty
-        if not question:
-            return Response("not question input", status=status.HTTP_400_BAD_REQUEST)
-        openai.api_key = os.getenv("openai_api")
-        # engine_list = openai.Engine.list()
-        document_list = ["In these series of lessons we'll be talking about task queues, we begin with having a director setup of a message queue with the publisher and consumer. The purpose of the task queue is to be able to distribute the workload of one queue into multiple consumers. So, let's take a look at this scenario where the publisher can publish ten messages per second and the consumer can only consume one message per second. In this scenario, the queue will continue to grow, as the consumer is not fast enough to to consume the messages at the rate that the publisher is sending. This is known as the slow consumer problem, so one way to get around the slow consumer is to have multiple consumers consuming the same queue. So then, the workload is distributed amongst those consumers by having multiple consumers were able to consume the messages at a higher rate, because we are able to dispatch multiple messages to multiple consumers. This is general idea behind the task queue set up to have multiple consumers to be able to consume messages and a higher rate, and the publisher is publishing in order to not delay the messages from being consumed fast enough. In the following series of lessons, we will take a look at how to implement the task queues in RabbitMQ."]
-
-        response = openai.Answer.create(
-            search_model="ada",
-            model="curie",
-            question=question,
-            documents=[text],
-            examples_context=document_list[0],
-            examples=[["What is RabbitMQ?","RabbitMQ is a message broker. It accepts and forwards messages. You can think about it as a post office: when you send mail to the post box you're guaranteed that somebody will eventually pick it up and take it where it needs to go. RabbitMQ is written in Erlang and uses AMQP, which is a protocol for message queuing."]],
-            max_tokens=150,
-            stop=["\n", "<|endoftext|>"],
-        )
-
-        print(response['answers'])
-
-        return Response({'ans': response['answers']}, status=status.HTTP_200_OK)
 
     '''
     Call this endpoint to delete a list of texts under one collection
