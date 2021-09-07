@@ -30,7 +30,8 @@ from celery import current_app
 import re
 import os
 import openai
-
+from rest_framework.views import APIView
+from rest_framework.throttling import ScopedRateThrottle
 #celery -A Briefly worker -l info -P gevent
 
 class VideoViewSet(viewsets.ModelViewSet):
@@ -182,38 +183,39 @@ class VideoViewSet(viewsets.ModelViewSet):
     #     serializer = self.get_serializer_class()(newest)
     #     return Response(serializer.data)
 
+    
     #use open ai api to add question answering feature
-    @action(methods=['POST'], detail=True, permission_classes = [IsAuthenticated])
-    def question_ans(self, request, *args, **kwargs):
-        user = request.user
-        video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
-        #get the complete text from database
-        text = video[0].audioText
-        print(text)
-        #get the question from frontend request
-        question = request.data.get('question', None)
-        #Abort if question is empty
-        if not question:
-            return Response("not question input", status=status.HTTP_400_BAD_REQUEST)
-        openai.api_key = os.getenv("openai_api")
-        # engine_list = openai.Engine.list()
-        document_list = ["In these series of lessons we'll be talking about task queues, we begin with having a director setup of a message queue with the publisher and consumer. The purpose of the task queue is to be able to distribute the workload of one queue into multiple consumers. So, let's take a look at this scenario where the publisher can publish ten messages per second and the consumer can only consume one message per second. In this scenario, the queue will continue to grow, as the consumer is not fast enough to to consume the messages at the rate that the publisher is sending. This is known as the slow consumer problem, so one way to get around the slow consumer is to have multiple consumers consuming the same queue. So then, the workload is distributed amongst those consumers by having multiple consumers were able to consume the messages at a higher rate, because we are able to dispatch multiple messages to multiple consumers. This is general idea behind the task queue set up to have multiple consumers to be able to consume messages and a higher rate, and the publisher is publishing in order to not delay the messages from being consumed fast enough. In the following series of lessons, we will take a look at how to implement the task queues in RabbitMQ."]
+    # @action(methods=['POST'], detail=True, permission_classes = [IsAuthenticated])
+    # def question_ans(self, request, *args, **kwargs):
+    #     user = request.user
+    #     video = Video.objects.filter(Q(pk=self.kwargs['pk']) & Q(collection__owner=user.pk))
+    #     #get the complete text from database
+    #     text = video[0].audioText
+    #     print(text)
+    #     #get the question from frontend request
+    #     question = request.data.get('question', None)
+    #     #Abort if question is empty
+    #     if not question:
+    #         return Response("not question input", status=status.HTTP_400_BAD_REQUEST)
+    #     openai.api_key = os.getenv("openai_api")
+    #     # engine_list = openai.Engine.list()
+    #     document_list = ["In these series of lessons we'll be talking about task queues, we begin with having a director setup of a message queue with the publisher and consumer. The purpose of the task queue is to be able to distribute the workload of one queue into multiple consumers. So, let's take a look at this scenario where the publisher can publish ten messages per second and the consumer can only consume one message per second. In this scenario, the queue will continue to grow, as the consumer is not fast enough to to consume the messages at the rate that the publisher is sending. This is known as the slow consumer problem, so one way to get around the slow consumer is to have multiple consumers consuming the same queue. So then, the workload is distributed amongst those consumers by having multiple consumers were able to consume the messages at a higher rate, because we are able to dispatch multiple messages to multiple consumers. This is general idea behind the task queue set up to have multiple consumers to be able to consume messages and a higher rate, and the publisher is publishing in order to not delay the messages from being consumed fast enough. In the following series of lessons, we will take a look at how to implement the task queues in RabbitMQ."]
 
-        response = openai.Answer.create(
-            search_model="ada",
-            model="curie",
-            question=question,
-            documents=[text],
-            examples_context=document_list[0],
-            examples=[["What is RabbitMQ?","RabbitMQ is a message broker. It accepts and forwards messages. You can think about it as a post office: when you send mail to the post box you're guaranteed that somebody will eventually pick it up and take it where it needs to go. RabbitMQ is written in Erlang and uses AMQP, which is a protocol for message queuing."]],
-            max_tokens=150,
-            stop=["\n", "<|endoftext|>"],
-        )
-        print('asdassa')
+    #     response = openai.Answer.create(
+    #         search_model="ada",
+    #         model="curie",
+    #         question=question,
+    #         documents=[text],
+    #         examples_context=document_list[0],
+    #         examples=[["What is RabbitMQ?","RabbitMQ is a message broker. It accepts and forwards messages. You can think about it as a post office: when you send mail to the post box you're guaranteed that somebody will eventually pick it up and take it where it needs to go. RabbitMQ is written in Erlang and uses AMQP, which is a protocol for message queuing."]],
+    #         max_tokens=150,
+    #         stop=["\n", "<|endoftext|>"],
+    #     )
+    #     print('asdassa')
 
-        print(response['answers'])
+    #     print(response['answers'])
 
-        return Response({'ans': response['answers']}, status=status.HTTP_200_OK)
+    #     return Response({'ans': response['answers']}, status=status.HTTP_200_OK)
 
     '''
     Call this url to begin transcribe from Amazon
@@ -1148,7 +1150,6 @@ def get_remaining(request):
 
 # This functionality is moved to .tasks handled by Celery in production
 def send_email(d):
-
     email_subject = 'You Default Summarization Is Ready at Briefly-AI!'
 
     # {{ username }}
@@ -1169,3 +1170,59 @@ def send_email(d):
     )
 
 
+class OpenAiEndpoint(APIView):
+    """
+    View to list all users in the system.
+
+    * Requires token authentication.
+    * Only admin users are able to access this view.
+    """
+    
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
+    permission_classes = [IsAuthenticated,VideoUserPermission]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'openai'
+    
+    def post(self, request, *args, **kwargs):
+        collection_id = kwargs.get('collection_id')
+        media_id = kwargs.get('media_id')
+        media = kwargs.get("media")
+        
+        user = request.user
+        #video = Video.objects.filter(Q(pk=video_id) & Q(collection__owner=user.pk))
+        if media == 'video':
+            video =  Video.objects.filter(pk=media_id)[0]
+            text = video.audioText
+        elif media == 'audio':
+            video = Audio.objects.filter(pk=media_id)[0]
+            text = video.audioText
+        elif media == 'text':
+            video = Text.objects.filter(pk=media_id)[0]
+            text = video.text
+        
+        #get the complete text from database
+        print(text)
+        #get the question from frontend request
+        question = request.data.get('question', None)
+        #Abort if question is empty
+        if not question:
+            return Response("not question input", status=status.HTTP_400_BAD_REQUEST)
+        openai.api_key = os.getenv("openai_api")
+        # engine_list = openai.Engine.list()
+        document_list = ["In these series of lessons we'll be talking about task queues, we begin with having a director setup of a message queue with the publisher and consumer. The purpose of the task queue is to be able to distribute the workload of one queue into multiple consumers. So, let's take a look at this scenario where the publisher can publish ten messages per second and the consumer can only consume one message per second. In this scenario, the queue will continue to grow, as the consumer is not fast enough to to consume the messages at the rate that the publisher is sending. This is known as the slow consumer problem, so one way to get around the slow consumer is to have multiple consumers consuming the same queue. So then, the workload is distributed amongst those consumers by having multiple consumers were able to consume the messages at a higher rate, because we are able to dispatch multiple messages to multiple consumers. This is general idea behind the task queue set up to have multiple consumers to be able to consume messages and a higher rate, and the publisher is publishing in order to not delay the messages from being consumed fast enough. In the following series of lessons, we will take a look at how to implement the task queues in RabbitMQ."]
+
+        response = openai.Answer.create(
+            search_model="ada",
+            model="curie",
+            question=question,
+            documents=[text],
+            examples_context=document_list[0],
+            examples=[["What is RabbitMQ?","RabbitMQ is a message broker. It accepts and forwards messages. You can think about it as a post office: when you send mail to the post box you're guaranteed that somebody will eventually pick it up and take it where it needs to go. RabbitMQ is written in Erlang and uses AMQP, which is a protocol for message queuing."]],
+            max_tokens=150,
+            stop=["\n", "<|endoftext|>"],
+        )
+        print('asdassa')
+
+        print(response['answers'])
+
+        return Response({'ans': response['answers']}, status=status.HTTP_200_OK)
