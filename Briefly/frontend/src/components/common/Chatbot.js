@@ -17,6 +17,7 @@ import { connect } from "react-redux";
 import axios from "axios";
 import { BASE_URL } from "../../redux/constant";
 import Cookies from "js-cookie";
+import { toast } from "react-toastify";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -66,7 +67,7 @@ function Chatbot({ mediaType, mediaId, collectionId, user }) {
       {
         type: "AI",
         content:
-          "Hi! I'm your AI assistant powered by GPT-3. Ask me any questions you want regarding this video content!",
+          "Hi! I'm your AI assistant powered by GPT-3. Ask me any questions you want regarding your content!",
         date: getUnixTime(),
         name: "AI",
       },
@@ -100,22 +101,29 @@ function Chatbot({ mediaType, mediaId, collectionId, user }) {
           "X-CSRFToken": Cookies.get("csrftoken"),
         },
       }
-    );
-
-    let answers = [];
-    res.data.ans.forEach((ans) => {
-      answers.push({
-        type: "AI",
-        content: ans,
-        date: getUnixTime(),
-        name: "AI",
-      });
+    ).catch(function (error) {
+      if (error.response.status === 429) {
+        toast.error("Max limit reached!");
+      } else {
+        toast.error("Please try again later");
+      }
     });
+    if (res.status === 200) {
+      let answers = [];
+      res.data.ans.forEach((ans) => {
+        answers.push({
+          type: "AI",
+          content: ans,
+          date: getUnixTime(),
+          name: "AI",
+        });
+      });
 
-    setChatList((prev) => [...prev, ...answers]);
+      setChatList((prev) => [...prev, ...answers]);
 
-    setSending(false);
-    setContent("");
+      setSending(false);
+      setContent("");
+    }
   };
 
   const getInitials = (firstName, lastName) => {
