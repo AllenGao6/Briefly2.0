@@ -15,6 +15,7 @@ class UserProfile(models.Model):
     location = models.CharField(max_length=50,default="Not provided")
     profession = models.CharField(max_length=50,default="Not provided")
     remaining_size = models.IntegerField(default=200*1024*1024)
+    is_vip = models.BooleanField(default=False)
     def __str__(self):
         return self.user.username
     

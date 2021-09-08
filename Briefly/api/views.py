@@ -32,6 +32,7 @@ import os
 import openai
 from rest_framework.views import APIView
 from rest_framework.throttling import ScopedRateThrottle
+from .throttles import OverrideScopedRateThrottle
 #celery -A Briefly worker -l info -P gevent
 
 class VideoViewSet(viewsets.ModelViewSet):
@@ -1180,7 +1181,7 @@ class OpenAiEndpoint(APIView):
     
     authentication_classes = [SessionAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated,VideoUserPermission]
-    throttle_classes = [ScopedRateThrottle]
+    throttle_classes = [OverrideScopedRateThrottle]
     throttle_scope = 'openai'
     
     def post(self, request, *args, **kwargs):

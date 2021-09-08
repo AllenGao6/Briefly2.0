@@ -96,10 +96,13 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ),
     'DEFAULT_THROTTLE_CLASSES': [
-        'rest_framework.throttling.ScopedRateThrottle',
+        'api.throttles.OverrideScopedRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
         'openai': '5/hour',
+    },
+    'OVERRIDE_THROTTLE_RATES': {
+        'vip': '10000/hour'
     }
 }
 
