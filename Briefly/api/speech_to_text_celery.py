@@ -162,7 +162,7 @@ def read_output(data):
 
     #process the sentence and split them 
     sentence_handler = SentenceHandler()
-    sentences = sentence_handler(complete_transcript, 5, 600)
+    sentences = sentence_handler(complete_transcript, 1, 600)
     word_count = get_sentence_words_count(sentences)
     # print(len(' '.join(sentences).split(' ')))
     #constant to track progress
@@ -253,7 +253,7 @@ def summarize(body_transcript, audio_text_timed, num_sentence=None, max_sentence
         sentence_dict[sentence['sentence']] = sentence
 
     summary_output = []
-    for sentence in sentence_handler(result, 5, 600):
+    for sentence in sentence_handler(result, 1, 600):
         summary_output.append(sentence_dict[sentence])
     
     return summary_output,num_sentence
