@@ -237,7 +237,7 @@ def get_video_Transcript(video_info, url, video_id, user_id):
     result = p.punctuate(notags)
     # sentence piece the whole audiotext
     sentence_handler = SentenceHandler()
-    sentences = sentence_handler(result, 5, 600)
+    sentences = sentence_handler(result, 1, 600)
 
     sentence_count = get_sentence_words_count(sentences)
     term_count = process_transcript(transcript)
